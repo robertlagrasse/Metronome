@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Metronome</string>
+    <string name="kit_name">Kit Name</string>
+    <string name="billboard_text">Eat at Joe\'s!</string>
+    <string name="jam_name">Jam Name</string>
+    <string name="pattern_name">Pattern Name</string>
+    <string name="jamID">jam-db-id</string>
+</resources>
