@@ -28,6 +28,9 @@ public class dbContract {
     public static Uri buildPatternUri(){
         return CONTENT_AUTHORITY.buildUpon().appendPath(PatternTable.TABLE_NAME).build();
     }
+    public static Uri buildPatternBySignatureURI(String sequence){
+        return buildPatternUri().buildUpon().appendPath(PatternTable.SEQUENCE).appendPath(sequence).build();
+    }
     public static Uri buildJamUri(){
         return CONTENT_AUTHORITY.buildUpon().appendPath(JamTable.TABLE_NAME).build();
     }

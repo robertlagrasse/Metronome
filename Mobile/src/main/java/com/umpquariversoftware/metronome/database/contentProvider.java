@@ -183,6 +183,20 @@ public class contentProvider extends ContentProvider {
                 );
                 break;
             }
+
+            case PATTERN_BY_SEQUENCE:{
+                Log.e("ContentProvider", "uri.getPathSegments().get(2): " + uri.getPathSegments().get(2));
+                retCursor = databaseManager.getReadableDatabase().query(
+                        dbContract.PatternTable.TABLE_NAME,
+                        projection,
+                        dbContract.PatternTable.SEQUENCE + " = ?",
+                        new String[]{uri.getPathSegments().get(2)},
+                        null,
+                        null,
+                        null
+                );
+                break;
+            }
             case PATTERN_BY_ID:{
                 retCursor = databaseManager.getReadableDatabase().query(
                         dbContract.PatternTable.TABLE_NAME,

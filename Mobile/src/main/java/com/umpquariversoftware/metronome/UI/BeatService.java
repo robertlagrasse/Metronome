@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Build;
 import android.util.Log;
@@ -35,8 +37,6 @@ public class BeatService extends IntentService {
     static Timer mTimer = new Timer();
     private static long mJamID = 0;
 
-    private static final String ACTION="com.umpquariversoftware.metronome.UI.STARTSTOP";
-    private BroadcastReceiver BeatReceiver = new startStopReceiver();
 
     public BeatService() {
         super("BeatService");
@@ -57,17 +57,11 @@ public class BeatService extends IntentService {
 
         isRunning = false;
         mContext = getApplicationContext();
-
-//        IntentFilter filter = new IntentFilter();
-//        filter.addAction(ACTION);
-//        registerReceiver(BeatReceiver, filter);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // Do not forget to unregister the receiver!!!
-//        this.unregisterReceiver(this.BeatReceiver);
         Log.e("BeatService", "onDestroy");
     }
 
@@ -182,35 +176,92 @@ public class BeatService extends IntentService {
     }
 
     private static void startTimer(){
+
+        int PRIORITY = 1;
+
+        /**
+         * Setup some basic audio attributes
+         * */
+        AudioAttributes audioAttrib = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build();
+
+        /**
+         * Setup the soundpool.
+         * Attach the attributes.
+         * MaxStreams indicates the maximum number of simultaneous sounds
+         * */
+
+        final SoundPool soundPool = new SoundPool.Builder()
+                .setAudioAttributes(audioAttrib)
+                .setMaxStreams(8)
+                .build();
+
+        /**
+         * When a resource is loaded into a sound pool, it returns a Sound ID.
+         * The Sound ID is what is actually referenced to play the sound
+         * We iterate through the resources in the Kit, and add them
+         * to the sound pool. We add the SoundIDs to an arraylist.
+         *
+         * */
+
+        final ArrayList<Integer> soundIDs = new ArrayList<Integer>();
+        // Iterate through the kit
+
+        for(int x=0;x<8;++x){
+            soundIDs.add(soundPool.load(mContext,
+                    mJam.getKit().getComponents().get(x).getResource(),
+                    PRIORITY));
+        }
+
+        /**
+         * Setup the timer
+         * */
+
         mTimer = null;
         mTimer = new Timer();
         mTimer.scheduleAtFixedRate(new TimerTask() {
 
-                                       BeatService.SoundPoolPlayer sound = new BeatService.SoundPoolPlayer(mContext, mJam.getKit());
-                                       int position = 0;
+            /**
+             * position tracks where we are in the pattern. Each time
+             * the timer ticks, we play the necessary sounds associated
+             * with this beat, and then increment position.
+             *
+             * Position resets to 0 when it matches pattern length, which
+             * keeps the pattern repeating indefinitely.
+             *
+             * */
+           int position = 0;
 
-                                       @Override
-                                       public void run() {
-                                           Beat beat = new Beat();
-                                           if (position == mJam.getPattern().getLength()) {
-                                               position = 0;
-                                           }
-                                           beat = mJam.getPattern().getBeat(position);
-                                           // Iterate through each of the 8 components in the beat
-                                           // Play it if marked true
-                                           for(int x=0;x<8;++x){
-                                               if(beat.getPosition(x)){
-                                                   sound.playShortResource(mJam.getKit().getComponents().get(x).getResource());
-                                               }
-                                           }
-                                           position++;
-                                       }
+           @Override
+           public void run() {
+               if (position == mJam.getPattern().getLength()) {
+                   position = 0;
+               }
 
-                                   },
-                //Set how long before to startButton calling the TimerTask (in milliseconds)
-                0,
-                //Set the amount of time between each execution (in milliseconds)
-                mJam.getInterval());
+               /**
+                * Extract the beat at this position in the pattern.
+                * Each position in the beat is just a boolean.
+                * We iterate through each position in the beat.
+                * If the beat is true, the corresponding soundID
+                * from the array list is played.
+                * */
+
+
+               for(int x=0;x<8;++x){
+                   if(mJam.getPattern().getBeat(position).getPosition(x)){
+                       // Play the soundpool resource in position X
+                       soundPool.play(soundIDs.get(x),1,1,1,0,1);
+                   }
+               }
+               position++;
+           }
+       },
+        //Set how long before to startButton calling the TimerTask (in milliseconds)
+        0,
+        //Set the amount of time between each execution (in milliseconds)
+        mJam.getInterval());
     }
 
     private static void stopTimer(){
@@ -259,40 +310,4 @@ public class BeatService extends IntentService {
         }
     }
 
-    public static class SoundPoolPlayer {
-        private SoundPool mShortPlayer= null;
-        private HashMap mSounds = new HashMap();
-
-
-        public SoundPoolPlayer(Context pContext, Kit kit)
-        {
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                this.mShortPlayer = new SoundPool.Builder().build();
-            } else {
-                this.mShortPlayer = new SoundPool(4, AudioManager.STREAM_MUSIC, 0);
-                // Deprecated constructor.
-            }
-
-            // Get components from kit
-            ArrayList<Component> components = kit.getComponents();
-
-            // Iterate through components, extract resource ID, add to soundpool
-            for(int x=0;x<components.size();x++){
-                mSounds.put(components.get(x).getResource(), this.mShortPlayer.load(pContext, components.get(x).getResource(),1));
-            }
-        }
-
-        public void playShortResource(int piResource) {
-            int iSoundId = (Integer) mSounds.get(piResource);
-            this.mShortPlayer.play(iSoundId, 0.99f, 0.99f, 0, 0, 1);
-        }
-
-        // Cleanup
-        public void release() {
-            // Cleanup
-            this.mShortPlayer.release();
-            this.mShortPlayer = null;
-        }
-    }
 }

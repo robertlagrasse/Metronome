@@ -6,4 +6,8 @@
     <string name="pattern_name">Pattern Name</string>
     <string name="jamID">jam-db-id</string>
     <string name="beat">Current Beat:</string>
+    <string name="enter_pattern_name">Enter Pattern Name:</string>
+    <string name="content_test">content test</string>
+    <string name="input_hint" />
+    <string name="input_prefill" />
 </resources>

@@ -107,6 +107,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private static final int KIT_LOADER_ID = 1;
     private static final int JAM_LOADER_ID = 2;
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getLoaderManager().restartLoader(PATTERN_LOADER_ID, null, this);
+        getLoaderManager().restartLoader(KIT_LOADER_ID, null, this);
+        getLoaderManager().restartLoader(JAM_LOADER_ID, null, this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -220,6 +227,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         getMenuInflater().inflate(R.menu.menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
+
 
     public void setupTempoChooser(){
         int tempo = mJam.getTempo();

@@ -1,15 +1,22 @@
 package com.umpquariversoftware.metronome.patternEditor;
 
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.media.Image;
 import android.net.Uri;
+import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
@@ -21,18 +28,20 @@ import com.umpquariversoftware.metronome.elements.Pattern;
 
 import java.util.ArrayList;
 
+import static com.umpquariversoftware.metronome.database.dbContract.buildPatternBySignatureURI;
 import static com.umpquariversoftware.metronome.database.dbContract.buildPatternUri;
 
 public class PatternEditor extends AppCompatActivity {
     int currentBeat = 1;
     Pattern pattern = new Pattern("New Pattern", "0102030405060708", null);
     Beat beat = new Beat();
+    Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pattern_editor);
-
+        mContext = this;
 
         /**
          * Build a basic pattern so you have something to display
@@ -294,16 +303,35 @@ public class PatternEditor extends AppCompatActivity {
                 // is in the DB, or asking for a new pattern name
                 // Once everything checks out, drop values into
                 // CV pairs, and send to the db
+                Log.e("PatternEditor", "patternSave.OnClick. Querying DB for pattern.getPatternHexSignature():  " +
+                        pattern.getPatternHexSignature());
 
-                ContentValues contentValues;
+                Cursor cursor = getContentResolver().query(buildPatternBySignatureURI(pattern.getPatternHexSignature()),
+                        null,null,null,null);
+                Log.e("PatternEditor", "patternSave.onClick DB query cursor.getCount():   " +
+                        cursor.getCount());
 
-                contentValues = new ContentValues();
-                contentValues.put(dbContract.PatternTable.NAME, "Default Pattern");
-                contentValues.put(dbContract.PatternTable.SEQUENCE, "01");
+                if(cursor.getCount()!=0){
+                    // Tell the user the pattern already exists. Show name.
+                } else {
+                    new MaterialDialog.Builder(mContext).title(R.string.enter_pattern_name)
+                            .content(R.string.content_test)
+                            .inputType(InputType.TYPE_CLASS_TEXT)
+                            .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
+                                @Override
+                                public void onInput(MaterialDialog dialog, CharSequence input) {
+                                    ContentValues contentValues;
 
-                Uri i = getContentResolver().insert(buildPatternUri(), contentValues);
-                Log.e("CreatePatternTable", "insert() Returned URI:" + i.toString());
+                                    contentValues = new ContentValues();
+                                    contentValues.put(dbContract.PatternTable.NAME, input.toString());
+                                    contentValues.put(dbContract.PatternTable.SEQUENCE, pattern.getPatternHexSignature());
 
+                                    Uri i = getContentResolver().insert(buildPatternUri(), contentValues);
+                                    Log.e("CreatePatternTable", "insert() Returned URI:" + i.toString());
+                                }
+                            })
+                            .show();
+                }
             }
         });
 
