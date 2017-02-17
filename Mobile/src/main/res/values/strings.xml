@@ -10,4 +10,6 @@
     <string name="content_test">content test</string>
     <string name="input_hint" />
     <string name="input_prefill" />
+    <string name="alertOK">OK</string>
+    <string name="pattern_exists">This pattern already exists!\nIt\'s called:</string>
 </resources>

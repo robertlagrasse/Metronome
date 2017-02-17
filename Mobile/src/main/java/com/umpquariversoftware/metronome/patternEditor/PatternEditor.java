@@ -1,5 +1,6 @@
 package com.umpquariversoftware.metronome.patternEditor;
 
+import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -312,7 +314,32 @@ public class PatternEditor extends AppCompatActivity {
                         cursor.getCount());
 
                 if(cursor.getCount()!=0){
+                    cursor.moveToFirst();
+                    String patternName = cursor.getString(cursor.getColumnIndex(dbContract.PatternTable.NAME));
+                    cursor.close();
+
                     // Tell the user the pattern already exists. Show name.
+                    final Dialog dialog = new Dialog(mContext);
+
+                    dialog.setContentView(R.layout.alert_dialog);
+                    dialog.setTitle("EXISTS!");
+
+                    TextView alertText = (TextView) dialog.findViewById(R.id.alertText);
+                    alertText.setText(R.string.pattern_exists);
+
+                    TextView alertText2 = (TextView) dialog.findViewById(R.id.alertText2);
+                    alertText2.setText(patternName);
+
+
+                    Button okButton = (Button) dialog.findViewById(R.id.alertOK);
+                    okButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialog.cancel();
+                        }
+                    });
+                    dialog.show();
+
                 } else {
                     new MaterialDialog.Builder(mContext).title(R.string.enter_pattern_name)
                             .content(R.string.content_test)
