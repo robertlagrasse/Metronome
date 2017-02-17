@@ -23,8 +23,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SnapHelper;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -39,6 +43,7 @@ import com.umpquariversoftware.metronome.elements.Component;
 import com.umpquariversoftware.metronome.elements.Jam;
 import com.umpquariversoftware.metronome.elements.Kit;
 import com.umpquariversoftware.metronome.elements.Pattern;
+import com.umpquariversoftware.metronome.patternEditor.PatternEditor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,11 +85,10 @@ import static com.umpquariversoftware.metronome.database.dbContract.*;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     String TAG = "MainActivity";
-    Timer mTimer = new Timer();
     Jam mJam = new Jam();
     String mKitID, mPatternID;
-    Boolean isRunning = false;
     Boolean beatServiceRunning = false;
+    private Toolbar toolbar;
 
     /**
      *  Three cursor adapters and their associated loaders.
@@ -113,9 +117,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
          * */
 
         if (savedInstanceState != null){
-            Log.e(TAG, "onCreate(): savedInstanceState != null. Service already running. ");
+            // Already running.
         } else {
-            Log.e(TAG, "onCreate(): savedInstanceState == null. Setting flag to start service. ");
             beatServiceRunning = false;
         }
 
@@ -126,6 +129,24 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         setContentView(R.layout.activity_main);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+
+        /**
+         * Setup the toolbar and its buttons
+         * */
+
+        toolbar= (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        ImageView patternEditorButton = (ImageView) findViewById(R.id.patternEditorButton);
+
+
+        patternEditorButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getApplicationContext(), PatternEditor.class);
+                startActivity(i);
+            }
+        });
 
         /**
          * Is this the first time we've ever run?
@@ -189,6 +210,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
     public void setupTempoChooser(){
         int tempo = mJam.getTempo();
         SeekBar tempoBar = (SeekBar) findViewById(R.id.tempoBar);
@@ -234,6 +266,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                         // read info, do stuff.
                         Log.e("recyclerview", "clicked " + position);
                     }
+
                 }));
 
         patternRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -261,6 +294,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 }
             }
         });
+
+
     }
 
     public void setupKitChooser(){
@@ -421,43 +456,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 sendBeatBroadcast();
             }
         });
-    }
-
-    public void tempoTimerStart(){
-        mTimer.scheduleAtFixedRate(new TimerTask() {
-
-                                      SoundPoolPlayer sound = new SoundPoolPlayer(getApplicationContext(), mJam.getKit());
-                                      int position = 0;
-
-                                      @Override
-                                      public void run() {
-                                          Beat beat = new Beat();
-                                          if (position == mJam.getPattern().getLength()) {
-                                              position = 0;
-                                          }
-                                          beat = mJam.getPattern().getBeat(position);
-                                          // Iterate through each of the 8 components in the beat
-                                          // Play it if marked true
-                                          for(int x=0;x<8;++x){
-                                              if(beat.getPosition(x)){
-                                                  sound.playShortResource(mJam.getKit().getComponents().get(x).getResource());
-                                              }
-                                          }
-                                          position++;
-                                      }
-
-                                  },
-                //Set how long before to startButton calling the TimerTask (in milliseconds)
-                0,
-                //Set the amount of time between each execution (in milliseconds)
-                mJam.getInterval());
-        isRunning = true;
-    }
-
-    public void tempoTimerStop(){
-        isRunning = false;
-        mTimer.cancel();
-        mTimer.purge();
     }
 
     @Override
@@ -691,27 +689,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         kitName.setText(kit.getName());
     }
 
-    private void graphPattern(Pattern pattern){
-        GraphView graph = (GraphView) findViewById(R.id.patternGraph);
-
-        PointsGraphSeries<DataPoint> series = new PointsGraphSeries<>();
-        series = pattern.getPatternDataPoints();
-
-        graph.getViewport().setXAxisBoundsManual(true);
-        graph.getViewport().setMinX(0.5);
-        graph.getViewport().setMaxX(pattern.getLength() + 0.5);
-
-        // set manual Y bounds
-        graph.getViewport().setYAxisBoundsManual(true);
-        graph.getViewport().setMinY(1);
-        graph.getViewport().setMaxY(8);
-
-        StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graph);
-        staticLabelsFormatter.setVerticalLabels(new String[] {"one", "two", "three", "four", "five", "six", "seven", "eight"});
-        graph.getGridLabelRenderer().setLabelFormatter(staticLabelsFormatter);
-
-        graph.addSeries(series);
-    }
 
     private void createComponentsTable(){
         ContentValues contentValues;
@@ -1007,7 +984,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     protected void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
-        outState.putInt(String.valueOf(R.string.jamID), mJam.getDbID());
+        outState.putInt("jamID", mJam.getDbID());
         Log.e("onSaveInstanceState", "writing...");
     }
 

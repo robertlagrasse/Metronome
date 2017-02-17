@@ -5,4 +5,5 @@
     <string name="jam_name">Jam Name</string>
     <string name="pattern_name">Pattern Name</string>
     <string name="jamID">jam-db-id</string>
+    <string name="beat">Current Beat:</string>
 </resources>
