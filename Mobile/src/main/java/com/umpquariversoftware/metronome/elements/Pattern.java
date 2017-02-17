@@ -131,4 +131,13 @@ public class Pattern {
         return series;
     }
 
+    public void insertBeat (Beat beat, int position){
+        this.beats.add(position, beat);
+    }
+
+    public void removeBeat (int position){
+
+        this.beats.remove(position);
+    }
+
 }

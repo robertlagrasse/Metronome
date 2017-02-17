@@ -1,6 +1,8 @@
 package com.umpquariversoftware.metronome.patternEditor;
 
+import android.content.ContentValues;
 import android.media.Image;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,10 +15,13 @@ import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.PointsGraphSeries;
 import com.umpquariversoftware.metronome.R;
+import com.umpquariversoftware.metronome.database.dbContract;
 import com.umpquariversoftware.metronome.elements.Beat;
 import com.umpquariversoftware.metronome.elements.Pattern;
 
 import java.util.ArrayList;
+
+import static com.umpquariversoftware.metronome.database.dbContract.buildPatternUri;
 
 public class PatternEditor extends AppCompatActivity {
     int currentBeat = 1;
@@ -86,6 +91,8 @@ public class PatternEditor extends AppCompatActivity {
         ImageView patternBeatLast = (ImageView) findViewById(R.id.patternBeatLast);
         ImageView patternBeatNext = (ImageView) findViewById(R.id.patternBeatNext);
         ImageView patternBeatNew = (ImageView) findViewById(R.id.patternBeatNew);
+        ImageView patternBeatDelete = (ImageView) findViewById(R.id.patternBeatDelete);
+        ImageView patternSave = (ImageView) findViewById(R.id.patternSave);
         TextView patternBeatDisplay = (TextView) findViewById(R.id.patternBeatDisplay);
 
         ImageView first = (ImageView) findViewById(R.id.first);
@@ -100,9 +107,11 @@ public class PatternEditor extends AppCompatActivity {
         if(pattern.getLength() == 1){
             patternBeatLast.setVisibility(View.INVISIBLE);
             patternBeatNext.setVisibility(View.INVISIBLE);
+            patternBeatDelete.setVisibility(View.INVISIBLE);
         } else {
             patternBeatLast.setVisibility(View.VISIBLE);
             patternBeatNext.setVisibility(View.VISIBLE);
+            patternBeatDelete.setVisibility(View.VISIBLE);
         }
 
         if(currentBeat == 1){
@@ -161,6 +170,8 @@ public class PatternEditor extends AppCompatActivity {
             eighth.setImageResource(R.drawable.numeric_8_box_outline);
         }
 
+
+
         patternBeatLast.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -179,18 +190,11 @@ public class PatternEditor extends AppCompatActivity {
             }
         });
 
-        patternBeatNew.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.e("patternBeatNew","currentBeat: " + currentBeat);
-            }
-        });
 
         first.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 pattern.getBeat(currentBeat-1).setFIRST(!pattern.getBeat(currentBeat-1).getFirst());
-                Log.e("onClick", "signature: " + pattern.getPatternHexSignature());
                 setupButtons();
                 graphPattern();
             }
@@ -200,7 +204,6 @@ public class PatternEditor extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 pattern.getBeat(currentBeat-1).setSECOND(!pattern.getBeat(currentBeat-1).getSecond());
-                Log.e("onClick", "signature: " + pattern.getPatternHexSignature());
                 setupButtons();
                 graphPattern();
             }
@@ -210,7 +213,6 @@ public class PatternEditor extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 pattern.getBeat(currentBeat-1).setTHIRD(!pattern.getBeat(currentBeat-1).getThird());
-                Log.e("onClick", "signature: " + pattern.getPatternHexSignature());
                 setupButtons();
                 graphPattern();
             }
@@ -220,7 +222,6 @@ public class PatternEditor extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 pattern.getBeat(currentBeat-1).setFOURTH(!pattern.getBeat(currentBeat-1).getFourth());
-                Log.e("onClick", "signature: " + pattern.getPatternHexSignature());
                 setupButtons();
                 graphPattern();
             }
@@ -230,7 +231,6 @@ public class PatternEditor extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 pattern.getBeat(currentBeat-1).setFIFTH(!pattern.getBeat(currentBeat-1).getFifth());
-                Log.e("onClick", "signature: " + pattern.getPatternHexSignature());
                 setupButtons();
                 graphPattern();
             }
@@ -240,7 +240,6 @@ public class PatternEditor extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 pattern.getBeat(currentBeat-1).setSIXTH(!pattern.getBeat(currentBeat-1).getSixth());
-                Log.e("onClick", "signature: " + pattern.getPatternHexSignature());
                 setupButtons();
                 graphPattern();
             }
@@ -250,7 +249,6 @@ public class PatternEditor extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 pattern.getBeat(currentBeat-1).setSEVENTH(!pattern.getBeat(currentBeat-1).getSeventh());
-                Log.e("onClick", "signature: " + pattern.getPatternHexSignature());
                 setupButtons();
                 graphPattern();
             }
@@ -260,11 +258,55 @@ public class PatternEditor extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 pattern.getBeat(currentBeat-1).setEIGHTH(!pattern.getBeat(currentBeat-1).getEighth());
-                Log.e("onClick", "signature: " + pattern.getPatternHexSignature());
                 setupButtons();
                 graphPattern();
             }
         });
+
+        patternBeatNew.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Beat beat = new Beat("FF");
+                pattern.insertBeat(beat, currentBeat);
+                currentBeat++;
+                setupButtons();
+                graphPattern();
+            }
+        });
+
+        patternBeatDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pattern.removeBeat(currentBeat-1);
+                if(pattern.getLength()<currentBeat){
+                    currentBeat = pattern.getLength();
+                }
+                setupButtons();
+                graphPattern();
+            }
+        });
+
+        patternSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Check to see if the current pattern exists in the database
+                // Pop up a dialog box either telling the user the pattern
+                // is in the DB, or asking for a new pattern name
+                // Once everything checks out, drop values into
+                // CV pairs, and send to the db
+
+                ContentValues contentValues;
+
+                contentValues = new ContentValues();
+                contentValues.put(dbContract.PatternTable.NAME, "Default Pattern");
+                contentValues.put(dbContract.PatternTable.SEQUENCE, "01");
+
+                Uri i = getContentResolver().insert(buildPatternUri(), contentValues);
+                Log.e("CreatePatternTable", "insert() Returned URI:" + i.toString());
+
+            }
+        });
+
     }
 
 }

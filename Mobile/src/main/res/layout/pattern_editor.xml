@@ -166,6 +166,7 @@
                 android:orientation="horizontal">
 
                 <ImageButton
+                    android:id="@+id/patternBeatDelete"
                     android:layout_width="?listPreferredItemHeightLarge"
                     android:layout_height="?listPreferredItemHeightLarge"
                     android:layout_weight="1"
@@ -173,6 +174,7 @@
                     android:scaleType="fitCenter" />
 
                 <ImageButton
+                    android:id="@+id/patternSave"
                     android:layout_width="?listPreferredItemHeightLarge"
                     android:layout_height="?listPreferredItemHeightLarge"
                     android:layout_weight="1"

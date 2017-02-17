@@ -11,35 +11,77 @@ import android.util.Log;
 public class contentProvider extends ContentProvider {
     DatabaseManager databaseManager;
 
+    final int COMPONENT = 0;
+    final int ALL_KITS = 1;
+    final int KIT_BY_ID = 2;
+    final int ALL_PATTERNS = 3;
+    final int PATTERN_BY_ID = 4;
+    final int PATTERN_BY_SEQUENCE = 5;
+    final int ALL_JAMS = 6;
+    final int JAM_BY_ID = 7;
+
     public contentProvider() {
+    }
+
+    private int uriSwitcher(Uri uri){
+        switch(uri.getPathSegments().get(0)){
+            case dbContract.ComponentTable.TABLE_NAME:{
+                Log.e("contentProvider","uriSwitcher() Matched COMPONENT");
+                return COMPONENT;
+            }
+            case dbContract.KitTable.TABLE_NAME:{
+                if(uri.getLastPathSegment().equals(dbContract.KitTable.TABLE_NAME)){
+                    Log.e("contentProvider","uriSwitcher() Matched ALL_KITS");
+                    return ALL_KITS;
+                } else {
+                    Log.e("contentProvider","uriSwitcher() Matched KIT_BY_ID");
+                    return KIT_BY_ID;
+                }
+            }
+            case dbContract.PatternTable.TABLE_NAME:{
+                if(uri.getLastPathSegment().equals(dbContract.PatternTable.TABLE_NAME)){
+                    Log.e("contentProvider","uriSwitcher() Matched ALL_PATTERNS");
+                    return ALL_PATTERNS;
+                } else if(uri.getPathSegments().get(1).equals(dbContract.PatternTable.SEQUENCE)){
+                    Log.e("contentProvider","uriSwitcher() Matched PATTERN_BY_SEQUENCE");
+                    return PATTERN_BY_SEQUENCE;
+                } else {
+                    Log.e("contentProvider","uriSwitcher() Matched PATTERN_BY_ID");
+                    return PATTERN_BY_ID;
+                }
+            }
+            case dbContract.JamTable.TABLE_NAME:{
+                if(uri.getLastPathSegment().equals(dbContract.JamTable.TABLE_NAME)){
+                    Log.e("contentProvider","uriSwitcher() Matched ALL_JAMS");
+                    return ALL_JAMS;
+                } else {
+                    Log.e("contentProvider","uriSwitcher() Matched JAM_BY_ID");
+                    return JAM_BY_ID;
+                }
+            }
+        }
+        return -1;
     }
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = databaseManager.getWritableDatabase();
         long _id = 0;
-        switch (uri.getPathSegments().get(0)){
-            case dbContract.ComponentTable.TABLE_NAME:{
-                // delete from component table
+        Log.e("contentProvider","delete() calling uriSwitcher() with uri: " + uri.toString());
+        switch (uriSwitcher(uri)){
+            case COMPONENT:{
                 _id = db.delete(dbContract.ComponentTable.TABLE_NAME, selection, selectionArgs);
             }
-            case dbContract.KitTable.TABLE_NAME:{
-                // delete from kit table
+            case ALL_KITS:{
                 _id = db.delete(dbContract.KitTable.TABLE_NAME, selection, selectionArgs);
             }
-            case dbContract.PatternTable.TABLE_NAME:{
-                // delete from pattern table
+            case ALL_PATTERNS:{
                 _id = db.delete(dbContract.PatternTable.TABLE_NAME, selection, selectionArgs);
             }
-            case dbContract.JamTable.TABLE_NAME:{
-                // delete from jam table
+            case ALL_JAMS:{
                 _id = db.delete(dbContract.JamTable.TABLE_NAME, selection, selectionArgs);
-                Log.e("contentProvider","delete matched jam table");
-
             }
         }
-
-        Log.e("contentProvider","delete() called with uri: " + uri.toString());
         return (int) _id;
     }
 
@@ -53,28 +95,22 @@ public class contentProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues values) {
         final SQLiteDatabase db = databaseManager.getWritableDatabase();
         long _id = 0;
-        switch (uri.getPathSegments().get(0)){
-            case dbContract.ComponentTable.TABLE_NAME:{
-                // insert to component table
-                Log.e("insert()","matched Component");
+
+        Log.e("contentProvider","insert() calling uriSwitcher() with uri: " + uri.toString());
+        switch (uriSwitcher(uri)){
+            case COMPONENT:{
                 _id = db.insert(dbContract.ComponentTable.TABLE_NAME, null, values);
                 break;
             }
-            case dbContract.KitTable.TABLE_NAME:{
-                // insert to kit table
-                Log.e("insert()","matched Kit");
+            case ALL_KITS:{
                 _id = db.insert(dbContract.KitTable.TABLE_NAME, null, values);
                 break;
             }
-            case dbContract.PatternTable.TABLE_NAME:{
-                // insert to pattern table
-                Log.e("insert()","matched Pattern");
+            case ALL_PATTERNS:{
                 _id = db.insert(dbContract.PatternTable.TABLE_NAME, null, values);
                 break;
             }
-            case dbContract.JamTable.TABLE_NAME:{
-                // insert to jam table
-                Log.e("insert()","matched Jam");
+            case ALL_JAMS:{
                 _id = db.insert(dbContract.JamTable.TABLE_NAME, null, values);
                 break;
             }
@@ -84,7 +120,7 @@ public class contentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        Log.e("contentProvider","onCreate called");
+        Log.e("contentProvider","onCreate() called");
         databaseManager = new DatabaseManager(getContext());
         return false;
     }
@@ -95,11 +131,9 @@ public class contentProvider extends ContentProvider {
 
         Cursor retCursor = null;
 
-        switch (uri.getPathSegments().get(0)){
-            case dbContract.ComponentTable.TABLE_NAME:{
-                // query component table
-//                Log.e("contentProvider", "Matched component URI via case/switch");
-//                Log.e("contentProvider", uri.getPathSegments().get(1));
+        Log.e("contentProvider","query() calling uriSwitcher() with uri: " + uri.toString());
+        switch(uriSwitcher(uri)){
+            case COMPONENT:{
                 retCursor = databaseManager.getReadableDatabase().query(
                         dbContract.ComponentTable.TABLE_NAME,
                         projection,
@@ -111,21 +145,20 @@ public class contentProvider extends ContentProvider {
                 );
                 break;
             }
-            case dbContract.KitTable.TABLE_NAME:{
-//                // query kit table
-//                Log.e("contentProvider","Matched kit URI via case/switch");
-                if(uri.getLastPathSegment().equals(dbContract.KitTable.TABLE_NAME)){
-//                    Log.e("contentProvider", "Requested all kits");
-                    retCursor = databaseManager.getReadableDatabase().query(
-                            dbContract.KitTable.TABLE_NAME,
-                            projection,
-                            selection,
-                            selectionArgs,
-                            null,
-                            null,
-                            sortOrder
-                    );
-                } else {
+            case ALL_KITS: {
+                retCursor = databaseManager.getReadableDatabase().query(
+                        dbContract.KitTable.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+
+            case KIT_BY_ID:{
                 retCursor = databaseManager.getReadableDatabase().query(
                         dbContract.KitTable.TABLE_NAME,
                         projection,
@@ -135,52 +168,47 @@ public class contentProvider extends ContentProvider {
                         null,
                         null
                 );
-                }
                 break;
             }
-            case dbContract.PatternTable.TABLE_NAME:{
-                // query pattern table
-//                Log.e("contentProvider","Matched pattern URI via case/switch");
-                if(uri.getLastPathSegment().equals(dbContract.PatternTable.TABLE_NAME)){
-//                    Log.e("contentProvider", "Requested all patterns");
-                    retCursor = databaseManager.getReadableDatabase().query(
-                            dbContract.PatternTable.TABLE_NAME,
-                            projection,
-                            selection,
-                            selectionArgs,
-                            null,
-                            null,
-                            sortOrder
-                    );                } else {
-//                    Log.e("contentProvider", "Requested a single pattern");
-                    retCursor = databaseManager.getReadableDatabase().query(
-                            dbContract.PatternTable.TABLE_NAME,
-                            projection,
-                            dbContract.PatternTable.ID + " = ?",
-                            new String[]{uri.getPathSegments().get(1)},
-                            null,
-                            null,
-                            null
-                    );
-                }
-                break;
-            }
-            case dbContract.JamTable.TABLE_NAME:{
-                // query jam table
-//                Log.e("contentProvider","Matched jam URI via case/switch");
-                if(uri.getLastPathSegment().equals(dbContract.JamTable.TABLE_NAME)){
-                    retCursor = databaseManager.getReadableDatabase().query(
-                            dbContract.JamTable.TABLE_NAME,
-                            projection,
-                            selection,
-                            selectionArgs,
-                            null,
-                            null,
-                            sortOrder
-                    );
-                } else {
 
-                    retCursor = databaseManager.getReadableDatabase().query(
+            case ALL_PATTERNS: {
+                retCursor = databaseManager.getReadableDatabase().query(
+                        dbContract.PatternTable.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+            case PATTERN_BY_ID:{
+                retCursor = databaseManager.getReadableDatabase().query(
+                        dbContract.PatternTable.TABLE_NAME,
+                        projection,
+                        dbContract.PatternTable.ID + " = ?",
+                        new String[]{uri.getPathSegments().get(1)},
+                        null,
+                        null,
+                        null
+                );
+                break;
+            }
+            case ALL_JAMS:{
+                retCursor = databaseManager.getReadableDatabase().query(
+                        dbContract.JamTable.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+            case JAM_BY_ID:{
+                retCursor = databaseManager.getReadableDatabase().query(
                         dbContract.JamTable.TABLE_NAME,
                         projection,
                         dbContract.JamTable.ID + " = ?",
@@ -188,39 +216,32 @@ public class contentProvider extends ContentProvider {
                         null,
                         null,
                         null
-                );}
+                );
                 break;
             }
         }
-
-//        Log.e("contentProvider","query() called with uri: " + uri.toString());
         return retCursor;
     }
 
     @Override
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
+        Log.e("contentProvider","update() calling uriSwitcher() with uri: " + uri.toString());
 
-        switch (uri.getPathSegments().get(0)){
-            case dbContract.ComponentTable.TABLE_NAME:{
+        switch (uriSwitcher(uri)){
+            case COMPONENT:{
                 // update component table
-                Log.e("contentProvider","Matched component URI via case/switch");
             }
-            case dbContract.KitTable.TABLE_NAME:{
+            case ALL_KITS:{
                 // update kit table
-                Log.e("contentProvider","Matched kit URI via case/switch");
             }
-            case dbContract.PatternTable.TABLE_NAME:{
+            case ALL_PATTERNS:{
                 // update pattern table
-                Log.e("contentProvider","Matched pattern URI via case/switch");
             }
-            case dbContract.JamTable.TABLE_NAME:{
+            case ALL_JAMS:{
                 // update jam table
-                Log.e("contentProvider","Matched jam URI via case/switch");
             }
         }
-
-        Log.e("contentProvider","update() called with uri: " + uri.toString());
         return 0;
     }
 }
