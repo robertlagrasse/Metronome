@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
 
@@ -19,6 +20,10 @@ public class contentProvider extends ContentProvider {
     final int PATTERN_BY_SEQUENCE = 5;
     final int ALL_JAMS = 6;
     final int JAM_BY_ID = 7;
+    final int JAM_BY_ATTRIBUTES = 8;
+    final int COMPONENT_BY_DB_ID = 9;
+    final int ALL_COMPONENTS = 10;
+    final int KIT_BY_SIGNATURE = 11;
 
     public contentProvider() {
     }
@@ -59,6 +64,26 @@ public class contentProvider extends ContentProvider {
                     return JAM_BY_ID;
                 }
             }
+            case "attributes":{
+                Log.e("contentProvider","uriSwitcher() Matched JAM_BY_ATTRIBUTES");
+                return JAM_BY_ATTRIBUTES;
+            }
+
+            case "component_by_db_id":{
+                Log.e("contentProvider","uriSwitcher() Matched component_by_db_id");
+                return COMPONENT_BY_DB_ID;
+            }
+
+            case "all_components":{
+                Log.e("contentProvider","uriSwitcher() Matched component_by_db_id");
+                return ALL_COMPONENTS;
+            }
+
+            case "kit_by_signature":{
+                Log.e("contentProvider","uriSwitcher() Matched kit_by_signature");
+                return KIT_BY_SIGNATURE;
+            }
+
         }
         return -1;
     }
@@ -145,6 +170,30 @@ public class contentProvider extends ContentProvider {
                 );
                 break;
             }
+            case COMPONENT_BY_DB_ID:{
+                retCursor = databaseManager.getReadableDatabase().query(
+                        dbContract.ComponentTable.TABLE_NAME,
+                        projection,
+                        dbContract.ComponentTable.ID + " = ?",
+                        new String[]{uri.getPathSegments().get(1)},
+                        null,
+                        null,
+                        null
+                );
+                break;
+            }
+            case ALL_COMPONENTS:{
+                retCursor = databaseManager.getReadableDatabase().query(
+                        dbContract.ComponentTable.TABLE_NAME,
+                        projection,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                );
+                break;
+            }
             case ALL_KITS: {
                 retCursor = databaseManager.getReadableDatabase().query(
                         dbContract.KitTable.TABLE_NAME,
@@ -163,6 +212,19 @@ public class contentProvider extends ContentProvider {
                         dbContract.KitTable.TABLE_NAME,
                         projection,
                         dbContract.KitTable.ID + " = ?",
+                        new String[]{uri.getPathSegments().get(1)},
+                        null,
+                        null,
+                        null
+                );
+                break;
+            }
+
+            case KIT_BY_SIGNATURE:{
+                retCursor = databaseManager.getReadableDatabase().query(
+                        dbContract.KitTable.TABLE_NAME,
+                        projection,
+                        dbContract.KitTable.COMPONENTS + " = ?",
                         new String[]{uri.getPathSegments().get(1)},
                         null,
                         null,
@@ -227,6 +289,22 @@ public class contentProvider extends ContentProvider {
                         projection,
                         dbContract.JamTable.ID + " = ?",
                         new String[]{uri.getPathSegments().get(1)},
+                        null,
+                        null,
+                        null
+                );
+                break;
+            }
+            case JAM_BY_ATTRIBUTES: {
+                retCursor = databaseManager.getReadableDatabase().query(
+                        dbContract.JamTable.TABLE_NAME,
+                        projection,
+                        dbContract.JamTable.TEMPO + " = ? AND " +
+                                dbContract.JamTable.KIT_ID + " = ? AND " +
+                                dbContract.JamTable.PATTERN_ID + " = ? ",
+                        new String[]{uri.getPathSegments().get(1),
+                                uri.getPathSegments().get(2),
+                                uri.getPathSegments().get(3)},
                         null,
                         null,
                         null

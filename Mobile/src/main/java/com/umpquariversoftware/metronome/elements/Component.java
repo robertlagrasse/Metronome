@@ -27,6 +27,7 @@ public class Component {
         // Empty Constructor
     }
 
+
     public Component(Cursor cursor){
         cursor.moveToFirst();
         this.name = cursor.getString(cursor.getColumnIndex(dbContract.ComponentTable.NAME));

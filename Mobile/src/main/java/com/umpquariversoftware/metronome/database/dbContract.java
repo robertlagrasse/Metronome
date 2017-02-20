@@ -20,20 +20,55 @@ public class dbContract {
 
 
     public static Uri buildComponentUri(){
-        return CONTENT_AUTHORITY.buildUpon().appendPath(ComponentTable.TABLE_NAME).build();
+        return CONTENT_AUTHORITY.buildUpon()
+                .appendPath(ComponentTable.TABLE_NAME)
+                .build();
     }
     public static Uri buildKitUri(){
-        return CONTENT_AUTHORITY.buildUpon().appendPath(KitTable.TABLE_NAME).build();
+        return CONTENT_AUTHORITY.buildUpon()
+                .appendPath(KitTable.TABLE_NAME)
+                .build();
     }
     public static Uri buildPatternUri(){
-        return CONTENT_AUTHORITY.buildUpon().appendPath(PatternTable.TABLE_NAME).build();
+        return CONTENT_AUTHORITY.buildUpon()
+                .appendPath(PatternTable.TABLE_NAME)
+                .build();
     }
     public static Uri buildPatternBySignatureURI(String sequence){
-        return buildPatternUri().buildUpon().appendPath(PatternTable.SEQUENCE).appendPath(sequence).build();
+        return buildPatternUri().buildUpon()
+                .appendPath(PatternTable.SEQUENCE)
+                .appendPath(sequence)
+                .build();
     }
     public static Uri buildJamUri(){
-        return CONTENT_AUTHORITY.buildUpon().appendPath(JamTable.TABLE_NAME).build();
+        return CONTENT_AUTHORITY.buildUpon()
+                .appendPath(JamTable.TABLE_NAME)
+                .build();
     }
+    public static Uri buildJamByAttributesUri(String tempo, String kit, String pattern){
+        return CONTENT_AUTHORITY.buildUpon().appendPath("attributes")
+                .appendPath(tempo)
+                .appendPath(kit)
+                .appendPath(pattern)
+                .build();
+    }
+    public static Uri buildComponentByDbIDUri(int dbID){
+        return CONTENT_AUTHORITY.buildUpon().appendPath("component_by_db_id")
+                .appendPath(String.valueOf(dbID))
+                .build();
+    }
+    public static Uri buildAllComponentsUri(){
+        return CONTENT_AUTHORITY.buildUpon()
+                .appendPath("all_components")
+                .build();
+    }
+
+    public static Uri buildKitBySignatureUri(String signature){
+        return CONTENT_AUTHORITY.buildUpon().appendPath("kit_by_signature")
+                .appendPath(signature)
+                .build();
+    }
+
 
     /**
      * This section defines the tables in the database, and each table's associated columns.

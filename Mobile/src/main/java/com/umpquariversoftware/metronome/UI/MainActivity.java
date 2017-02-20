@@ -1,6 +1,7 @@
 package com.umpquariversoftware.metronome.UI;
 
 
+import android.app.Dialog;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.Context;
@@ -24,14 +25,17 @@ import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SnapHelper;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
@@ -43,6 +47,7 @@ import com.umpquariversoftware.metronome.elements.Component;
 import com.umpquariversoftware.metronome.elements.Jam;
 import com.umpquariversoftware.metronome.elements.Kit;
 import com.umpquariversoftware.metronome.elements.Pattern;
+import com.umpquariversoftware.metronome.kitEditor.KitEditor;
 import com.umpquariversoftware.metronome.patternEditor.PatternEditor;
 
 import java.util.ArrayList;
@@ -110,9 +115,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onResume() {
         super.onResume();
-        getLoaderManager().restartLoader(PATTERN_LOADER_ID, null, this);
-        getLoaderManager().restartLoader(KIT_LOADER_ID, null, this);
-        getLoaderManager().restartLoader(JAM_LOADER_ID, null, this);
+        resetLoaders();
     }
 
     @Override
@@ -146,12 +149,30 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         ImageView patternEditorButton = (ImageView) findViewById(R.id.patternEditorButton);
 
-
         patternEditorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(getApplicationContext(), PatternEditor.class);
                 startActivity(i);
+            }
+        });
+
+        ImageView kitEditorButton = (ImageView) findViewById(R.id.kitEditorButton);
+        kitEditorButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getApplicationContext(), KitEditor.class);
+                startActivity(i);
+            }
+        });
+
+        ImageView jamSaveButton = (ImageView) findViewById(R.id.saveJamButton);
+
+        jamSaveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveJam();
+                // resetLoaders();
             }
         });
 
@@ -295,6 +316,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     String patternName = retCursor.getString(retCursor.getColumnIndex(PatternTable.NAME));
                     String patternSequence = retCursor.getString(retCursor.getColumnIndex(PatternTable.SEQUENCE));
                     Pattern pattern = new Pattern(patternName, patternSequence, getApplicationContext());
+                    pattern.setDatabaseID(Integer.parseInt(patternID));
                     mJam.setPattern(pattern);
 
                     // Then alert the BeatService
@@ -348,6 +370,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     String kitName = retCursor.getString(retCursor.getColumnIndex(KitTable.NAME));
                     String kitSequence = retCursor.getString(retCursor.getColumnIndex(KitTable.COMPONENTS));
                     Kit kit = new Kit(kitName, kitSequence, getApplicationContext());
+                    kit.setDatabaseID(Integer.parseInt(kitID));
                     mJam.setKit(kit);
                     // Then alert the BeatService
                     sendBeatBroadcast();
@@ -449,6 +472,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                      */
 
                     sendBeatBroadcast();
+                    // getLoaderManager().getLoader(JAM_LOADER_ID).onContentChanged();
+                    // resetLoaders();
                 }
             }
         });
@@ -949,7 +974,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         String patternSequence = retCursor.getString(retCursor.getColumnIndex(PatternTable.SEQUENCE));
 
         Pattern pattern = new Pattern(patternName, patternSequence, this);
+        pattern.setDatabaseID(retCursor.getInt(retCursor.getColumnIndex(PatternTable.ID)));
 
+        Log.e("buildJamFromDB", "pattern database ID set to: " + pattern.getDatabaseID());
 
         /**
          *
@@ -970,10 +997,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         String kitComponents = retCursor.getString(retCursor.getColumnIndex(KitTable.COMPONENTS));
         String kitName = retCursor.getString(retCursor.getColumnIndex(KitTable.NAME));
-        retCursor.close();
 
         Kit kit = new Kit(kitName, kitComponents, this);
         kit.setName(kitName);
+        kit.setDatabaseID(retCursor.getInt(retCursor.getColumnIndex(KitTable.ID)));
+
+        Log.e("buildJamFromDB", "kit database ID set to: " + kit.getDatabaseID());
+        retCursor.close();
 
         /**
          * Finally, we bring all of the pieces together and create the jam.
@@ -1021,5 +1051,92 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         sendBroadcast(intent);
     }
 
+    public void saveJam(){
+        // search for a jam that matches the current setup (tempo, pattern id, and kit id)
+        // build a uri specific to the task, send it to the content provider
+        // If there's no Jam like this one, pop up a dialog box that asks for a name
+        // assign that name to mJam
+        // wrap up contentValues, insert()
 
+        ContentValues contentValues;
+
+        contentValues = new ContentValues();
+        contentValues.put(JamTable.NAME, mJam.getName());
+        contentValues.put(JamTable.KIT_ID, mJam.getKit().getDatabaseID());
+        contentValues.put(JamTable.PATTERN_ID, mJam.getPattern().getDatabaseID());
+        contentValues.put(JamTable.TEMPO, mJam.getTempo());
+
+        Uri uri = buildJamByAttributesUri(String.valueOf(mJam.getTempo()),
+                String.valueOf(mJam.getKit().getDatabaseID()),
+                String.valueOf(mJam.getPattern().getDatabaseID()));
+
+        Cursor cursor = getContentResolver().query(uri,null,null,null,null);
+
+
+        Log.e("saveJam", "mJam.getName()" + mJam.getName());
+        Log.e("saveJam", "mJam.getKit().getDatabaseID()" + mJam.getKit().getDatabaseID());
+        Log.e("saveJam", "mJam.getPattern().getDatabaseID()" + mJam.getPattern().getDatabaseID());
+        Log.e("saveJam", "mJam.getTempo()" + mJam.getTempo());
+        Log.e("saveJam", "uri: " + uri);
+        Log.e("saveJam", "cursor.getCount(): " + cursor.getCount());
+
+        if(cursor.getCount()!=0){
+            cursor.moveToFirst();
+            String JamName = cursor.getString(cursor.getColumnIndex(dbContract.JamTable.NAME));
+            cursor.close();
+
+            // Tell the user the pattern already exists. Show name.
+            final Dialog dialog = new Dialog(this);
+
+            dialog.setContentView(R.layout.alert_dialog);
+            dialog.setTitle("EXISTS!");
+
+            TextView alertText = (TextView) dialog.findViewById(R.id.alertText);
+            alertText.setText(R.string.jam_exists);
+
+            TextView alertText2 = (TextView) dialog.findViewById(R.id.alertText2);
+            alertText2.setText(JamName);
+
+
+            Button okButton = (Button) dialog.findViewById(R.id.alertOK);
+            okButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialog.cancel();
+                }
+            });
+            dialog.show();
+
+        } else {
+            new MaterialDialog.Builder(this).title(R.string.enter_pattern_name)
+                    .content(R.string.content_test)
+                    .inputType(InputType.TYPE_CLASS_TEXT)
+                    .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
+                        @Override
+                        public void onInput(MaterialDialog dialog, CharSequence input) {
+                            ContentValues contentValues;
+
+                            contentValues = new ContentValues();
+                            contentValues.put(dbContract.JamTable.NAME, input.toString());
+                            contentValues.put(JamTable.TEMPO, mJam.getTempo());
+                            contentValues.put(JamTable.KIT_ID, mJam.getKit().getDatabaseID());
+                            contentValues.put(JamTable.PATTERN_ID, mJam.getPattern().getDatabaseID());
+
+                            Uri i = getContentResolver().insert(buildJamUri(), contentValues);
+                            Log.e("CreatePatternTable", "insert() Returned URI:" + i.toString());
+                            getLoaderManager().getLoader(JAM_LOADER_ID).onContentChanged();
+
+                        }
+                    })
+                    .show();
+        }
+        cursor.close();
+    }
+
+    public void resetLoaders(){
+        Log.e("resetLoaders", "resetLoaders");
+        getLoaderManager().restartLoader(PATTERN_LOADER_ID, null, this);
+        getLoaderManager().restartLoader(KIT_LOADER_ID, null, this);
+        getLoaderManager().restartLoader(JAM_LOADER_ID, null, this);
+    }
 }

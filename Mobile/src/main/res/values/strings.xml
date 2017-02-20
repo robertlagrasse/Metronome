@@ -12,4 +12,7 @@
     <string name="input_prefill" />
     <string name="alertOK">OK</string>
     <string name="pattern_exists">This pattern already exists!\nIt\'s called:</string>
+    <string name="jam_exists">This Jam Already Exists!\\nIts name is:</string>
+    <string name="kit_exists">A kit just like this already exists!\\nIt\'s called:</string>
+    <string name="enter_kit_name">Enter Kit Name:</string>
 </resources>

@@ -17,6 +17,15 @@ import java.util.ArrayList;
 public class Pattern {
     private String name;
     private ArrayList<Beat> beats;
+    private int databaseID;
+
+    public int getDatabaseID() {
+        return databaseID;
+    }
+
+    public void setDatabaseID(int databaseID) {
+        this.databaseID = databaseID;
+    }
 
     public Pattern() {
         this.name = "New Pattern";

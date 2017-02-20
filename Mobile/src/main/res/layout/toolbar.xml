@@ -8,26 +8,45 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:scaleType="fitXY"
         android:src="@android:drawable/ic_menu_share"
         />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:scaleType="fitXY"
         android:src="@android:drawable/ic_menu_help"
         />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:src="@android:drawable/ic_menu_manage"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_patternedit"
         android:id="@+id/patternEditorButton" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:src="@drawable/ic_content_save"
+        android:id="@+id/saveJamButton" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
         android:src="@android:drawable/stat_sys_download"
-        />
+        android:id="@+id/kitEditorButton" />
 
 
 

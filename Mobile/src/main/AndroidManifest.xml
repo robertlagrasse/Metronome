@@ -33,7 +33,8 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".patternEditor.PatternEditor"></activity>
+        <activity android:name=".patternEditor.PatternEditor" />
+        <activity android:name=".kitEditor.KitEditor"></activity>
     </application>
 
 </manifest>

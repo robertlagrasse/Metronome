@@ -280,11 +280,11 @@ public class BeatService extends IntentService {
             Log.e("startStopReceiver", "onreceive()");
             // Extract pattern signature and instantiate a new Pattern
             Pattern pattern = new Pattern("temp",intent.getStringExtra("pattern"),null);
-            Log.e("startStopReceiver", "pattern signature: " + pattern.getPatternHexSignature());
+            // Log.e("startStopReceiver", "pattern signature: " + pattern.getPatternHexSignature());
 
             // Extract tempo
             int tempo = intent.getIntExtra("tempo", 60);
-            Log.e("startStopReceiver", "tempo: " + tempo);
+            // Log.e("startStopReceiver", "tempo: " + tempo);
 
             // Build a kit
             Kit kit = new Kit();
@@ -297,7 +297,7 @@ public class BeatService extends IntentService {
                 Component component = new Component();
                 component.setResource(resourceIDs.get(x));
                 kit.addComponent(component);
-                Log.e("startStopReceiver", "Received Component: " + resourceIDs.get(x));
+                // Log.e("startStopReceiver", "Received Component: " + resourceIDs.get(x));
             }
 
             // Tempo, Pattern and Kit defined, build a Jam

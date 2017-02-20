@@ -18,6 +18,15 @@ public class Kit {
 
     private String name;
     private ArrayList<Component> components;
+    private int databaseID;
+
+    public int getDatabaseID() {
+        return databaseID;
+    }
+
+    public void setDatabaseID(int databaseID) {
+        this.databaseID = databaseID;
+    }
 
     public Kit() {
         // Empty Constructor
@@ -69,9 +78,9 @@ public class Kit {
         return false;
     }
 
-    public boolean removeMember(){
-        // Figure out how to identify the specific member
-        // Remove the member
+    public boolean replaceComponent(int position, Component component){
+        components.remove(position);
+        components.add(position,component);
         return false;
     }
 
