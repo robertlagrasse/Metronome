@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "235960771510",
+    "firebase_url": "https://metronome-4ea12.firebaseio.com",
+    "project_id": "metronome-4ea12",
+    "storage_bucket": "metronome-4ea12.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:235960771510:android:4b8d6eef63ac34c1",
+        "android_client_info": {
+          "package_name": "com.umpquariversoftware.metronome"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "235960771510-i0uc774kclf5nihjgq45422231eu42kl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBM1pbk8R1U1GjhwNNRATxlIndzXYvp8Eg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

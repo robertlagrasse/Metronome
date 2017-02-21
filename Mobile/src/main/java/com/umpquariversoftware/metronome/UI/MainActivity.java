@@ -34,12 +34,22 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.PointsGraphSeries;
+import com.umpquariversoftware.metronome.FireBase.FirebaseJam;
+import com.umpquariversoftware.metronome.FireBase.FirebaseKit;
+import com.umpquariversoftware.metronome.FireBase.FirebasePattern;
 import com.umpquariversoftware.metronome.R;
 import com.umpquariversoftware.metronome.database.dbContract;
 import com.umpquariversoftware.metronome.elements.Beat;
@@ -94,6 +104,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     String mKitID, mPatternID;
     Boolean beatServiceRunning = false;
     private Toolbar toolbar;
+    Context mContext;
+
 
     /**
      *  Three cursor adapters and their associated loaders.
@@ -107,6 +119,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     jamCursorAdapter mJamCursorAdapter;
     Cursor mJamCursor;
 
+    ArrayList<FirebaseKit> mKits = new ArrayList<>();
+    ArrayList<FirebasePattern> mPatterns = new ArrayList<>();
+    ArrayList<FirebaseJam> mJams = new ArrayList<>();
+
+    patternListAdapter mPatternListAdapter;
 
     private static final int PATTERN_LOADER_ID = 0;
     private static final int KIT_LOADER_ID = 1;
@@ -122,6 +139,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mContext = this;
         /**
          * Are we already running? No need to start the service if so.
          * */
@@ -140,42 +158,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
 
-        /**
-         * Setup the toolbar and its buttons
-         * */
 
-        toolbar= (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        ImageView patternEditorButton = (ImageView) findViewById(R.id.patternEditorButton);
-
-        patternEditorButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getApplicationContext(), PatternEditor.class);
-                startActivity(i);
-            }
-        });
-
-        ImageView kitEditorButton = (ImageView) findViewById(R.id.kitEditorButton);
-        kitEditorButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getApplicationContext(), KitEditor.class);
-                startActivity(i);
-            }
-        });
-
-        ImageView jamSaveButton = (ImageView) findViewById(R.id.saveJamButton);
-
-        jamSaveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                saveJam();
-                // resetLoaders();
-            }
-        });
-
+        // readFireBaseJamTable();
         /**
          * Is this the first time we've ever run?
          * */
@@ -208,8 +192,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
          * Build the Jam the UI will present to the user.
          * */
 
-        Log.e("MainAcivity","Building JamID: " + lastLoadedJamID + " from database.");
-
         mJam = buildJamFromDB(lastLoadedJamID);
         prefs.edit().putInt("jamID", mJam.getDbID()).commit();
 
@@ -219,7 +201,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
          * **/
 
         if(!beatServiceRunning){
-            Log.e("onCreate","beatServiceRunning = false. launchBeatService()...");
             launchBeatService();
             beatServiceRunning = true;
         }
@@ -230,12 +211,131 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
          * Populate the UI
          *
          */
-        setupTempoChooser();
+        setupToolbar();
         setupPatternChooser();
+        setupTempoChooser();
         setupKitChooser();
         setupJamChooser();
         setupStartStopFAB();
 
+        /**
+         * There is already data in firebase. Even if there wasn't, it would be created
+         * when you run this the first time.
+         * */
+
+        // populateArrayListsFromFirebase();
+
+    }
+
+    void populateArrayListsFromFirebase(){
+        mJams.clear();
+        mPatterns.clear();
+        mKits.clear();
+
+        DatabaseReference mDatabase;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.child("jams").child("master")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot child: dataSnapshot.getChildren()) {
+                            FirebaseJam fbj = child.getValue(FirebaseJam.class);
+                            if (fbj != null) {
+                                mJams.add(fbj);
+                                Log.e("MainActivity", "Added jam to ArrayList with signature: "
+                                        + fbj.getSignature()
+                                + " at position: " + mJams.size());
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.child("kits").child("master")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot child: dataSnapshot.getChildren()) {
+                            FirebaseKit fbk = child.getValue(FirebaseKit.class);
+                            if (fbk != null) {
+                                mKits.add(fbk);
+                                Log.e("MainActivity", "Added Kit to ArrayList with signature: "
+                                        + fbk.getSignature()
+                                        + " at position: " + mKits.size());
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.child("patterns").child("master")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot child: dataSnapshot.getChildren()) {
+                            FirebasePattern fbp = child.getValue(FirebasePattern.class);
+                            if (fbp != null) {
+                                mPatterns.add(fbp);
+                                Log.e("MainActivity", "Added pattern to ArrayList with signature: "
+                                        + fbp.getSignature()
+                                        + " at position: " + mPatterns.size());
+                            }
+                        }
+                        patternChooser();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+    void patternChooser(){
+        Log.e("patternChooser", "called ");
+
+        SnappyRecyclerView patternRecyclerView = (SnappyRecyclerView) findViewById(R.id.patternRecyclerView);
+        patternRecyclerView.setHasFixedSize(true);
+        LinearLayoutManager patternLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        patternRecyclerView.setLayoutManager(patternLinearLayoutManager);
+
+        final SnapHelper snapHelper = new LinearSnapHelper();
+        snapHelper.attachToRecyclerView(patternRecyclerView);
+
+        mPatternListAdapter = new patternListAdapter(mPatterns, mContext);
+
+        Log.e("PatternChooser", "Looking through mPatterListAdapter's Firebase Patterns");
+
+        for (int x=0; x<mPatternListAdapter.getFirebasePatterns().size();++x){
+            String name = mPatternListAdapter.getFirebasePatterns().get(x).getName();
+            String signature = mPatternListAdapter.getFirebasePatterns().get(x).getSignature();
+            Pattern tempPattern = new Pattern(name, signature, mContext);
+
+            Log.e("PatternChooser", "Name : " + tempPattern.getName());
+            Log.e("PatternChooser", "Hex Signature: " + tempPattern.getPatternHexSignature());
+        }
+
+        patternRecyclerView.setAdapter(mPatternListAdapter);
+
+        patternRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
+                new RecyclerViewItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View v, int position) {
+                        // read info, do stuff.
+                        Log.e("recyclerview", "clicked " + position);
+                    }
+
+                }));
     }
 
     @Override
@@ -249,6 +349,84 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Service Methods
+     * */
+
+    private void launchBeatService(){
+        Intent i = new Intent(this, BeatService.class);
+        i.putExtra("jamID", 2L);
+        startService(i);
+    }
+
+    /**
+     * UI Methods
+     * */
+
+    public void setupToolbar(){
+        /**
+         * Setup the toolbar and its buttons
+         * */
+
+        toolbar= (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        ImageView patternEditorButton = (ImageView) findViewById(R.id.patternEditorButton);
+
+        patternEditorButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getApplicationContext(), PatternEditor.class);
+                startActivity(i);
+            }
+        });
+
+        ImageView kitEditorButton = (ImageView) findViewById(R.id.kitEditorButton);
+        kitEditorButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getApplicationContext(), KitEditor.class);
+                startActivity(i);
+            }
+        });
+
+        ImageView jamSaveButton = (ImageView) findViewById(R.id.saveJamButton);
+
+        jamSaveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveJam(false);
+                // resetLoaders();
+            }
+        });
+
+        ImageView databaseButton = (ImageView) findViewById(R.id.databaseButton);
+        databaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // writeJamtoFirebase();
+                // checkFirebaseForJam();
+                shareJam();
+            }
+        });
+
+        ImageView searchButton = (ImageView) findViewById(R.id.searchButton);
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new MaterialDialog.Builder(mContext).title(R.string.enter_string)
+                        .content(R.string.content_test)
+                        .inputType(InputType.TYPE_CLASS_TEXT)
+                        .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
+                            @Override
+                            public void onInput(MaterialDialog dialog, CharSequence input) {
+                                checkFirebaseForJam(input.toString());
+                            }
+                        })
+                        .show();
+            }
+        });
+    }
 
     public void setupTempoChooser(){
         int tempo = mJam.getTempo();
@@ -269,7 +447,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             public void onStopTrackingTouch(SeekBar seekBar) {
                 // When we stop sliding, send the jam to the database
                 // Then alert the BeatService to pull the new Jam.
-                sendBeatBroadcast();
+                sendBeatBroadcast(false);
             }
         });
     }
@@ -320,12 +498,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     mJam.setPattern(pattern);
 
                     // Then alert the BeatService
-                    sendBeatBroadcast();
+                    sendBeatBroadcast(false);
                 }
             }
         });
-
-
     }
 
     public void setupKitChooser(){
@@ -373,7 +549,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     kit.setDatabaseID(Integer.parseInt(kitID));
                     mJam.setKit(kit);
                     // Then alert the BeatService
-                    sendBeatBroadcast();
+                    sendBeatBroadcast(false);
                 }
             }
         });
@@ -471,7 +647,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                      * The Jam has been changed. Stop start the timer in response if it's running.
                      */
 
-                    sendBeatBroadcast();
+                    sendBeatBroadcast(false);
                     // getLoaderManager().getLoader(JAM_LOADER_ID).onContentChanged();
                     // resetLoaders();
                 }
@@ -486,10 +662,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         startstop.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Log.e("MainActivity", "startStop()");
-                sendBeatBroadcast();
+                sendBeatBroadcast(true);
             }
         });
     }
+
+    /**
+     * Loaders and Data Source related methods
+     * */
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
@@ -540,188 +720,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
-    public class SoundPoolPlayer {
-        private SoundPool mShortPlayer= null;
-        private HashMap mSounds = new HashMap();
-
-
-        public SoundPoolPlayer(Context pContext, Kit kit)
-        {
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                this.mShortPlayer = new SoundPool.Builder().build();
-            } else {
-                this.mShortPlayer = new SoundPool(4, AudioManager.STREAM_MUSIC, 0);
-                // Deprecated constructor.
-            }
-
-            // Get components from kit
-            ArrayList<Component> components = kit.getComponents();
-
-            // Iterate through components, extract resource ID, add to soundpool
-            for(int x=0;x<components.size();x++){
-                mSounds.put(components.get(x).getResource(), this.mShortPlayer.load(pContext, components.get(x).getResource(),1));
-            }
-        }
-
-        public void playShortResource(int piResource) {
-            int iSoundId = (Integer) mSounds.get(piResource);
-            this.mShortPlayer.play(iSoundId, 0.99f, 0.99f, 0, 0, 1);
-        }
-
-        // Cleanup
-        public void release() {
-            // Cleanup
-            this.mShortPlayer.release();
-            this.mShortPlayer = null;
-        }
+    public void resetLoaders(){
+        Log.e("resetLoaders", "resetLoaders");
+        getLoaderManager().restartLoader(PATTERN_LOADER_ID, null, this);
+        getLoaderManager().restartLoader(KIT_LOADER_ID, null, this);
+        getLoaderManager().restartLoader(JAM_LOADER_ID, null, this);
     }
 
-    private Jam buildTestJam(){
-        /**
-         * buildTestJam()
-         *
-         * Build Some Individual Beats
-         * Put Beats into a Pattern
-         *
-         * Build Some Components
-         * Put up to 8 components into a Kit
-         *
-         * Build a Jam
-         * Add the Kit, Pattern, and the Tempo
-         * */
-        // Instantiate Beats
-        Beat beat1 = new Beat();
-        Beat beat2 = new Beat();
-        Beat beat3 = new Beat();
-        Beat beat4 = new Beat();
-        Beat beat5 = new Beat();
-        Beat beat6 = new Beat();
-        Beat beat7 = new Beat();
-        Beat beat8 = new Beat();
 
-
-        beat3.setSECOND(true);
-        beat7.setSECOND(true);
-        beat8.setSECOND(true);
-        beat4.setEIGHTH(true);
-
-
-        // Instantiate Pattern, add beat
-        Pattern pattern = new Pattern();
-        pattern.addBeat(beat1);
-        pattern.addBeat(beat2);
-        pattern.addBeat(beat3);
-        pattern.addBeat(beat4);
-        pattern.addBeat(beat5);
-        pattern.addBeat(beat6);
-        pattern.addBeat(beat7);
-        pattern.addBeat(beat8);
-        pattern.setName("Default Pattern");
-
-        // Build components and assemble kit from signature
-        Kit kit = new Kit("slick kit name", "05040609080A060C", this);
-
-        // Instantiate Jam - Add Pattern, Kit, Tempo
-        Jam jam = new Jam();
-        jam.setKit(kit);
-        jam.setPattern(pattern);
-        jam.setTempo(120);
-        jam.setName("Default Jam");
-
-        return jam;
-    }
-
-    private Jam buildDefaultJam(){
-        /**
-         * buildTestJam()
-         *
-         * Build Some Individual Beats
-         * Put Beats into a Pattern
-         *
-         * Build Some Components
-         * Put up to 8 components into a Kit
-         *
-         * Build a Jam
-         * Add the Kit, Pattern, and the Tempo
-         * */
-        // Instantiate Beats
-        Beat beat1 = new Beat();
-
-
-        // Instantiate Pattern, add beat
-        Pattern pattern = new Pattern();
-        pattern.addBeat(beat1);
-
-
-        // Instantiate Components
-        Component componentOne = new Component(R.raw.default_kick);
-        Component componentTwo = new Component(R.raw.default_snare);
-        Component componentThree = new Component(R.raw.default_crash);
-        Component componentFour = new Component(R.raw.default_ride);
-        Component componentFive = new Component(R.raw.default_highhat);
-        Component componentSix = new Component(R.raw.default_tom1);
-        Component componentSeven = new Component(R.raw.default_tom2);
-        Component componentEight = new Component(R.raw.default_tom3);
-
-        componentOne.setName("Default Kick");
-        componentTwo.setName("Default Snare");
-        componentThree.setName("Default Crash");
-        componentFour.setName("Default Ride");
-        componentFive.setName("Default High Hat");
-        componentSix.setName("Default Tom 1");
-        componentSeven.setName("Default Tom 2");
-        componentEight.setName("Default Tom 3");
-
-        // Instantiate Kit, add instruments
-        Kit kit = new Kit();
-        kit.addComponent(componentOne);
-        kit.addComponent(componentTwo);
-        kit.addComponent(componentThree);
-        kit.addComponent(componentFour);
-        kit.addComponent(componentFive);
-        kit.addComponent(componentSix);
-        kit.addComponent(componentSeven);
-        kit.addComponent(componentEight);
-        kit.setName("Kit name");
-
-        // Instantiate Jam - Add Pattern, Kit, Tempo
-        Jam jam = new Jam();
-        jam.setKit(kit);
-        jam.setPattern(pattern);
-        jam.setTempo(120);
-        jam.setName("Jam Name");
-
-        return jam;
-    }
-
-    private void showKit(Kit kit){
-
-        /***
-         * showKit() is a simple method to populate the Kit Cardview
-         * items with data from the jam.
-         */
-        TextView component1 = (TextView) findViewById(R.id.component1);
-        TextView component2 = (TextView) findViewById(R.id.component2);
-        TextView component3 = (TextView) findViewById(R.id.component3);
-        TextView component4 = (TextView) findViewById(R.id.component4);
-        TextView component5 = (TextView) findViewById(R.id.component5);
-        TextView component6 = (TextView) findViewById(R.id.component6);
-        TextView component7 = (TextView) findViewById(R.id.component7);
-        TextView component8 = (TextView) findViewById(R.id.component8);
-        TextView kitName = (TextView) findViewById(R.id.kitName);
-
-        component1.setText(kit.getComponents().get(0).getName());
-        component2.setText(kit.getComponents().get(1).getName());
-        component3.setText(kit.getComponents().get(2).getName());
-        component4.setText(kit.getComponents().get(3).getName());
-        component5.setText(kit.getComponents().get(4).getName());
-        component6.setText(kit.getComponents().get(5).getName());
-        component7.setText(kit.getComponents().get(6).getName());
-        component8.setText(kit.getComponents().get(7).getName());
-        kitName.setText(kit.getName());
-    }
-
+    /**
+     * Database Prepopulation/Setup
+     * */
 
     private void createComponentsTable(){
         ContentValues contentValues;
@@ -846,6 +855,20 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             Uri i = getContentResolver().insert(buildKitUri(), kits.get(x));
             Log.e("CreateKitTable", "insert() Returned URI:" + i.toString());
         }
+
+        DatabaseReference mDatabase;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        for(int x=0;x<kits.size();x++) {
+            String name = kits.get(x).getAsString(KitTable.NAME);
+            String signature = kits.get(x).getAsString(KitTable.COMPONENTS);
+            FirebaseKit fbk = new FirebaseKit(name, signature);
+
+            mDatabase.child("kits")
+                    .child("master")
+                    .child(fbk.getName())
+                    .setValue(fbk);
+        }
     }
 
     private void createPatternTable(){
@@ -875,6 +898,22 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         for(int x=0;x<patterns.size();x++){
             Uri i = getContentResolver().insert(buildPatternUri(), patterns.get(x));
             Log.e("CreatePatternTable", "insert() Returned URI:" + i.toString());
+        }
+
+        DatabaseReference mDatabase;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        for(int x=0;x<patterns.size();x++) {
+            String name = patterns.get(x).getAsString(PatternTable.NAME);
+            String signature = patterns.get(x).getAsString(PatternTable.SEQUENCE);
+            FirebasePattern fbp = new FirebasePattern(name, signature);
+            Log.e("CreatePatternTable", "name: " + name);
+            Log.e("CreatePatternTable", "signature: " + signature);
+
+            mDatabase.child("patterns")
+                    .child("master")
+                    .child(fbp.getName())
+                    .setValue(fbp);
         }
     }
 
@@ -910,9 +949,60 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         contentValues.put(JamTable.TEMPO, "180");
         jams.add(contentValues);
 
+
+
         for(int x=0;x<jams.size();x++){
             Uri i = getContentResolver().insert(buildJamUri(), jams.get(x));
         }
+
+        ArrayList<ContentValues> FirebaseJams = new ArrayList<>();
+
+        contentValues = new ContentValues();
+        contentValues.put(JamTable.NAME, "Jam 1");
+        contentValues.put(JamTable.KIT_ID, "0102030405060708");
+        contentValues.put(JamTable.PATTERN_ID, "01");
+        contentValues.put(JamTable.TEMPO, "180");
+        FirebaseJams.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(JamTable.NAME, "Jam 2");
+        contentValues.put(JamTable.KIT_ID, "0C0A0B040508090A");
+        contentValues.put(JamTable.PATTERN_ID, "0102");
+        contentValues.put(JamTable.TEMPO, "180");
+        FirebaseJams.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(JamTable.NAME, "Jam 3");
+        contentValues.put(JamTable.KIT_ID, "05040609080A060C");
+        contentValues.put(JamTable.PATTERN_ID, "01010201");
+        contentValues.put(JamTable.TEMPO, "180");
+        FirebaseJams.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(JamTable.NAME, "Jam 4");
+        contentValues.put(JamTable.KIT_ID, "04080A0C06090703");
+        contentValues.put(JamTable.PATTERN_ID, "010103");
+        contentValues.put(JamTable.TEMPO, "180");
+        FirebaseJams.add(contentValues);
+
+        DatabaseReference mDatabase;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        for(int x=0;x<FirebaseJams.size();x++) {
+            String name = FirebaseJams.get(x).getAsString(JamTable.NAME);
+            String kitSignature = FirebaseJams.get(x).getAsString(JamTable.KIT_ID);
+            String patternSignature = FirebaseJams.get(x).getAsString(JamTable.PATTERN_ID);
+            int tempo = FirebaseJams.get(x).getAsInteger(JamTable.TEMPO);
+
+            FirebaseJam fbj = new FirebaseJam(tempo, kitSignature ,patternSignature);
+
+            mDatabase.child("jams")
+                    .child("master")
+                    .child(fbj.getSignature())
+                    .setValue(fbj);
+        }
+
+
     }
 
     private Jam buildJamFromDB(long id){
@@ -929,10 +1019,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
          * to the Kit and the Pattern info, then build the kit and the pattern from there.
          *
          */
-
-
-        // For now, just grab the first Jam. I'll build a way to track the last jam
-        // and pick that one specifically.
 
         Cursor retCursor = getContentResolver().query(buildJamUri().buildUpon().appendPath(String.valueOf(id)).build(),
                 null,
@@ -1026,13 +1112,40 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         Log.e("onSaveInstanceState", "writing...");
     }
 
-    private void launchBeatService(){
-        Intent i = new Intent(this, BeatService.class);
-        i.putExtra("jamID", 2L);
-        startService(i);
+    private void readFireBaseJamTable(){
+        DatabaseReference mDatabase;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.child("jams")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot child: dataSnapshot.getChildren()) {
+                            FirebaseJam newFbj = child.getValue(FirebaseJam.class);
+                            if (newFbj != null) {
+                                Log.e("MainActivity", "checkFirebaseForJam() newFbj was populated by Firebase call. Signature: " + newFbj.getSignature());
+                                Log.e("MainActivity", "checkFirebaseForJam() newFbj.getTempo(): " + newFbj.getTempo());
+                                Log.e("MainActivity", "checkFirebaseForJam() newFbj.getPattern(): " + newFbj.getPattern());
+                                Log.e("MainActivity", "checkFirebaseForJam() newFbj.getKit(): " + newFbj.getKit());
+                            }
+                        }
+
+                        // Test routine - instantiates a jam and pushes to the service
+                        // Entirely pulled from Firebase. (works!)
+//                        mJam.setTempo(mJams.get(1).getTempo());
+//                        mJam.setKit(new Kit("name",mJams.get(1).getKit(),mContext));
+//                        mJam.setPattern(new Pattern("pattern", mJams.get(1).getPattern(), mContext));
+//                        sendBeatBroadcast(true);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
     }
 
-    public void sendBeatBroadcast(){
+    public void sendBeatBroadcast(boolean fab){
         Intent intent = new Intent();
         intent.setAction("com.umpquariversoftware.metronome.STARTSTOP");
 
@@ -1048,10 +1161,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             components.add(mJam.getKit().getComponents().get(x).getResource());
         }
         intent.putIntegerArrayListExtra("components", components);
+        intent.putExtra("fab", fab);
         sendBroadcast(intent);
     }
 
-    public void saveJam(){
+    public void saveJam(final Boolean writeToFirebase){
         // search for a jam that matches the current setup (tempo, pattern id, and kit id)
         // build a uri specific to the task, send it to the content provider
         // If there's no Jam like this one, pop up a dialog box that asks for a name
@@ -1125,6 +1239,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                             Uri i = getContentResolver().insert(buildJamUri(), contentValues);
                             Log.e("CreatePatternTable", "insert() Returned URI:" + i.toString());
                             getLoaderManager().getLoader(JAM_LOADER_ID).onContentChanged();
+                            if(writeToFirebase){
+                                writeJamtoFirebase();
+                            }
 
                         }
                     })
@@ -1133,10 +1250,118 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         cursor.close();
     }
 
-    public void resetLoaders(){
-        Log.e("resetLoaders", "resetLoaders");
-        getLoaderManager().restartLoader(PATTERN_LOADER_ID, null, this);
-        getLoaderManager().restartLoader(KIT_LOADER_ID, null, this);
-        getLoaderManager().restartLoader(JAM_LOADER_ID, null, this);
+    public void shareJam(){
+
+        if(isJamInLocalDB(mJam)){
+            writeJamtoFirebase();
+        } else {
+            saveJam(true);
+        }
+
+        FirebaseJam fbj = new FirebaseJam(mJam);
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                "mailto"," ", null));
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "This is the ID to download");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, fbj.getSignature());
+        startActivity(Intent.createChooser(emailIntent, "Send email..."));
     }
+
+    void writeJamtoFirebase(){
+
+        DatabaseReference mDatabase;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        FirebaseJam fbj = new FirebaseJam(mJam);
+        mDatabase.child("jams").child(fbj.getSignature()).setValue(fbj);
+
+    }
+
+    void checkFirebaseForJam(String signature){
+
+        DatabaseReference mDatabase;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        mDatabase.child("jams").child(signature)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        FirebaseJam newFbj = dataSnapshot.getValue(FirebaseJam.class);
+                        if (newFbj != null) {
+                            Log.e("MainActivity", "checkFirebaseForJam() newFbj was populated by Firebase call. Signature: " + newFbj.getSignature());
+                            Log.e("MainActivity", "checkFirebaseForJam() newFbj.getTempo(): " + newFbj.getTempo());
+                            Log.e("MainActivity", "checkFirebaseForJam() newFbj.getPattern(): " + newFbj.getPattern());
+                            Log.e("MainActivity", "checkFirebaseForJam() newFbj.getKit(): " + newFbj.getKit());
+
+
+                            int tempo = newFbj.getTempo();
+                            Pattern pattern = new Pattern(newFbj.getSignature(),newFbj.getPattern(),mContext);
+                            Kit kit = new Kit(newFbj.getSignature(),newFbj.getKit(),mContext);
+
+                            Jam jam = new Jam();
+                            jam.setName(newFbj.getSignature());
+                            jam.setTempo(tempo);
+                            jam.setPattern(pattern);
+                            jam.setKit(kit);
+
+                            Uri uri = buildPatternBySignatureURI(pattern.getPatternHexSignature());
+                            Cursor cursor = getContentResolver().query(uri,null,null,null,null);
+                            if(cursor != null && cursor.getCount()!=0){
+                                cursor.moveToFirst();
+                                pattern.setDatabaseID(Integer.parseInt(cursor.getString(cursor.getColumnIndex(PatternTable.ID))));
+                            } else {
+                                pattern.setDatabaseID(666);
+                            }
+                            cursor.close();
+
+                            uri = buildKitBySignatureUri(kit.getSignature());
+                            cursor = getContentResolver().query(uri,null,null,null,null);
+                            if(cursor != null && cursor.getCount()!=0){
+                                cursor.moveToFirst();
+                                kit.setDatabaseID(Integer.parseInt(cursor.getString(cursor.getColumnIndex(KitTable.ID))));
+                            } else {
+                                kit.setDatabaseID(666);
+                            }
+                            cursor.close();
+
+                            if(isJamInLocalDB(jam)){
+                                Toast.makeText(mContext, R.string.jam_already_downloaded, Toast.LENGTH_LONG).show();
+                            } else {
+                                ContentValues contentValues;
+
+                                contentValues = new ContentValues();
+                                contentValues.put(JamTable.NAME, jam.getName());
+                                contentValues.put(JamTable.KIT_ID, jam.getKit().getDatabaseID());
+                                contentValues.put(JamTable.PATTERN_ID, jam.getPattern().getDatabaseID());
+                                contentValues.put(JamTable.TEMPO, jam.getTempo());
+
+                                Uri i = getContentResolver().insert(buildJamUri(), contentValues);
+                                Log.e("checkFirebaseForJam()", "Database insert returned: " + i.toString());
+                            }
+
+                        } else {
+                            Toast.makeText(mContext, R.string.signature_not_found, Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+    private Boolean isJamInLocalDB(Jam jam){
+
+        Uri uri = buildJamByAttributesUri(String.valueOf(jam.getTempo()),
+                String.valueOf(jam.getKit().getDatabaseID()),
+                String.valueOf(jam.getPattern().getDatabaseID()));
+
+        Cursor cursor = getContentResolver().query(uri,null,null,null,null);
+        if(cursor.getCount()!=0){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

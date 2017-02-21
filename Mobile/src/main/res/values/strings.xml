@@ -15,4 +15,7 @@
     <string name="jam_exists">This Jam Already Exists!\\nIts name is:</string>
     <string name="kit_exists">A kit just like this already exists!\\nIt\'s called:</string>
     <string name="enter_kit_name">Enter Kit Name:</string>
+    <string name="enter_string">Enter Jam Identifier</string>
+    <string name="signature_not_found">Sorry. That signature was not found.</string>
+    <string name="jam_already_downloaded">You\'ve already downloaded this jam!</string>
 </resources>

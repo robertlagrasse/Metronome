@@ -46,7 +46,6 @@ public class BeatService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         Log.e("BeatService", "onHandleIntent");
         mJamID = intent.getLongExtra("jamID",0);
-        // TODO : This should probably happen on timerStart()
         mJam = buildJamFromDB(mJamID);
     }
 
@@ -172,11 +171,10 @@ public class BeatService extends IntentService {
         } else {
             startTimer();
         }
-        isRunning = !isRunning;
     }
 
     private static void startTimer(){
-
+        isRunning = true;
         int PRIORITY = 1;
 
         /**
@@ -219,55 +217,47 @@ public class BeatService extends IntentService {
          * Setup the timer
          * */
 
+        TimerTask tt = null;
+        tt = new TimerTask() {
+            int position = 0;
+            @Override
+            public void run() {
+                {
+
+                    if (position == mJam.getPattern().getLength()) {
+                        position = 0;
+                    }
+
+                    /**
+                     * Extract the beat at this position in the pattern.
+                     * Each position in the beat is just a boolean.
+                     * We iterate through each position in the beat.
+                     * If the beat is true, the corresponding soundID
+                     * from the array list is played.
+                     * */
+
+
+                    for(int x=0;x<8;++x){
+                        if(mJam.getPattern().getBeat(position).getPosition(x)){
+                            // Play the soundpool resource in position X
+                            soundPool.play(soundIDs.get(x),1,1,1,0,1);
+                        }
+                    }
+                    position++;
+                }
+            }
+        };
+
         mTimer = null;
         mTimer = new Timer();
-        mTimer.scheduleAtFixedRate(new TimerTask() {
-
-            /**
-             * position tracks where we are in the pattern. Each time
-             * the timer ticks, we play the necessary sounds associated
-             * with this beat, and then increment position.
-             *
-             * Position resets to 0 when it matches pattern length, which
-             * keeps the pattern repeating indefinitely.
-             *
-             * */
-           int position = 0;
-
-           @Override
-           public void run() {
-               if (position == mJam.getPattern().getLength()) {
-                   position = 0;
-               }
-
-               /**
-                * Extract the beat at this position in the pattern.
-                * Each position in the beat is just a boolean.
-                * We iterate through each position in the beat.
-                * If the beat is true, the corresponding soundID
-                * from the array list is played.
-                * */
-
-
-               for(int x=0;x<8;++x){
-                   if(mJam.getPattern().getBeat(position).getPosition(x)){
-                       // Play the soundpool resource in position X
-                       soundPool.play(soundIDs.get(x),1,1,1,0,1);
-                   }
-               }
-               position++;
-           }
-       },
-        //Set how long before to startButton calling the TimerTask (in milliseconds)
-        0,
-        //Set the amount of time between each execution (in milliseconds)
-        mJam.getInterval());
+        mTimer.scheduleAtFixedRate(tt,0,mJam.getInterval());
     }
 
     private static void stopTimer(){
         mTimer.cancel();
         mTimer.purge();
         mTimer=null;
+        isRunning=false;
     }
 
     public static class startStopReceiver extends BroadcastReceiver {
@@ -306,7 +296,17 @@ public class BeatService extends IntentService {
             jam.setPattern(pattern);
             jam.setTempo(tempo);
             mJam=jam;
-            flip();
+
+            Boolean fab = intent.getBooleanExtra("fab", false);
+
+            if(fab){
+                flip();
+            } else {
+                if(isRunning){
+                    stopTimer();
+                }
+            }
+
         }
     }
 
