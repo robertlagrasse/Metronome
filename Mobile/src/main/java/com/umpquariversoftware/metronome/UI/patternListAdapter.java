@@ -49,8 +49,8 @@ public class patternListAdapter extends RecyclerView.Adapter<patternListAdapter.
     public void onBindViewHolder(patternListAdapter.ViewHolder viewHolder, int position) {
         Log.e("patternListAdapter", "onBindViewHolder");
 
-        String name = firebasePatterns.get(position+1).getName();
-        String signature = firebasePatterns.get(position+1).getSignature();
+        String name = firebasePatterns.get(position).getName();
+        String signature = firebasePatterns.get(position).getSignature();
 
         Pattern tempPattern = new Pattern(name, signature, mContext);
         PointsGraphSeries<DataPoint> series = new PointsGraphSeries<>();
@@ -75,7 +75,7 @@ public class patternListAdapter extends RecyclerView.Adapter<patternListAdapter.
 
     @Override
     public int getItemCount() {
-        return 0;
+        return firebasePatterns.size();
     }
 
     @Override

@@ -65,6 +65,7 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.umpquariversoftware.metronome.R.id.kitRecyclerView;
 import static com.umpquariversoftware.metronome.database.dbContract.*;
 
 /** OVERVIEW
@@ -124,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     ArrayList<FirebaseJam> mJams = new ArrayList<>();
 
     patternListAdapter mPatternListAdapter;
+    kitListAdapter mKitListAdapter;
+    jamListAdapter mJamListAdapter;
 
     private static final int PATTERN_LOADER_ID = 0;
     private static final int KIT_LOADER_ID = 1;
@@ -159,7 +162,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
 
 
-        // readFireBaseJamTable();
         /**
          * Is this the first time we've ever run?
          * */
@@ -192,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
          * Build the Jam the UI will present to the user.
          * */
 
-        mJam = buildJamFromDB(lastLoadedJamID);
+        // mJam = buildJamFromDB(lastLoadedJamID);
         prefs.edit().putInt("jamID", mJam.getDbID()).commit();
 
         /**
@@ -212,18 +214,20 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
          *
          */
         setupToolbar();
-        setupPatternChooser();
-        setupTempoChooser();
-        setupKitChooser();
-        setupJamChooser();
-        setupStartStopFAB();
+//        setupPatternChooser();
+
+//        setupKitChooser();
+//        setupJamChooser();
+//        setupStartStopFAB();
 
         /**
          * There is already data in firebase. Even if there wasn't, it would be created
          * when you run this the first time.
          * */
 
-        // populateArrayListsFromFirebase();
+        populateArrayListsFromFirebase();
+        setupTempoChooser();
+        setupStartStopFAB();
 
     }
 
@@ -247,6 +251,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                                 + " at position: " + mJams.size());
                             }
                         }
+                        jamChooser();
+                        Kit kit = new Kit("temp", mJams.get(0).getKit(), mContext);
+                        Pattern pattern = new Pattern("name", mJams.get(0).getPattern(), mContext);
+                        int tempo = mJams.get(0).getTempo();
+                        mJam.setKit(kit);
+                        mJam.setPattern(pattern);
+                        mJam.setTempo(tempo);
+
+                        /**
+                         * See if the pattern is in the pattern list. If not, add it.
+                         * Move the PatternRecyclerView to the position that reflects
+                         * the pattern
+                         *
+                         * */
+
                     }
 
                     @Override
@@ -269,6 +288,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                                         + " at position: " + mKits.size());
                             }
                         }
+                        kitChooser();
                     }
 
                     @Override
@@ -304,7 +324,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     void patternChooser(){
         Log.e("patternChooser", "called ");
 
-        SnappyRecyclerView patternRecyclerView = (SnappyRecyclerView) findViewById(R.id.patternRecyclerView);
+        final SnappyRecyclerView patternRecyclerView = (SnappyRecyclerView) findViewById(R.id.patternRecyclerView);
         patternRecyclerView.setHasFixedSize(true);
         LinearLayoutManager patternLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         patternRecyclerView.setLayoutManager(patternLinearLayoutManager);
@@ -313,18 +333,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         snapHelper.attachToRecyclerView(patternRecyclerView);
 
         mPatternListAdapter = new patternListAdapter(mPatterns, mContext);
-
-        Log.e("PatternChooser", "Looking through mPatterListAdapter's Firebase Patterns");
-
-        for (int x=0; x<mPatternListAdapter.getFirebasePatterns().size();++x){
-            String name = mPatternListAdapter.getFirebasePatterns().get(x).getName();
-            String signature = mPatternListAdapter.getFirebasePatterns().get(x).getSignature();
-            Pattern tempPattern = new Pattern(name, signature, mContext);
-
-            Log.e("PatternChooser", "Name : " + tempPattern.getName());
-            Log.e("PatternChooser", "Hex Signature: " + tempPattern.getPatternHexSignature());
-        }
-
         patternRecyclerView.setAdapter(mPatternListAdapter);
 
         patternRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
@@ -336,7 +344,151 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     }
 
                 }));
+
+        patternRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if(patternRecyclerView.getFirstVisibleItemPosition() >=0){
+                    int position = patternRecyclerView.getFirstVisibleItemPosition();
+                    String name = mPatterns.get(position).getName();
+                    String signature = mPatterns.get(position).getSignature();
+
+                    Pattern pattern = new Pattern(name, signature, mContext);
+                    mJam.setPattern(pattern);
+                    sendBeatBroadcast(false);
+                }
+            }
+        });
+
+        patternRecyclerView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                return false;
+            }
+        });
     }
+
+    void kitChooser(){
+        final SnappyRecyclerView kitRecyclerView = (SnappyRecyclerView) findViewById(R.id.kitRecyclerView);
+        kitRecyclerView.setHasFixedSize(true);
+        LinearLayoutManager kitLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        kitRecyclerView.setLayoutManager(kitLinearLayoutManager);
+
+        final SnapHelper snapHelper = new LinearSnapHelper();
+        snapHelper.attachToRecyclerView(kitRecyclerView);
+
+        mKitListAdapter = new kitListAdapter(mKits, mContext);
+        kitRecyclerView.setAdapter(mKitListAdapter);
+
+        kitRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
+                new RecyclerViewItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View v, int position) {
+                        // read info, do stuff.
+                        Log.e("recyclerview", "clicked " + position);
+                    }
+
+                }));
+
+        kitRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if(kitRecyclerView.getFirstVisibleItemPosition() >=0){
+                    int position = kitRecyclerView.getFirstVisibleItemPosition();
+                    String name = mKits.get(position).getName();
+                    String signature = mKits.get(position).getSignature();
+
+                    Kit kit = new Kit(name, signature, mContext);
+                    mJam.setKit(kit);
+                    sendBeatBroadcast(false);
+
+                }
+            }
+        });
+    }
+
+    void jamChooser(){
+        final SnappyRecyclerView jamRecyclerView = (SnappyRecyclerView) findViewById(R.id.jamRecyclerView);
+        jamRecyclerView.setHasFixedSize(true);
+        final LinearLayoutManager jamLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        jamRecyclerView.setLayoutManager(jamLinearLayoutManager);
+
+        mJamListAdapter = new jamListAdapter(mJams, mContext);
+        jamRecyclerView.setAdapter(mJamListAdapter);
+
+        jamRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
+                new RecyclerViewItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View v, int position) {
+                        // read info, do stuff.
+                        Log.e("recyclerview", "clicked " + position);
+                    }
+
+                }));
+
+        jamRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if(jamRecyclerView.getFirstVisibleItemPosition() >=0){
+                    int position = jamRecyclerView.getFirstVisibleItemPosition();
+                    Kit kit = new Kit("temp", mJams.get(position).getKit(), mContext);
+                    Pattern pattern = new Pattern("name", mJams.get(position).getPattern(), mContext);
+                    int tempo = mJams.get(0).getTempo();
+                    mJam.setKit(kit);
+                    mJam.setPattern(pattern);
+                    mJam.setTempo(tempo);
+                    /**
+                     * Figure out if the pattern associated with the Jam is
+                     * a pattern in our list already. Get the index of that
+                     * pattern. If we can't find it, we create the pattern
+                     * from the signature, and add it to the ArrayList.
+                     * Rinse and repeat for the kit
+                    **/
+                    int patternIndex = -1;
+                    for(int x = 0; x<mPatterns.size(); ++x){
+                        if(pattern.getPatternHexSignature().equals(mPatterns.get(x).getSignature())){
+                            patternIndex = x;
+                        }
+                    }
+
+                    if(patternIndex==-1){
+                        FirebasePattern fbp = new FirebasePattern(mJams.get(position).getSignature(),
+                                pattern.getPatternHexSignature());
+                        mPatterns.add(fbp);
+                        patternIndex=mPatterns.size()-1;
+                    }
+
+                    SnappyRecyclerView patternRecyclerView = (SnappyRecyclerView) findViewById(R.id.patternRecyclerView);
+                    patternRecyclerView.scrollToPosition(patternIndex);
+
+                    int kitIndex = -1;
+                    for(int x = 0; x<mKits.size(); ++x){
+                        if(kit.getSignature().equals(mKits.get(x).getSignature())){
+                            kitIndex = x;
+                        }
+                    }
+
+                    if(kitIndex==-1){
+                        FirebaseKit fbk = new FirebaseKit(mJams.get(position).getSignature(),
+                                kit.getSignature());
+                        mKits.add(fbk);
+                        kitIndex=mKits.size()-1;
+                    }
+                    SnappyRecyclerView kitRecyclerView = (SnappyRecyclerView) findViewById(R.id.kitRecyclerView);
+                    kitRecyclerView.scrollToPosition(kitIndex);
+
+                    SeekBar tempoBar = (SeekBar) findViewById(R.id.tempoBar);
+                    tempoBar.setProgress(mJam.getTempo() - 30);
+
+                    sendBeatBroadcast(false);
+                }
+            }
+        });
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -618,7 +770,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                         }
                     }
 
-                    SnappyRecyclerView kit = (SnappyRecyclerView) findViewById(R.id.kitRecyclerView);
+                    SnappyRecyclerView kit = (SnappyRecyclerView) findViewById(kitRecyclerView);
                     kit.scrollToPosition((int) id);
 
                     /**
@@ -701,15 +853,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         switch(loader.getId()) {
             case PATTERN_LOADER_ID:
-                mPatternCursorAdapter.swapCursor(data);
+             //   mPatternCursorAdapter.swapCursor(data);
                 mPatternCursor = data;
                 break;
             case KIT_LOADER_ID:
-                mKitCursorAdapter.swapCursor(data);
+             //   mKitCursorAdapter.swapCursor(data);
                 mKitCursor = data;
                 break;
             case JAM_LOADER_ID:
-                mJamCursorAdapter.swapCursor(data);
+             //   mJamCursorAdapter.swapCursor(data);
                 mJamCursor = data;
                 break;
         }
