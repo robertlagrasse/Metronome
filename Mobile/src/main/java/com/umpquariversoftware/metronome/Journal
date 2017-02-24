@@ -1,0 +1,36 @@
+Parking lot for thoughts and notes.
+
+MainActivity -
+Removal of legacy database calls for everything but the components.
+Need to build default 1, 2, 3, 4 beat patterns, single kit, and 4 jams that load with the software.
+These will be the only patterns and the only kit that works offline. Still provides functionality,
+but it's super basic if I can't show you ads. Buttons should only be visible if online.
+
+Pattern Editor button in main activity needs to go away. Need to replace with onLongClick.
+Kit Editor - Ditto
+
+Search button - currently points to checkFirebaseForJam(). Retool this method to check the
+jams/shared table.
+
+shareJam() needs to be retooled to write to jams/shared.
+
+Whenever mJam changes, the Tempo slider needs to be properly positioned
+
+Need a numeric indicator for tempo. Toolbar is a good spot for this, in place of "Metronome"
+
+in/outstate - keep track of the last jam the user was working on
+
+Fix graph so MainActivity looks like the PatternEditor
+
+Fix PatternEditor so it starts with a basic 1 beat pattern.
+
+Fix sharing so the everything fires properly
+
+Admob
+
+Authentication - pretty necessary
+
+Wear support
+
+Time to knock some stuff out!
+

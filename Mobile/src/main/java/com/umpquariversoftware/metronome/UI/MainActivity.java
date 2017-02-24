@@ -118,7 +118,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     ArrayList<FirebaseJam> mUserJams = new ArrayList<>();
     ArrayList<FirebaseJam> mMasterJams = new ArrayList<>();
 
-
     patternListAdapter mPatternListAdapter;
     kitListAdapter mKitListAdapter;
     jamListAdapter mJamListAdapter;
@@ -143,37 +142,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /**
-         * Parking Lot:
-         *
-         * Build 1 basic kit, 4 patterns and 4 Jams that drop into the
-         * associated arraylists at startup and are available without
-         * a network connection.
-         *
-         * 1, 2, 3, and 4 beat jams. Instruments 1 & 2 on the only kit
-         * All other editing functions go dark if there's no network connection.
-         *
-         *
-         *
-         *
-         * */
-
-
-
         mContext = this;
-        /**
-         * Are we already running? No need to start the service if so.
-         * */
 
         if (savedInstanceState != null){
             // Already running.
         } else {
             beatServiceRunning = false;
         }
-
-        /**
-         * Build the layout, and lock down the orientation.
-         * */
 
         setContentView(R.layout.activity_main);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
