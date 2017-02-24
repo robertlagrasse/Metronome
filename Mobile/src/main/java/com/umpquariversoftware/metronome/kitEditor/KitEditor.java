@@ -25,6 +25,13 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.umpquariversoftware.metronome.FireBase.FirebaseKit;
+import com.umpquariversoftware.metronome.FireBase.FirebasePattern;
 import com.umpquariversoftware.metronome.R;
 import com.umpquariversoftware.metronome.UI.RecyclerViewItemClickListener;
 import com.umpquariversoftware.metronome.UI.SnappyRecyclerView;
@@ -52,6 +59,10 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
     componentCursorAdapter mComponentCursorAdapter;
     Cursor mComponentCursor;
     Context mContext;
+    Boolean mMasterListSearchResultsBack = false;
+    Boolean mUserListSearchResultsBack = false;
+
+    FirebaseKit mMasterListKit, mUserListKit;
 
     AudioAttributes audioAttrib = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_MEDIA)
@@ -101,57 +112,58 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
         fab = (FloatingActionButton) findViewById(R.id.kitEditorButton);
         fab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                //First check to see if the kit exists in the database already
-                Cursor cursor = getContentResolver().query(buildKitBySignatureUri(mKit.getSignature()),
-                        null,
-                        null,
-                        null,
-                        null);
-
-                if(cursor.getCount()!=0) {
-                    cursor.moveToFirst();
-                    String kitName = cursor.getString(cursor.getColumnIndex(dbContract.KitTable.NAME));
-                    cursor.close();
-
-                    Log.e("KitEditor", "Cursor was not empty. Name returned was: " + kitName);
-                    final Dialog dialog = new Dialog(mContext);
-
-                    dialog.setContentView(R.layout.alert_dialog);
-                    dialog.setTitle("EXISTS!");
-
-                    TextView alertText = (TextView) dialog.findViewById(R.id.alertText);
-                    alertText.setText(R.string.kit_exists);
-
-                    TextView alertText2 = (TextView) dialog.findViewById(R.id.alertText2);
-                    alertText2.setText(kitName);
-
-                    Button okButton = (Button) dialog.findViewById(R.id.alertOK);
-                    okButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            dialog.cancel();
-                        }
-                    });
-                    dialog.show();
-                } else {
-                    new MaterialDialog.Builder(mContext).title(R.string.enter_kit_name)
-                        .content(R.string.content_test)
-                        .inputType(InputType.TYPE_CLASS_TEXT)
-                        .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
-                            @Override
-                            public void onInput(MaterialDialog dialog, CharSequence input) {
-                                ContentValues contentValues;
-
-                                contentValues = new ContentValues();
-                                contentValues.put(dbContract.KitTable.NAME, input.toString());
-                                contentValues.put(dbContract.KitTable.COMPONENTS, mKit.getSignature());
-
-                                Uri i = getContentResolver().insert(buildKitUri(), contentValues);
-                                Log.e("KitEditor", "insert() Returned URI:" + i.toString());
-                            }
-                        })
-                        .show();
-                }
+                check(mKit.getSignature());
+//                //First check to see if the kit exists in the database already
+//                Cursor cursor = getContentResolver().query(buildKitBySignatureUri(mKit.getSignature()),
+//                        null,
+//                        null,
+//                        null,
+//                        null);
+//
+//                if(cursor.getCount()!=0) {
+//                    cursor.moveToFirst();
+//                    String kitName = cursor.getString(cursor.getColumnIndex(dbContract.KitTable.NAME));
+//                    cursor.close();
+//
+//                    Log.e("KitEditor", "Cursor was not empty. Name returned was: " + kitName);
+//                    final Dialog dialog = new Dialog(mContext);
+//
+//                    dialog.setContentView(R.layout.alert_dialog);
+//                    dialog.setTitle("EXISTS!");
+//
+//                    TextView alertText = (TextView) dialog.findViewById(R.id.alertText);
+//                    alertText.setText(R.string.kit_exists);
+//
+//                    TextView alertText2 = (TextView) dialog.findViewById(R.id.alertText2);
+//                    alertText2.setText(kitName);
+//
+//                    Button okButton = (Button) dialog.findViewById(R.id.alertOK);
+//                    okButton.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View view) {
+//                            dialog.cancel();
+//                        }
+//                    });
+//                    dialog.show();
+//                } else {
+//                    new MaterialDialog.Builder(mContext).title(R.string.enter_kit_name)
+//                        .content(R.string.content_test)
+//                        .inputType(InputType.TYPE_CLASS_TEXT)
+//                        .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
+//                            @Override
+//                            public void onInput(MaterialDialog dialog, CharSequence input) {
+//                                ContentValues contentValues;
+//
+//                                contentValues = new ContentValues();
+//                                contentValues.put(dbContract.KitTable.NAME, input.toString());
+//                                contentValues.put(dbContract.KitTable.COMPONENTS, mKit.getSignature());
+//
+//                                Uri i = getContentResolver().insert(buildKitUri(), contentValues);
+//                                Log.e("KitEditor", "insert() Returned URI:" + i.toString());
+//                            }
+//                        })
+//                        .show();
+//                }
             }
         });
 
@@ -273,5 +285,114 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
+
+    void check(String signature){
+        DatabaseReference mDatabase;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mMasterListSearchResultsBack = false;
+        mUserListSearchResultsBack = false;
+        mMasterListKit = null;
+        mUserListKit = null;
+
+        mDatabase.child("kits").child("master").child(signature)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        FirebaseKit masterListKit  = dataSnapshot.getValue(FirebaseKit.class);
+                        if (masterListKit != null) {
+                            mMasterListKit = masterListKit;
+                        } else {
+                            mMasterListKit = null;
+                        }
+                        mMasterListSearchResultsBack = true;
+                        if(mUserListSearchResultsBack){
+                            if(mMasterListKit!=null){
+                                alert(getString(R.string.kit_exists), mMasterListKit.getName());
+                            } else if(mUserListKit!=null){
+                                alert(getString(R.string.kit_exists), mUserListKit.getName());
+                            } else {
+                                askAndInsert();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+        mDatabase.child("kits").child("users").child("this_user").child(signature)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        FirebaseKit userListKit  = dataSnapshot.getValue(FirebaseKit.class);
+                        if (userListKit != null) {
+                            mUserListKit = userListKit;
+                        } else {
+                            mUserListKit = null;
+                        }
+                        mUserListSearchResultsBack = true;
+                        if(mMasterListSearchResultsBack){
+                            if(mMasterListKit!=null){
+                                alert(getString(R.string.kit_exists), mMasterListKit.getName());
+                            } else if(mUserListKit!=null){
+                                alert(getString(R.string.kit_exists), mUserListKit.getName());
+                            } else {
+                                askAndInsert();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+    void alert(String text1, String text2){
+        final Dialog dialog = new Dialog(mContext);
+
+        dialog.setContentView(R.layout.alert_dialog);
+        dialog.setTitle("EXISTS!");
+
+        TextView alertText = (TextView) dialog.findViewById(R.id.alertText);
+        alertText.setText(text1);
+
+        TextView alertText2 = (TextView) dialog.findViewById(R.id.alertText2);
+        alertText2.setText(text2);
+
+
+        Button okButton = (Button) dialog.findViewById(R.id.alertOK);
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.cancel();
+            }
+        });
+        dialog.show();
+    }
+
+    void askAndInsert(){ // that's what she said.
+        final DatabaseReference mDatabase;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        new MaterialDialog.Builder(mContext).title(R.string.enter_kit_name)
+                .content(R.string.content_test)
+                .inputType(InputType.TYPE_CLASS_TEXT)
+                .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
+                    @Override
+                    public void onInput(MaterialDialog dialog, CharSequence input) {
+                        FirebaseKit fbk = new FirebaseKit(input.toString(), mKit.getSignature());
+                        mDatabase.child("kits")
+                                .child("users")
+                                .child("this_user")
+                                .child(fbk.getSignature())
+                                .setValue(fbk);
+                    }
+                })
+                .show();
     }
 }

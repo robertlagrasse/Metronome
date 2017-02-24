@@ -110,6 +110,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     ArrayList<FirebasePattern> mUserPatterns = new ArrayList<>();
 
     ArrayList<FirebaseKit> mKits = new ArrayList<>();
+    ArrayList<FirebaseKit> mUserKits = new ArrayList<>();
+    ArrayList<FirebaseKit> mMasterKits = new ArrayList<>();
+
 
     ArrayList<FirebaseJam> mJams = new ArrayList<>();
     ArrayList<FirebaseJam> mUserJams = new ArrayList<>();
@@ -585,12 +588,37 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                         for (DataSnapshot child: dataSnapshot.getChildren()) {
                             FirebaseKit fbk = child.getValue(FirebaseKit.class);
                             if (fbk != null) {
-                                mKits.add(fbk);
+                                mMasterKits.add(fbk);
                                 Log.e("MainActivity", "Added Kit to ArrayList with signature: "
                                         + fbk.getSignature()
                                         + " at position: " + mKits.size());
                             }
                         }
+                        mKits.addAll(mMasterKits);
+                        mKitListAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+        mDatabase.child("kits").child("users").child("this_user")
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        mUserKits.clear();
+                        mKits.clear();
+                        mKits.addAll(mMasterKits);
+                        for(DataSnapshot child: dataSnapshot.getChildren()){
+                            FirebaseKit fbk = child.getValue(FirebaseKit.class);
+                            if(fbk!=null){
+                                mUserKits.add(fbk);
+
+                            }
+                        }
+                        mKits.addAll(mUserKits);
                         mKitListAdapter.notifyDataSetChanged();
                     }
 
@@ -1129,6 +1157,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mDatabase.child("jams").child(fbj.getSignature()).setValue(fbj);
 
     }
+
+
+
+
+
 
     void sendJamToFirebase(){
         /**
