@@ -6,14 +6,14 @@ Need to build default 1, 2, 3, 4 beat patterns, single kit, and 4 jams that load
 These will be the only patterns and the only kit that works offline. Still provides functionality,
 but it's super basic if I can't show you ads. Buttons should only be visible if online.
 
-Kit Editor - needs a new icon for the fab in the layout.
+DONE - Kit Editor - needs a new icon for the fab in the layout.
+DONE - Fix button color
+
 
 Whenever mJam changes, the Tempo slider needs to be properly positioned
 
 in/outstate - keep track of the last jam the user was working on
 
-DONE - Fix graph so MainActivity looks like the PatternEditor
-build string array for graph labels so they can be translated.
 
 Admob
 
