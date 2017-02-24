@@ -214,48 +214,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         toolbar= (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        ImageView patternEditorButton = (ImageView) findViewById(R.id.patternEditorButton);
-
-        patternEditorButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getApplicationContext(), PatternEditor.class);
-                startActivity(i);
-            }
-        });
-
-        ImageView kitEditorButton = (ImageView) findViewById(R.id.kitEditorButton);
-        kitEditorButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getApplicationContext(), KitEditor.class);
-                startActivity(i);
-            }
-        });
-
-        ImageView jamSaveButton = (ImageView) findViewById(R.id.saveJamButton);
-
-        jamSaveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // saveJam(false);
-                // resetLoaders();
-                sendJamToFirebase();
-            }
-        });
-
-        ImageView databaseButton = (ImageView) findViewById(R.id.databaseButton);
-        databaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // writeJamtoFirebase();
-                // checkFirebaseForJam();
-                shareJam();
-            }
-        });
-
-        ImageView searchButton = (ImageView) findViewById(R.id.searchButton);
-        searchButton.setOnClickListener(new View.OnClickListener() {
+        ImageView searchForSharedJamButton = (ImageView) findViewById(R.id.searchForSharedJamButton);
+        searchForSharedJamButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new MaterialDialog.Builder(mContext).title(R.string.enter_string)
@@ -270,6 +230,26 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                         .show();
             }
         });
+
+        ImageView shareJamButton = (ImageView) findViewById(R.id.shareJamButton);
+        shareJamButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                shareJam();
+            }
+        });
+
+        ImageView saveJamToCloud = (ImageView) findViewById(R.id.saveJamToCloud);
+        saveJamToCloud.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendJamToFirebase();
+            }
+        });
+
+
+
+
     }
 
     public void tempoChooser(){
@@ -1108,14 +1088,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     public void shareJam(){
-
-        if(isJamInLocalDB(mJam)){
-            writeJamtoFirebase();
-        } else {
-            saveJam(true);
-        }
+        // Write to the shared jams folder everyone has access to
 
         FirebaseJam fbj = new FirebaseJam(mJam);
+        DatabaseReference mDatabase;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.child("jams").child("shared").child(fbj.getSignature()).setValue(fbj);
+
+        // Email the download signature to your friend
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
                 "mailto"," ", null));
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "This is the ID to download");
@@ -1334,6 +1314,43 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    public void addSharedJamFromFirebase(String signature){
+        DatabaseReference mDatabase;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        mDatabase.child("jams").child("shared").child(signature)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        FirebaseJam newFbj = dataSnapshot.getValue(FirebaseJam.class);
+                        if (newFbj != null) {
+                            int tempo = newFbj.getTempo();
+                            Pattern pattern = new Pattern(newFbj.getSignature(),newFbj.getPattern(),mContext);
+                            Kit kit = new Kit(newFbj.getSignature(),newFbj.getKit(),mContext);
+
+                            Jam jam = new Jam();
+                            jam.setName("Downloaded Jam | " + newFbj.getSignature().substring(newFbj.getSignature().length()-6));
+                            jam.setTempo(tempo);
+                            jam.setPattern(pattern);
+                            jam.setKit(kit);
+
+                            // Jam has been downloaded and instantiated here. Now, write
+                            // to the user's jam table, which should kick off that
+                            // change listener and update the UI
+
+                            mJam = jam;
+                            sendJamToFirebase();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
     }
 
 }

@@ -10,9 +10,20 @@ Pattern Editor button in main activity needs to go away. Need to replace with on
 Kit Editor - Ditto
 
 Search button - currently points to checkFirebaseForJam(). Retool this method to check the
-jams/shared table.
+jams/shared table. - Rebuild to addSharedJamFromFirebase() and disconnect references to
+checkFirebaseForJam.
+
+DONE - Find a new Search button icon.
 
 shareJam() needs to be retooled to write to jams/shared.
+Share Function needs the proper icon.
+
+Toolbar - names and icons need to reflect what's going on here.
+Search for a shared jam
+DONE - Share a jam
+Save Jam to cloud.
+Tempo on the toolbar
+Get the rest of this shit off of the toolbar
 
 Whenever mJam changes, the Tempo slider needs to be properly positioned
 

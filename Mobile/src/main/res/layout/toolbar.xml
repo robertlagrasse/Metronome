@@ -4,49 +4,88 @@
     android:layout_height="wrap_content"
     android:background="@color/colorPrimaryDark"
     android:elevation="4dp">
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            />
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp"
-        android:scaleType="fitXY"
-        android:src="@android:drawable/ic_menu_share"
-        android:id="@+id/searchButton" />
+        <ImageView
+            android:id="@+id/searchForSharedJamButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@android:drawable/ic_menu_search"/>
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp"
-        android:scaleType="fitXY"
-        android:src="@android:drawable/ic_menu_help"
-        android:id="@+id/databaseButton" />
+        <ImageView
+            android:id="@+id/shareJamButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@android:drawable/ic_menu_share"/>
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/ic_patternedit"
-        android:id="@+id/patternEditorButton" />
+        <ImageView
+            android:id="@+id/saveJamToCloud"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/ic_cloud_download"/>
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp"
-        android:src="@drawable/ic_content_save"
-        android:id="@+id/saveJamButton" />
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp"
-        android:src="@android:drawable/stat_sys_download"
-        android:id="@+id/kitEditorButton" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:scaleType="fitXY"
+            android:src="@android:drawable/ic_menu_search"
+            android:id="@+id/searchButton"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:scaleType="fitXY"
+            android:visibility="gone"
+            android:src="@android:drawable/ic_menu_help"
+            android:id="@+id/databaseButton" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:src="@drawable/ic_patternedit"
+            android:id="@+id/patternEditorButton" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:visibility="gone"
+            android:src="@drawable/ic_content_save"
+            android:id="@+id/saveJamButton" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:visibility="gone"
+            android:src="@android:drawable/stat_sys_download"
+            android:id="@+id/kitEditorButton" />
+    </LinearLayout>
+
 
 
 
