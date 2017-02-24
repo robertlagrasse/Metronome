@@ -198,8 +198,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
-
-
     private void launchBeatService(){
         Intent i = new Intent(this, BeatService.class);
         i.putExtra("jamID", 2L);
@@ -246,21 +244,22 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 sendJamToFirebase();
             }
         });
-
-
-
-
     }
 
     public void tempoChooser(){
-        int tempo = mJam.getTempo();
+        final int OFFSET = 30; // Seekbar starts at 0. Offset calibrates to minimum tempo.
+        final int tempo = mJam.getTempo();
         SeekBar tempoBar = (SeekBar) findViewById(R.id.tempoBar);
-        tempoBar.setProgress(tempo-30);
+        final TextView tempoDisplay = (TextView) findViewById(R.id.tempoDisplay);
+        tempoBar.setProgress(tempo-OFFSET);
+        tempoDisplay.setText(String.valueOf(tempo));
         tempoBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 // Modify the tempo of the current Jam as we slide
                 mJam.setTempo(i+30);
+                tempoDisplay.setText(String.valueOf(i+OFFSET));
+
             }
 
             @Override
@@ -1307,7 +1306,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
+        switch (item.getItemId()) {
+            case (R.id.menuPatternEditor):{
+                Intent i = new Intent(this, PatternEditor.class);
+                startActivity(i);
+                return true;
+            }
+            case R.id.menuKitEditor:{
+                Intent i = new Intent(this, KitEditor.class);
+                startActivity(i);
+                return true;
+            }
+            default: {
+                return super.onOptionsItemSelected(item);
+            }
+        }
     }
 
     @Override

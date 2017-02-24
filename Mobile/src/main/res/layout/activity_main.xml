@@ -24,7 +24,9 @@
             android:padding="16dp"
             android:id="@+id/tempoBar"
             android:layout_weight="5"
-            android:max="300" />
+            android:max="300"
+            android:layout_marginLeft="32dp"
+            android:layout_marginRight="32dp" />
     </LinearLayout>
 
 

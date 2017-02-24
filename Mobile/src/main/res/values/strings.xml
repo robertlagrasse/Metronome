@@ -18,4 +18,6 @@
     <string name="enter_string">Enter Jam Identifier</string>
     <string name="signature_not_found">Sorry. That signature was not found.</string>
     <string name="jam_already_downloaded">You\'ve already downloaded this jam!</string>
+    <string name="pattern_editor">Pattern Editor</string>
+    <string name="kit_editor">Kit Editor</string>
 </resources>

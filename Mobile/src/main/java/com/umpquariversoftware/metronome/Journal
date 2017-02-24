@@ -6,8 +6,9 @@ Need to build default 1, 2, 3, 4 beat patterns, single kit, and 4 jams that load
 These will be the only patterns and the only kit that works offline. Still provides functionality,
 but it's super basic if I can't show you ads. Buttons should only be visible if online.
 
-Pattern Editor button in main activity needs to go away. Need to replace with onLongClick.
-Kit Editor - Ditto
+DONE - Pattern Editor button in main activity needs to go away. Need to replace with onLongClick.
+DONE - Kit Editor - Ditto
+Kit Editor - needs a new icon for the fab in the layout.
 
 Search button - currently points to checkFirebaseForJam(). Retool this method to check the
 jams/shared table. - Rebuild to addSharedJamFromFirebase() and disconnect references to
@@ -22,8 +23,8 @@ Toolbar - names and icons need to reflect what's going on here.
 DONE - Search for a shared jam
 DONE - Share a jam
 DONE - Save Jam to cloud.
-Tempo on the toolbar
-Get the rest of this shit off of the toolbar
+DONE - Tempo on the toolbar
+DONE - Get the rest of this shit off of the toolbar - Moving Kit and Pattern Editor functions to overflow
 
 Whenever mJam changes, the Tempo slider needs to be properly positioned
 
@@ -37,7 +38,7 @@ DONE - Fix PatternEditor so it starts with a basic 1 beat pattern.
 
 DONE - Fix PatternEditor so new beats are only 1 beat on.
 
-Fix sharing so the everything fires properly
+DONE - Fix sharing so the everything fires properly
 
 Admob
 
