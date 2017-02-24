@@ -57,16 +57,29 @@ public class patternListAdapter extends RecyclerView.Adapter<patternListAdapter.
         series = tempPattern.getPatternDataPoints();
 
         viewHolder.patternGraphView.getViewport().setXAxisBoundsManual(true);
-        viewHolder.patternGraphView.getViewport().setMinX(0.5);
-        viewHolder.patternGraphView.getViewport().setMaxX(tempPattern.getLength() + 0.5);
+        viewHolder.patternGraphView.getViewport().setMinX(1);
+        viewHolder.patternGraphView.getViewport().setMaxX(tempPattern.getLength());
 
         // set manual Y bounds
         viewHolder.patternGraphView.getViewport().setYAxisBoundsManual(true);
         viewHolder.patternGraphView.getViewport().setMinY(1);
         viewHolder.patternGraphView.getViewport().setMaxY(8);
 
+        ArrayList<String> horizontals = new ArrayList<>();
+
+        for(int i=0;i<tempPattern.getLength();++i){
+            horizontals.add(String.valueOf(i+1));
+        }
+        if(tempPattern.getLength() == 1){
+            horizontals.add("");
+        }
+
+        String[] hvals = new String[horizontals.size()];
+        hvals = horizontals.toArray(hvals);
+
         StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(viewHolder.patternGraphView);
-        staticLabelsFormatter.setVerticalLabels(new String[] {"one", "two", "three", "four", "five", "six", "seven", "eight"});
+        staticLabelsFormatter.setVerticalLabels(mContext.getResources().getStringArray(R.array.patternGraphLabels));
+        staticLabelsFormatter.setHorizontalLabels(hvals);
         viewHolder.patternGraphView.getGridLabelRenderer().setLabelFormatter(staticLabelsFormatter);
 
         viewHolder.patternGraphView.addSeries(series);

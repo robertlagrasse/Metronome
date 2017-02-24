@@ -104,7 +104,7 @@ public class PatternEditor extends AppCompatActivity {
         Log.e("PatternEditor","Horizontal Values: " + hvals.toString());
 
         StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graph);
-        staticLabelsFormatter.setVerticalLabels(new String[] {"one", "two", "three", "four", "five", "six", "seven", "eight"});
+        staticLabelsFormatter.setVerticalLabels(mContext.getResources().getStringArray(R.array.patternGraphLabels));
         staticLabelsFormatter.setHorizontalLabels(hvals);
         graph.getGridLabelRenderer().setLabelFormatter(staticLabelsFormatter);
 

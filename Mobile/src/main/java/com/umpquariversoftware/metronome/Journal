@@ -12,7 +12,8 @@ Whenever mJam changes, the Tempo slider needs to be properly positioned
 
 in/outstate - keep track of the last jam the user was working on
 
-Fix graph so MainActivity looks like the PatternEditor
+DONE - Fix graph so MainActivity looks like the PatternEditor
+build string array for graph labels so they can be translated.
 
 Admob
 
