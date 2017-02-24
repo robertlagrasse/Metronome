@@ -22,7 +22,9 @@ in/outstate - keep track of the last jam the user was working on
 
 Fix graph so MainActivity looks like the PatternEditor
 
-Fix PatternEditor so it starts with a basic 1 beat pattern.
+DONE - Fix PatternEditor so it starts with a basic 1 beat pattern.
+
+DONE - Fix PatternEditor so new beats are only 1 beat on.
 
 Fix sharing so the everything fires properly
 

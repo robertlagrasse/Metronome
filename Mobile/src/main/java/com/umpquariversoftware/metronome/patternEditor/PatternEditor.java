@@ -43,7 +43,7 @@ import static com.umpquariversoftware.metronome.database.dbContract.buildPattern
 
 public class PatternEditor extends AppCompatActivity {
     int currentBeat = 1;
-    Pattern pattern = new Pattern("New Pattern", "0102030405060708", null);
+    Pattern pattern = new Pattern("New Pattern", "01", null);
     Beat beat = new Beat();
     Context mContext;
 
@@ -290,7 +290,7 @@ public class PatternEditor extends AppCompatActivity {
         patternBeatNew.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Beat beat = new Beat("FF");
+                Beat beat = new Beat("01");
                 pattern.insertBeat(beat, currentBeat);
                 currentBeat++;
                 setupButtons();
