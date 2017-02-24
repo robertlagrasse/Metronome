@@ -11,6 +11,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class FirebaseJam {
     int tempo;
+    String name;
     String kit;
     String pattern;
     String signature;
@@ -47,6 +48,14 @@ public class FirebaseJam {
                                 .concat(kit)
                                 .concat("|")
                                 .concat(pattern));
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getTempo() {

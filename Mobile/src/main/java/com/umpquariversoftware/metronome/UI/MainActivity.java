@@ -11,12 +11,7 @@ import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
-import android.media.AudioManager;
-import android.media.SoundPool;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -37,23 +32,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.helper.StaticLabelsFormatter;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.PointsGraphSeries;
 import com.umpquariversoftware.metronome.FireBase.FirebaseJam;
 import com.umpquariversoftware.metronome.FireBase.FirebaseKit;
 import com.umpquariversoftware.metronome.FireBase.FirebasePattern;
 import com.umpquariversoftware.metronome.R;
 import com.umpquariversoftware.metronome.database.dbContract;
-import com.umpquariversoftware.metronome.elements.Beat;
-import com.umpquariversoftware.metronome.elements.Component;
 import com.umpquariversoftware.metronome.elements.Jam;
 import com.umpquariversoftware.metronome.elements.Kit;
 import com.umpquariversoftware.metronome.elements.Pattern;
@@ -61,11 +50,7 @@ import com.umpquariversoftware.metronome.kitEditor.KitEditor;
 import com.umpquariversoftware.metronome.patternEditor.PatternEditor;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import static com.umpquariversoftware.metronome.R.id.kitRecyclerView;
 import static com.umpquariversoftware.metronome.database.dbContract.*;
 
 /** OVERVIEW
@@ -120,13 +105,24 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     jamCursorAdapter mJamCursorAdapter;
     Cursor mJamCursor;
 
-    ArrayList<FirebaseKit> mKits = new ArrayList<>();
     ArrayList<FirebasePattern> mPatterns = new ArrayList<>();
+    ArrayList<FirebasePattern> mMasterPatterns = new ArrayList<>();
+    ArrayList<FirebasePattern> mUserPatterns = new ArrayList<>();
+
+    ArrayList<FirebaseKit> mKits = new ArrayList<>();
+
     ArrayList<FirebaseJam> mJams = new ArrayList<>();
+    ArrayList<FirebaseJam> mUserJams = new ArrayList<>();
+    ArrayList<FirebaseJam> mMasterJams = new ArrayList<>();
+
 
     patternListAdapter mPatternListAdapter;
     kitListAdapter mKitListAdapter;
     jamListAdapter mJamListAdapter;
+
+    Boolean mMasterListSearchResultsBack = false;
+    Boolean mUserListSearchResultsBack = false;
+    FirebaseJam mUserListJam, mMasterListJam;
 
     private static final int PATTERN_LOADER_ID = 0;
     private static final int KIT_LOADER_ID = 1;
@@ -135,12 +131,31 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onResume() {
         super.onResume();
-        resetLoaders();
+        mPatternListAdapter.notifyDataSetChanged();
+        mKitListAdapter.notifyDataSetChanged();
+        mJamListAdapter.notifyDataSetChanged();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        /**
+         * Parking Lot:
+         *
+         * Build 1 basic kit, 4 patterns and 4 Jams that drop into the
+         * associated arraylists at startup and are available without
+         * a network connection.
+         *
+         * 1, 2, 3, and 4 beat jams. Instruments 1 & 2 on the only kit
+         * All other editing functions go dark if there's no network connection.
+         *
+         *
+         *
+         *
+         * */
+
+
 
         mContext = this;
         /**
@@ -161,41 +176,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
 
-
         /**
          * Is this the first time we've ever run?
          * */
 
-        int lastLoadedJamID;
-        SharedPreferences prefs = null;
-        prefs = getSharedPreferences(getPackageName(), MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences(getPackageName(), MODE_PRIVATE);
 
         if(prefs.getBoolean("firstrun", true)){
-            /**
-             *  If this is the first time the app's been run, we'll need to do some
-             *  basic setup. The database tables will be created and populated,
-             *  and the default Jam will be selected.
-             */
             createComponentsTable();
-            createKitTable();
-            createPatternTable();
-            createJamTable();
-
-            lastLoadedJamID = 1;
             prefs.edit().putBoolean("firstrun", false).commit();
         } else {
-            /**
-             * We've been here before. Load the last jam we worked with
-             */
-            lastLoadedJamID = prefs.getInt("jamID", 1);
+            //
+            // This will also need to happen onSavedInstance
         }
-
-        /**
-         * Build the Jam the UI will present to the user.
-         * */
-
-        // mJam = buildJamFromDB(lastLoadedJamID);
-        prefs.edit().putInt("jamID", mJam.getDbID()).commit();
 
         /**
          * Start the beat service. Do this before you stand up the UI components
@@ -207,118 +200,120 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             beatServiceRunning = true;
         }
 
-
         /**
-         *
-         * Populate the UI
-         *
-         */
-        setupToolbar();
-//        setupPatternChooser();
-
-//        setupKitChooser();
-//        setupJamChooser();
-//        setupStartStopFAB();
-
-        /**
-         * There is already data in firebase. Even if there wasn't, it would be created
-         * when you run this the first time.
+         * Load data
          * */
 
-        populateArrayListsFromFirebase();
-        setupTempoChooser();
-        setupStartStopFAB();
+        grabData();
+
+        /**
+         * Build the UI
+         */
+
+        setupToolbar();
+        tempoChooser();
+        patternChooser();
+        kitChooser();
+        jamChooser();
+        actionButton();
+
 
     }
 
-    void populateArrayListsFromFirebase(){
-        mJams.clear();
-        mPatterns.clear();
-        mKits.clear();
 
-        DatabaseReference mDatabase;
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.child("jams").child("master")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot child: dataSnapshot.getChildren()) {
-                            FirebaseJam fbj = child.getValue(FirebaseJam.class);
-                            if (fbj != null) {
-                                mJams.add(fbj);
-                                Log.e("MainActivity", "Added jam to ArrayList with signature: "
-                                        + fbj.getSignature()
-                                + " at position: " + mJams.size());
+
+    private void launchBeatService(){
+        Intent i = new Intent(this, BeatService.class);
+        i.putExtra("jamID", 2L);
+        startService(i);
+    }
+
+    public void setupToolbar(){
+        /**
+         * Setup the toolbar and its buttons
+         * */
+
+        toolbar= (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        ImageView patternEditorButton = (ImageView) findViewById(R.id.patternEditorButton);
+
+        patternEditorButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getApplicationContext(), PatternEditor.class);
+                startActivity(i);
+            }
+        });
+
+        ImageView kitEditorButton = (ImageView) findViewById(R.id.kitEditorButton);
+        kitEditorButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getApplicationContext(), KitEditor.class);
+                startActivity(i);
+            }
+        });
+
+        ImageView jamSaveButton = (ImageView) findViewById(R.id.saveJamButton);
+
+        jamSaveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // saveJam(false);
+                // resetLoaders();
+                sendJamToFirebase();
+            }
+        });
+
+        ImageView databaseButton = (ImageView) findViewById(R.id.databaseButton);
+        databaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // writeJamtoFirebase();
+                // checkFirebaseForJam();
+                shareJam();
+            }
+        });
+
+        ImageView searchButton = (ImageView) findViewById(R.id.searchButton);
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new MaterialDialog.Builder(mContext).title(R.string.enter_string)
+                        .content(R.string.content_test)
+                        .inputType(InputType.TYPE_CLASS_TEXT)
+                        .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
+                            @Override
+                            public void onInput(MaterialDialog dialog, CharSequence input) {
+                                checkFirebaseForJam(input.toString());
                             }
-                        }
-                        jamChooser();
-                        Kit kit = new Kit("temp", mJams.get(0).getKit(), mContext);
-                        Pattern pattern = new Pattern("name", mJams.get(0).getPattern(), mContext);
-                        int tempo = mJams.get(0).getTempo();
-                        mJam.setKit(kit);
-                        mJam.setPattern(pattern);
-                        mJam.setTempo(tempo);
+                        })
+                        .show();
+            }
+        });
+    }
 
-                        /**
-                         * See if the pattern is in the pattern list. If not, add it.
-                         * Move the PatternRecyclerView to the position that reflects
-                         * the pattern
-                         *
-                         * */
+    public void tempoChooser(){
+        int tempo = mJam.getTempo();
+        SeekBar tempoBar = (SeekBar) findViewById(R.id.tempoBar);
+        tempoBar.setProgress(tempo-30);
+        tempoBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                // Modify the tempo of the current Jam as we slide
+                mJam.setTempo(i+30);
+            }
 
-                    }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.child("kits").child("master")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot child: dataSnapshot.getChildren()) {
-                            FirebaseKit fbk = child.getValue(FirebaseKit.class);
-                            if (fbk != null) {
-                                mKits.add(fbk);
-                                Log.e("MainActivity", "Added Kit to ArrayList with signature: "
-                                        + fbk.getSignature()
-                                        + " at position: " + mKits.size());
-                            }
-                        }
-                        kitChooser();
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.child("patterns").child("master")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot child: dataSnapshot.getChildren()) {
-                            FirebasePattern fbp = child.getValue(FirebasePattern.class);
-                            if (fbp != null) {
-                                mPatterns.add(fbp);
-                                Log.e("MainActivity", "Added pattern to ArrayList with signature: "
-                                        + fbp.getSignature()
-                                        + " at position: " + mPatterns.size());
-                            }
-                        }
-                        patternChooser();
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                sendBeatBroadcast(false);
+            }
+        });
     }
 
     void patternChooser(){
@@ -364,7 +359,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         patternRecyclerView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                return false;
+                Intent i = new Intent(getApplicationContext(), PatternEditor.class);
+                startActivity(i);
+                return true;
             }
         });
     }
@@ -407,6 +404,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 }
             }
         });
+
     }
 
     void jamChooser(){
@@ -437,6 +435,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     Kit kit = new Kit("temp", mJams.get(position).getKit(), mContext);
                     Pattern pattern = new Pattern("name", mJams.get(position).getPattern(), mContext);
                     int tempo = mJams.get(0).getTempo();
+                    mJam.setName(mJams.get(0).getName());
                     mJam.setKit(kit);
                     mJam.setPattern(pattern);
                     mJam.setTempo(tempo);
@@ -446,7 +445,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                      * pattern. If we can't find it, we create the pattern
                      * from the signature, and add it to the ArrayList.
                      * Rinse and repeat for the kit
-                    **/
+                     **/
                     int patternIndex = -1;
                     for(int x = 0; x<mPatterns.size(); ++x){
                         if(pattern.getPatternHexSignature().equals(mPatterns.get(x).getSignature())){
@@ -489,326 +488,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         });
     }
 
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    /**
-     * Service Methods
-     * */
-
-    private void launchBeatService(){
-        Intent i = new Intent(this, BeatService.class);
-        i.putExtra("jamID", 2L);
-        startService(i);
-    }
-
-    /**
-     * UI Methods
-     * */
-
-    public void setupToolbar(){
-        /**
-         * Setup the toolbar and its buttons
-         * */
-
-        toolbar= (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        ImageView patternEditorButton = (ImageView) findViewById(R.id.patternEditorButton);
-
-        patternEditorButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getApplicationContext(), PatternEditor.class);
-                startActivity(i);
-            }
-        });
-
-        ImageView kitEditorButton = (ImageView) findViewById(R.id.kitEditorButton);
-        kitEditorButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getApplicationContext(), KitEditor.class);
-                startActivity(i);
-            }
-        });
-
-        ImageView jamSaveButton = (ImageView) findViewById(R.id.saveJamButton);
-
-        jamSaveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                saveJam(false);
-                // resetLoaders();
-            }
-        });
-
-        ImageView databaseButton = (ImageView) findViewById(R.id.databaseButton);
-        databaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // writeJamtoFirebase();
-                // checkFirebaseForJam();
-                shareJam();
-            }
-        });
-
-        ImageView searchButton = (ImageView) findViewById(R.id.searchButton);
-        searchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new MaterialDialog.Builder(mContext).title(R.string.enter_string)
-                        .content(R.string.content_test)
-                        .inputType(InputType.TYPE_CLASS_TEXT)
-                        .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
-                            @Override
-                            public void onInput(MaterialDialog dialog, CharSequence input) {
-                                checkFirebaseForJam(input.toString());
-                            }
-                        })
-                        .show();
-            }
-        });
-    }
-
-    public void setupTempoChooser(){
-        int tempo = mJam.getTempo();
-        SeekBar tempoBar = (SeekBar) findViewById(R.id.tempoBar);
-        tempoBar.setProgress(tempo-30);
-        tempoBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                // Modify the tempo of the current Jam as we slide
-                mJam.setTempo(i+30);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // When we stop sliding, send the jam to the database
-                // Then alert the BeatService to pull the new Jam.
-                sendBeatBroadcast(false);
-            }
-        });
-    }
-
-    public void setupPatternChooser(){
-        getLoaderManager().initLoader(PATTERN_LOADER_ID, null, this);
-
-        final SnappyRecyclerView patternRecyclerView = (SnappyRecyclerView) findViewById(R.id.patternRecyclerView);
-        patternRecyclerView.setHasFixedSize(true);
-        final LinearLayoutManager patternLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        patternRecyclerView.setLayoutManager(patternLinearLayoutManager);
-
-        final SnapHelper snapHelper = new LinearSnapHelper();
-        snapHelper.attachToRecyclerView(patternRecyclerView);
-
-        mPatternCursorAdapter = new patternCursorAdapter(this, null);
-        patternRecyclerView.setAdapter(mPatternCursorAdapter);
-
-        patternRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
-                new RecyclerViewItemClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View v, int position) {
-                        // read info, do stuff.
-                        Log.e("recyclerview", "clicked " + position);
-                    }
-
-                }));
-
-        patternRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                if(patternRecyclerView.getFirstVisibleItemPosition() >=0){
-                    // get information from db
-                    String patternID = String.valueOf(patternRecyclerView.getFirstVisibleItemPosition() + 1);
-                    mPatternID = patternID;
-                    Cursor retCursor = getContentResolver().query(buildPatternUri().buildUpon().appendPath(patternID).build(),
-                            null,
-                            null,
-                            null,
-                            null);
-                    retCursor.moveToFirst();
-
-                    String patternName = retCursor.getString(retCursor.getColumnIndex(PatternTable.NAME));
-                    String patternSequence = retCursor.getString(retCursor.getColumnIndex(PatternTable.SEQUENCE));
-                    Pattern pattern = new Pattern(patternName, patternSequence, getApplicationContext());
-                    pattern.setDatabaseID(Integer.parseInt(patternID));
-                    mJam.setPattern(pattern);
-
-                    // Then alert the BeatService
-                    sendBeatBroadcast(false);
-                }
-            }
-        });
-    }
-
-    public void setupKitChooser(){
-        getLoaderManager().initLoader(KIT_LOADER_ID, null, this);
-
-        final SnappyRecyclerView kitRecyclerView = (SnappyRecyclerView) findViewById(R.id.kitRecyclerView);
-        kitRecyclerView.setHasFixedSize(true);
-        LinearLayoutManager kitLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        kitRecyclerView.setLayoutManager(kitLinearLayoutManager);
-
-        SnapHelper snapHelper = new LinearSnapHelper();
-        snapHelper.attachToRecyclerView(kitRecyclerView);
-
-        mKitCursorAdapter = new kitCursorAdapter(this, null);
-        kitRecyclerView.setAdapter(mKitCursorAdapter);
-
-        kitRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
-                new RecyclerViewItemClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View v, int position) {
-                        mKitCursor.moveToPosition(position);
-                        Log.e("recyclerview", "click!");
-                        // read info, do stuff.
-                    }
-                }));
-
-        kitRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                if(kitRecyclerView.getFirstVisibleItemPosition() >=0){
-                    // get information from db
-                    String kitID = String.valueOf(kitRecyclerView.getFirstVisibleItemPosition() + 1);
-                    mKitID = kitID;
-                    Cursor retCursor = getContentResolver().query(buildKitUri().buildUpon().appendPath(kitID).build(),
-                            null,
-                            null,
-                            null,
-                            null);
-                    retCursor.moveToFirst();
-
-                    String kitName = retCursor.getString(retCursor.getColumnIndex(KitTable.NAME));
-                    String kitSequence = retCursor.getString(retCursor.getColumnIndex(KitTable.COMPONENTS));
-                    Kit kit = new Kit(kitName, kitSequence, getApplicationContext());
-                    kit.setDatabaseID(Integer.parseInt(kitID));
-                    mJam.setKit(kit);
-                    // Then alert the BeatService
-                    sendBeatBroadcast(false);
-                }
-            }
-        });
-    }
-
-    public void setupJamChooser(){
-        /**
-         *  Setup UI and Loader
-         */
-
-        getLoaderManager().initLoader(JAM_LOADER_ID, null, this);
-
-        final SnappyRecyclerView jamRecyclerView = (SnappyRecyclerView) findViewById(R.id.jamRecyclerView);
-        jamRecyclerView.setHasFixedSize(true);
-        final LinearLayoutManager jamLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        jamRecyclerView.setLayoutManager(jamLinearLayoutManager);
-
-        mJamCursorAdapter = new jamCursorAdapter(this, null);
-        jamRecyclerView.setAdapter(mJamCursorAdapter);
-
-        /**
-         *  Listen for Clicks
-         */
-
-        jamRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
-                new RecyclerViewItemClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View v, int position) {
-                        mJamCursor.moveToPosition(position);
-                        Log.e("recyclerview", "click!");
-                        // read info, do stuff.
-                    }
-                }));
-
-        /**
-         * Listen for Scroll Events
-         */
-
-        jamRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                if(jamRecyclerView.getFirstVisibleItemPosition() >=0){
-
-                    mJamCursor.moveToPosition(jamRecyclerView.getFirstVisibleItemPosition());
-                    long id = mJamCursorAdapter.getItemId(jamRecyclerView.getFirstVisibleItemPosition());
-                    mJam = buildJamFromDB(id);
-
-                    /**
-                     *  Identify the corresponding kit by searching for its signature in the DB
-                     *  Once located, move the recyclerview to that position
-                     */
-
-                    Cursor retCursor = getContentResolver().query(buildKitUri(),
-                            null,
-                            KitTable.COMPONENTS + " = ?",
-                            new String[]{mJam.getKit().getSignature()},
-                            null);
-                    retCursor.moveToFirst();
-
-                    int kitID = Integer.parseInt(retCursor.getString(retCursor.getColumnIndex(KitTable.ID)));
-
-                    for(int x=0;x<mKitCursorAdapter.getItemCount();++x){
-                        if (mKitCursorAdapter.getItemId(x) == kitID){
-                            id = x;
-                        }
-                    }
-
-                    SnappyRecyclerView kit = (SnappyRecyclerView) findViewById(kitRecyclerView);
-                    kit.scrollToPosition((int) id);
-
-                    /**
-                     * Identify the corresponding pattern by searching for its signature in the DB
-                     * Once located, move the recyclerview to that position.
-                     */
-
-                    retCursor = getContentResolver().query(buildPatternUri(),
-                            null,
-                            PatternTable.SEQUENCE + " = ?",
-                            new String[]{mJam.getPattern().getPatternHexSignature()},
-                            null);
-                    retCursor.moveToFirst();
-
-                    int patternID = Integer.parseInt(retCursor.getString(retCursor.getColumnIndex(PatternTable.ID)));
-
-                    for(int x=0;x<mPatternCursorAdapter.getItemCount();++x){
-                        if (mPatternCursorAdapter.getItemId(x) == patternID){
-                            id = x;
-                        }
-                    }
-                    SnappyRecyclerView pattern = (SnappyRecyclerView) findViewById(R.id.patternRecyclerView);
-                    pattern.scrollToPosition((int) id);
-
-                    /**
-                     * The Jam has been changed. Stop start the timer in response if it's running.
-                     */
-
-                    sendBeatBroadcast(false);
-                    // getLoaderManager().getLoader(JAM_LOADER_ID).onContentChanged();
-                    // resetLoaders();
-                }
-            }
-        });
-
-    }
-
-    public void setupStartStopFAB(){
+    public void actionButton(){
         FloatingActionButton startstop;
         startstop = (FloatingActionButton) findViewById(R.id.startStopButton);
         startstop.setOnClickListener(new View.OnClickListener() {
@@ -817,6 +497,159 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 sendBeatBroadcast(true);
             }
         });
+    }
+
+    void grabData(){
+        /**
+         * Initialize the ArrayLists
+         * */
+        mPatterns.clear();
+        mMasterPatterns.clear();
+        mUserPatterns.clear();
+
+        mJams.clear();
+        mMasterJams.clear();
+        mUserJams.clear();
+
+        mKits.clear();
+
+
+        /**
+         * Download the Jams table from Firebase
+         * Send the information to jamChooser to setup the RecyclerView
+         * Build the Jam we'll start with.
+         * **/
+
+        DatabaseReference mDatabase;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.child("jams").child("master")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot child: dataSnapshot.getChildren()) {
+                            FirebaseJam fbj = child.getValue(FirebaseJam.class);
+                            if (fbj != null) {
+                                mMasterJams.add(fbj);
+                            }
+                        }
+                        mJams.addAll(mMasterJams);
+                        mJamListAdapter.notifyDataSetChanged();
+                        Kit kit = new Kit("temp", mJams.get(0).getKit(), mContext);
+                        Pattern pattern = new Pattern("name", mJams.get(0).getPattern(), mContext);
+                        int tempo = mJams.get(0).getTempo();
+                        mJam.setKit(kit);
+                        mJam.setPattern(pattern);
+                        mJam.setTempo(tempo);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+        mDatabase.child("jams").child("users").child("this_user")
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        mUserJams.clear();
+                        mJams.clear();
+                        mJams.addAll(mMasterJams);
+                        for(DataSnapshot child: dataSnapshot.getChildren()){
+                            FirebaseJam fbj = child.getValue(FirebaseJam.class);
+                            if (fbj!=null){
+                                mUserJams.add(fbj);
+                            }
+                        }
+                        mJams.addAll(mUserJams);
+                        mJamListAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+        /**
+         * Download the Kits table from Firebase
+         * Send the information to the kitChooser to setup the RecyclerView
+         *
+         * */
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.child("kits").child("master")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot child: dataSnapshot.getChildren()) {
+                            FirebaseKit fbk = child.getValue(FirebaseKit.class);
+                            if (fbk != null) {
+                                mKits.add(fbk);
+                                Log.e("MainActivity", "Added Kit to ArrayList with signature: "
+                                        + fbk.getSignature()
+                                        + " at position: " + mKits.size());
+                            }
+                        }
+                        mKitListAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.child("patterns").child("master")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot child: dataSnapshot.getChildren()) {
+                            FirebasePattern fbp = child.getValue(FirebasePattern.class);
+                            if (fbp != null) {
+                                mMasterPatterns.add(fbp);
+                                Log.e("MainActivity", "Added pattern to ArrayList with signature: "
+                                        + fbp.getSignature()
+                                        + " at position: " + mMasterPatterns.size());
+                            }
+                        }
+                        mPatterns.addAll(mMasterPatterns);
+                        mPatternListAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.child("patterns").child("users").child("this_user")
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        mUserPatterns.clear();
+                        mPatterns.clear();
+                        mPatterns.addAll(mMasterPatterns);
+                        for (DataSnapshot child: dataSnapshot.getChildren()) {
+                            FirebasePattern fbp = child.getValue(FirebasePattern.class);
+                            if (fbp != null) {
+                                mUserPatterns.add(fbp);
+                                Log.e("MainActivity", "Added pattern to ArrayList with signature: "
+                                        + fbp.getSignature()
+                                        + " at position: " + mUserPatterns.size());
+                            }
+                        }
+                        mPatterns.addAll(mUserPatterns);
+                        mPatternListAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
     }
 
     /**
@@ -871,18 +704,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoaderReset(Loader<Cursor> loader) {
 
     }
-
-    public void resetLoaders(){
-        Log.e("resetLoaders", "resetLoaders");
-        getLoaderManager().restartLoader(PATTERN_LOADER_ID, null, this);
-        getLoaderManager().restartLoader(KIT_LOADER_ID, null, this);
-        getLoaderManager().restartLoader(JAM_LOADER_ID, null, this);
-    }
-
-
-    /**
-     * Database Prepopulation/Setup
-     * */
 
     private void createComponentsTable(){
         ContentValues contentValues;
@@ -979,6 +800,18 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
+    public void resetLoaders(){
+        Log.e("resetLoaders", "resetLoaders");
+        getLoaderManager().restartLoader(PATTERN_LOADER_ID, null, this);
+        getLoaderManager().restartLoader(KIT_LOADER_ID, null, this);
+        getLoaderManager().restartLoader(JAM_LOADER_ID, null, this);
+    }
+
+    /**
+     * Soon to be deprecated entirely.
+     * */
+
+
     private void createKitTable(){
         ArrayList<ContentValues> kits = new ArrayList<>();
         ContentValues contentValues;
@@ -1018,7 +851,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             mDatabase.child("kits")
                     .child("master")
-                    .child(fbk.getName())
+                    .child(fbk.getSignature())
                     .setValue(fbk);
         }
     }
@@ -1064,7 +897,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             mDatabase.child("patterns")
                     .child("master")
-                    .child(fbp.getName())
+                    .child(fbp.getSignature())
                     .setValue(fbp);
         }
     }
@@ -1147,6 +980,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             int tempo = FirebaseJams.get(x).getAsInteger(JamTable.TEMPO);
 
             FirebaseJam fbj = new FirebaseJam(tempo, kitSignature ,patternSignature);
+            fbj.setName(name);
 
             mDatabase.child("jams")
                     .child("master")
@@ -1157,144 +991,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
-    private Jam buildJamFromDB(long id){
 
-        /**
-         * A Jam has to have the following parts:
-         *
-         * Name
-         * Tempo
-         * Kit
-         * Pattern
-         *
-         * We'll pull the Name and Tempo from the DB directly, along with references
-         * to the Kit and the Pattern info, then build the kit and the pattern from there.
-         *
-         */
-
-        Cursor retCursor = getContentResolver().query(buildJamUri().buildUpon().appendPath(String.valueOf(id)).build(),
-                null,
-                null,
-                null,
-                null);
-        retCursor.moveToFirst();
-
-        String jamName = retCursor.getString(retCursor.getColumnIndex(JamTable.NAME));
-        int jamTempo = Integer.parseInt(retCursor.getString(retCursor.getColumnIndex(JamTable.TEMPO)));
-        int dbID = Integer.parseInt(retCursor.getString(retCursor.getColumnIndex(JamTable.ID)));
-
-        String kitID = retCursor.getString(retCursor.getColumnIndex(JamTable.KIT_ID));
-        String patternID = retCursor.getString(retCursor.getColumnIndex(JamTable.PATTERN_ID));
-
-        retCursor.close();
-
-        /**
-         *
-         * Now we'll build the pattern. We'll use the pattern ID to get the pattern sequence
-         * from the database, then use that sequence to create the beats.
-         *
-         * A pattern is a name and an array list of beats.
-         *
-         * The Pattern class has a constructor that will build a pattern directly from a
-         * signature. It leverages a Beat constructor that creates a beat from an individual
-         * Hex value.
-         *
-         */
-
-        retCursor = getContentResolver().query(buildPatternUri().buildUpon().appendPath(patternID).build(),
-                null,
-                null,
-                null,
-                null);
-        retCursor.moveToFirst();
-
-        String patternName = retCursor.getString(retCursor.getColumnIndex(PatternTable.NAME));
-        String patternSequence = retCursor.getString(retCursor.getColumnIndex(PatternTable.SEQUENCE));
-
-        Pattern pattern = new Pattern(patternName, patternSequence, this);
-        pattern.setDatabaseID(retCursor.getInt(retCursor.getColumnIndex(PatternTable.ID)));
-
-        Log.e("buildJamFromDB", "pattern database ID set to: " + pattern.getDatabaseID());
-
-        /**
-         *
-         * Next we build the Kit. A kit is a name and an array list of components.
-         *
-         * We'll use the KitID to get the Kit sequence from the DB.
-         *
-         * The Kit class has a constructor that will build a kit directly from a signature.
-         *
-         */
-
-        retCursor = getContentResolver().query(buildKitUri().buildUpon().appendPath(kitID).build(),
-                null,
-                null,
-                null,
-                null);
-        retCursor.moveToFirst();
-
-        String kitComponents = retCursor.getString(retCursor.getColumnIndex(KitTable.COMPONENTS));
-        String kitName = retCursor.getString(retCursor.getColumnIndex(KitTable.NAME));
-
-        Kit kit = new Kit(kitName, kitComponents, this);
-        kit.setName(kitName);
-        kit.setDatabaseID(retCursor.getInt(retCursor.getColumnIndex(KitTable.ID)));
-
-        Log.e("buildJamFromDB", "kit database ID set to: " + kit.getDatabaseID());
-        retCursor.close();
-
-        /**
-         * Finally, we bring all of the pieces together and create the jam.
-         */
-
-        Jam jam = new Jam();
-
-        jam.setName(jamName);
-        jam.setTempo(jamTempo);
-        jam.setKit(kit);
-        jam.setPattern(pattern);
-        jam.setDbID(dbID);
-
-        return jam;
-    }
 
     protected void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
         outState.putInt("jamID", mJam.getDbID());
         Log.e("onSaveInstanceState", "writing...");
-    }
-
-    private void readFireBaseJamTable(){
-        DatabaseReference mDatabase;
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.child("jams")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot child: dataSnapshot.getChildren()) {
-                            FirebaseJam newFbj = child.getValue(FirebaseJam.class);
-                            if (newFbj != null) {
-                                Log.e("MainActivity", "checkFirebaseForJam() newFbj was populated by Firebase call. Signature: " + newFbj.getSignature());
-                                Log.e("MainActivity", "checkFirebaseForJam() newFbj.getTempo(): " + newFbj.getTempo());
-                                Log.e("MainActivity", "checkFirebaseForJam() newFbj.getPattern(): " + newFbj.getPattern());
-                                Log.e("MainActivity", "checkFirebaseForJam() newFbj.getKit(): " + newFbj.getKit());
-                            }
-                        }
-
-                        // Test routine - instantiates a jam and pushes to the service
-                        // Entirely pulled from Firebase. (works!)
-//                        mJam.setTempo(mJams.get(1).getTempo());
-//                        mJam.setKit(new Kit("name",mJams.get(1).getKit(),mContext));
-//                        mJam.setPattern(new Pattern("pattern", mJams.get(1).getPattern(), mContext));
-//                        sendBeatBroadcast(true);
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
     }
 
     public void sendBeatBroadcast(boolean fab){
@@ -1428,6 +1130,105 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
+    void sendJamToFirebase(){
+        /**
+         * First, iterate through the mJam arrayList to see if the
+         * jam signature shows up there.
+         *
+         * Next, query Firebase for the jam in both master and user table
+         * */
+
+        String signature = new FirebaseJam(mJam).getSignature();
+        DatabaseReference mDatabase;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mMasterListSearchResultsBack = false;
+        mUserListSearchResultsBack = false;
+
+        mMasterListJam = null;
+        for(int x=0; x<mMasterJams.size(); ++x){
+            if(mMasterJams.get(x).getSignature().equals(signature)){
+                mMasterListJam = new FirebaseJam(mMasterJams.get(x).getTempo(),
+                        mMasterJams.get(x).getKit(),
+                        mMasterJams.get(x).getPattern());
+                mMasterListJam.setName(mMasterJams.get(x).getName());
+            }
+        }
+        mMasterListSearchResultsBack = true;
+
+        mDatabase.child("jams").child("users").child("this_user").child(signature)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        FirebaseJam userListJam  = dataSnapshot.getValue(FirebaseJam.class);
+                        if (userListJam != null) {
+                            mUserListJam = userListJam;
+                        } else {
+                            mUserListJam = null;
+                        }
+                        mUserListSearchResultsBack = true;
+                        if(mMasterListSearchResultsBack){
+                            if(mMasterListJam!=null){
+                                alert(getString(R.string.jam_exists), mMasterListJam.getName());
+                            } else if(mUserListJam!=null){
+                                alert(getString(R.string.jam_exists), mUserListJam.getName());
+                            } else {
+                                askAndInsert();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+    void alert(String text1, String text2){
+        final Dialog dialog = new Dialog(mContext);
+
+        dialog.setContentView(R.layout.alert_dialog);
+        dialog.setTitle("EXISTS!");
+
+        TextView alertText = (TextView) dialog.findViewById(R.id.alertText);
+        alertText.setText(text1);
+
+        TextView alertText2 = (TextView) dialog.findViewById(R.id.alertText2);
+        alertText2.setText(text2);
+
+
+        Button okButton = (Button) dialog.findViewById(R.id.alertOK);
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.cancel();
+            }
+        });
+        dialog.show();
+    }
+
+    void askAndInsert(){ // that's what she said.
+        final DatabaseReference mDatabase;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        new MaterialDialog.Builder(mContext).title(R.string.enter_pattern_name)
+                .content(R.string.content_test)
+                .inputType(InputType.TYPE_CLASS_TEXT)
+                .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
+                    @Override
+                    public void onInput(MaterialDialog dialog, CharSequence input) {
+                        FirebaseJam fbj = new FirebaseJam(mJam);
+                        fbj.setName(input.toString());
+                        mDatabase.child("jams")
+                                .child("users")
+                                .child("this_user")
+                                .child(fbj.getSignature())
+                                .setValue(fbj);
+                    }
+                })
+                .show();
+    }
+
     void checkFirebaseForJam(String signature){
 
         DatabaseReference mDatabase;
@@ -1514,6 +1315,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         } else {
             return false;
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
 }

@@ -19,10 +19,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.PointsGraphSeries;
+import com.umpquariversoftware.metronome.FireBase.FirebaseJam;
+import com.umpquariversoftware.metronome.FireBase.FirebasePattern;
 import com.umpquariversoftware.metronome.R;
 import com.umpquariversoftware.metronome.database.dbContract;
 import com.umpquariversoftware.metronome.elements.Beat;
@@ -30,6 +37,7 @@ import com.umpquariversoftware.metronome.elements.Pattern;
 
 import java.util.ArrayList;
 
+import static com.umpquariversoftware.metronome.R.id.patternName;
 import static com.umpquariversoftware.metronome.database.dbContract.buildPatternBySignatureURI;
 import static com.umpquariversoftware.metronome.database.dbContract.buildPatternUri;
 
@@ -38,6 +46,11 @@ public class PatternEditor extends AppCompatActivity {
     Pattern pattern = new Pattern("New Pattern", "0102030405060708", null);
     Beat beat = new Beat();
     Context mContext;
+
+    Boolean mMasterListSearchResultsBack = false;
+    Boolean mUserListSearchResultsBack = false;
+    FirebasePattern mUserListPattern, mMasterListPattern;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -300,68 +313,118 @@ public class PatternEditor extends AppCompatActivity {
         patternSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Check to see if the current pattern exists in the database
-                // Pop up a dialog box either telling the user the pattern
-                // is in the DB, or asking for a new pattern name
-                // Once everything checks out, drop values into
-                // CV pairs, and send to the db
-                Log.e("PatternEditor", "patternSave.OnClick. Querying DB for pattern.getPatternHexSignature():  " +
-                        pattern.getPatternHexSignature());
-
-                Cursor cursor = getContentResolver().query(buildPatternBySignatureURI(pattern.getPatternHexSignature()),
-                        null,null,null,null);
-                Log.e("PatternEditor", "patternSave.onClick DB query cursor.getCount():   " +
-                        cursor.getCount());
-
-                if(cursor.getCount()!=0){
-                    cursor.moveToFirst();
-                    String patternName = cursor.getString(cursor.getColumnIndex(dbContract.PatternTable.NAME));
-                    cursor.close();
-
-                    // Tell the user the pattern already exists. Show name.
-                    final Dialog dialog = new Dialog(mContext);
-
-                    dialog.setContentView(R.layout.alert_dialog);
-                    dialog.setTitle("EXISTS!");
-
-                    TextView alertText = (TextView) dialog.findViewById(R.id.alertText);
-                    alertText.setText(R.string.pattern_exists);
-
-                    TextView alertText2 = (TextView) dialog.findViewById(R.id.alertText2);
-                    alertText2.setText(patternName);
-
-
-                    Button okButton = (Button) dialog.findViewById(R.id.alertOK);
-                    okButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            dialog.cancel();
-                        }
-                    });
-                    dialog.show();
-
-                } else {
-                    new MaterialDialog.Builder(mContext).title(R.string.enter_pattern_name)
-                            .content(R.string.content_test)
-                            .inputType(InputType.TYPE_CLASS_TEXT)
-                            .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
-                                @Override
-                                public void onInput(MaterialDialog dialog, CharSequence input) {
-                                    ContentValues contentValues;
-
-                                    contentValues = new ContentValues();
-                                    contentValues.put(dbContract.PatternTable.NAME, input.toString());
-                                    contentValues.put(dbContract.PatternTable.SEQUENCE, pattern.getPatternHexSignature());
-
-                                    Uri i = getContentResolver().insert(buildPatternUri(), contentValues);
-                                    Log.e("CreatePatternTable", "insert() Returned URI:" + i.toString());
-                                }
-                            })
-                            .show();
-                }
+                check(pattern.getPatternHexSignature());
             }
         });
 
     }
 
+    void check(String signature){
+        DatabaseReference mDatabase;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mMasterListSearchResultsBack = false;
+        mUserListSearchResultsBack = false;
+        mMasterListPattern = null;
+        mUserListPattern = null;
+
+        mDatabase.child("patterns").child("master").child(signature)
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    FirebasePattern masterListPattern  = dataSnapshot.getValue(FirebasePattern.class);
+                    if (masterListPattern != null) {
+                        mMasterListPattern = masterListPattern;
+                    } else {
+                        mMasterListPattern = null;
+                    }
+                    mMasterListSearchResultsBack = true;
+                    if(mUserListSearchResultsBack){
+                        if(mMasterListPattern!=null){
+                            alert(getString(R.string.pattern_exists), mMasterListPattern.getName());
+                        } else if(mUserListPattern!=null){
+                            alert(getString(R.string.pattern_exists), mUserListPattern.getName());
+                        } else {
+                            askAndInsert();
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+        });
+
+        mDatabase.child("patterns").child("users").child("this_user").child(signature)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        FirebasePattern userListPattern  = dataSnapshot.getValue(FirebasePattern.class);
+                        if (userListPattern != null) {
+                            mUserListPattern = userListPattern;
+                        } else {
+                            mUserListPattern = null;
+                        }
+                        mUserListSearchResultsBack = true;
+                        if(mMasterListSearchResultsBack){
+                            if(mMasterListPattern!=null){
+                                alert(getString(R.string.pattern_exists), mMasterListPattern.getName());
+                            } else if(mUserListPattern!=null){
+                                alert(getString(R.string.pattern_exists), mUserListPattern.getName());
+                            } else {
+                                askAndInsert();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+    void alert(String text1, String text2){
+        final Dialog dialog = new Dialog(mContext);
+
+        dialog.setContentView(R.layout.alert_dialog);
+        dialog.setTitle("EXISTS!");
+
+        TextView alertText = (TextView) dialog.findViewById(R.id.alertText);
+        alertText.setText(text1);
+
+        TextView alertText2 = (TextView) dialog.findViewById(R.id.alertText2);
+        alertText2.setText(text2);
+
+
+        Button okButton = (Button) dialog.findViewById(R.id.alertOK);
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.cancel();
+            }
+        });
+        dialog.show();
+    }
+
+    void askAndInsert(){ // that's what she said.
+        final DatabaseReference mDatabase;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        new MaterialDialog.Builder(mContext).title(R.string.enter_pattern_name)
+                .content(R.string.content_test)
+                .inputType(InputType.TYPE_CLASS_TEXT)
+                .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
+                    @Override
+                    public void onInput(MaterialDialog dialog, CharSequence input) {
+                        FirebasePattern fbp = new FirebasePattern(input.toString(), pattern.getPatternHexSignature());
+                        mDatabase.child("patterns")
+                                .child("users")
+                                .child("this_user")
+                                .child(fbp.getSignature())
+                                .setValue(fbp);
+                    }
+                })
+                .show();
+    }
 }

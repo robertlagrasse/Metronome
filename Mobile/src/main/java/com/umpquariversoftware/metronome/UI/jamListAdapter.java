@@ -51,7 +51,7 @@ public class jamListAdapter extends RecyclerView.Adapter<jamListAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(jamListAdapter.ViewHolder viewHolder, int position) {
-        String name = firebaseJams.get(position).getSignature();
+        String name = firebaseJams.get(position).getName();
         String tempo = String.valueOf(firebaseJams.get(position).getTempo());
 
         viewHolder.name.setText(name);
