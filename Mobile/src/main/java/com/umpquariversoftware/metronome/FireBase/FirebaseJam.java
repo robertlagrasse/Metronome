@@ -35,6 +35,18 @@ public class FirebaseJam {
                 .concat(pattern));
     }
 
+    public FirebaseJam(String name, int tempo, String kit, String pattern) {
+        this.name = name;
+        this.tempo = tempo;
+        this.kit = kit;
+        this.pattern = pattern;
+        this.signature = md5(String.valueOf(tempo)
+                .concat("|")
+                .concat(kit)
+                .concat("|")
+                .concat(pattern));
+    }
+
     public FirebaseJam() {
 
     }

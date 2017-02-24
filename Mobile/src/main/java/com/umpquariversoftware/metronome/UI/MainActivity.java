@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     Boolean beatServiceRunning = false;
     private Toolbar toolbar;
     Context mContext;
+    final int TEMPO_OFFSET = 30; // Seekbar starts at 0. Offset calibrates to minimum tempo.
 
 
     /**
@@ -108,15 +109,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     ArrayList<FirebasePattern> mPatterns = new ArrayList<>();
     ArrayList<FirebasePattern> mMasterPatterns = new ArrayList<>();
     ArrayList<FirebasePattern> mUserPatterns = new ArrayList<>();
+    ArrayList<FirebasePattern> mLocalPattern = new ArrayList<>();
 
     ArrayList<FirebaseKit> mKits = new ArrayList<>();
     ArrayList<FirebaseKit> mUserKits = new ArrayList<>();
     ArrayList<FirebaseKit> mMasterKits = new ArrayList<>();
+    ArrayList<FirebaseKit> mLocalKits = new ArrayList<>();
 
 
     ArrayList<FirebaseJam> mJams = new ArrayList<>();
     ArrayList<FirebaseJam> mUserJams = new ArrayList<>();
     ArrayList<FirebaseJam> mMasterJams = new ArrayList<>();
+    ArrayList<FirebaseJam> mLocalJams = new ArrayList<>();
+
 
     patternListAdapter mPatternListAdapter;
     kitListAdapter mKitListAdapter;
@@ -179,10 +184,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
 
         /**
-         * Load data
+         * Create Local Resources available offline
          * */
 
-        grabData();
+        createLocalResources();
 
         /**
          * Build the UI
@@ -194,6 +199,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         kitChooser();
         jamChooser();
         actionButton();
+
+        /**
+         * Load data
+         * */
+
+        grabData();
 
 
     }
@@ -247,19 +258,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     public void tempoChooser(){
-        final int OFFSET = 30; // Seekbar starts at 0. Offset calibrates to minimum tempo.
         final int tempo = mJam.getTempo();
         SeekBar tempoBar = (SeekBar) findViewById(R.id.tempoBar);
         final TextView tempoDisplay = (TextView) findViewById(R.id.tempoDisplay);
-        tempoBar.setProgress(tempo-OFFSET);
+        tempoBar.setProgress(tempo-TEMPO_OFFSET);
         tempoDisplay.setText(String.valueOf(tempo));
         tempoBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 // Modify the tempo of the current Jam as we slide
                 mJam.setTempo(i+30);
-                tempoDisplay.setText(String.valueOf(i+OFFSET));
-
+                tempoDisplay.setText(String.valueOf(i+TEMPO_OFFSET));
             }
 
             @Override
@@ -396,6 +405,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     mJam.setKit(kit);
                     mJam.setPattern(pattern);
                     mJam.setTempo(tempo);
+
+                    SeekBar tempoBar = (SeekBar) findViewById(R.id.tempoBar);
+                    tempoBar.setProgress(mJam.getTempo()-TEMPO_OFFSET);
                     /**
                      * Figure out if the pattern associated with the Jam is
                      * a pattern in our list already. Get the index of that
@@ -436,9 +448,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     SnappyRecyclerView kitRecyclerView = (SnappyRecyclerView) findViewById(R.id.kitRecyclerView);
                     kitRecyclerView.scrollToPosition(kitIndex);
 
-                    SeekBar tempoBar = (SeekBar) findViewById(R.id.tempoBar);
-                    tempoBar.setProgress(mJam.getTempo() - 30);
-
                     sendBeatBroadcast(false);
                 }
             }
@@ -469,6 +478,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mUserJams.clear();
 
         mKits.clear();
+
+        mKits.addAll(mLocalKits);
+        mPatterns.addAll(mLocalPattern);
+        mJams.addAll(mLocalJams);
 
 
         /**
@@ -511,6 +524,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         mUserJams.clear();
                         mJams.clear();
+                        mJams.addAll(mLocalJams);
                         mJams.addAll(mMasterJams);
                         for(DataSnapshot child: dataSnapshot.getChildren()){
                             FirebaseJam fbj = child.getValue(FirebaseJam.class);
@@ -524,7 +538,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
+                        mJams.clear();
+                        mJams.addAll(mLocalJams);
+                        mJamListAdapter.notifyDataSetChanged();
                     }
                 });
 
@@ -564,6 +580,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         mUserKits.clear();
                         mKits.clear();
+                        mKits.addAll(mLocalKits);
                         mKits.addAll(mMasterKits);
                         for(DataSnapshot child: dataSnapshot.getChildren()){
                             FirebaseKit fbk = child.getValue(FirebaseKit.class);
@@ -578,7 +595,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
+                        mKits.clear();
+                        mKits.addAll(mLocalKits);
+                        mKitListAdapter.notifyDataSetChanged();
                     }
                 });
 
@@ -613,6 +632,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         mUserPatterns.clear();
                         mPatterns.clear();
+                        mPatterns.addAll(mLocalPattern);
                         mPatterns.addAll(mMasterPatterns);
                         for (DataSnapshot child: dataSnapshot.getChildren()) {
                             FirebasePattern fbp = child.getValue(FirebasePattern.class);
@@ -629,7 +649,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
+                        mPatterns.clear();
+                        mPatterns.addAll(mLocalPattern);
                     }
                 });
     }
@@ -1366,4 +1387,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
+    void createLocalResources(){
+        mLocalPattern.add(new FirebasePattern("1 Beat (Local)","01"));
+        mLocalPattern.add(new FirebasePattern("2 Beat (Local)","0102"));
+        mLocalPattern.add(new FirebasePattern("3 Beat (Local)", "010102"));
+        mLocalPattern.add(new FirebasePattern("4 Beat (Local)", "01010102"));
+
+        mLocalKits.add(new FirebaseKit("Standard Kit (Local)", "030405060708090A"));
+
+        mLocalJams.add(new FirebaseJam("1 Beat Jam (Local)", 90, "030405060708090A", "01"));
+        mLocalJams.add(new FirebaseJam("2 Beat Jam (Local)", 90, "030405060708090A", "0102"));
+        mLocalJams.add(new FirebaseJam("3 Beat Jam (Local)", 90, "030405060708090A", "010102"));
+        mLocalJams.add(new FirebaseJam("4 Beat Jam (Local)", 90, "030405060708090A", "01010102"));
+    }
 }
