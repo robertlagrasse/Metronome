@@ -168,9 +168,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         if(prefs.getBoolean("firstrun", true)){
             createComponentsTable();
             prefs.edit().putBoolean("firstrun", false).commit();
-        } else {
-            //
-            // This will also need to happen onSavedInstance
         }
 
         /**
@@ -483,6 +480,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mPatterns.addAll(mLocalPattern);
         mJams.addAll(mLocalJams);
 
+        Kit kit = new Kit("name", mJams.get(0).getKit(), mContext);
+        Pattern pattern = new Pattern("name", mJams.get(0).getPattern(), mContext);
+        int tempo = mJams.get(0).getTempo();
+        mJam.setKit(kit);
+        mJam.setPattern(pattern);
+        mJam.setTempo(tempo);
+
+        mJamListAdapter.notifyDataSetChanged();
+        mPatternListAdapter.notifyDataSetChanged();
+        mKitListAdapter.notifyDataSetChanged();
+
 
         /**
          * Download the Jams table from Firebase
@@ -504,12 +512,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                         }
                         mJams.addAll(mMasterJams);
                         mJamListAdapter.notifyDataSetChanged();
-                        Kit kit = new Kit("temp", mJams.get(0).getKit(), mContext);
-                        Pattern pattern = new Pattern("name", mJams.get(0).getPattern(), mContext);
-                        int tempo = mJams.get(0).getTempo();
-                        mJam.setKit(kit);
-                        mJam.setPattern(pattern);
-                        mJam.setTempo(tempo);
+
                     }
 
                     @Override
@@ -998,8 +1001,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     protected void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
-        outState.putInt("jamID", mJam.getDbID());
-        Log.e("onSaveInstanceState", "writing...");
+        outState.putString("jamSignature", new FirebaseJam(mJam).getSignature());
     }
 
     public void sendBeatBroadcast(boolean fab){
@@ -1132,10 +1134,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mDatabase.child("jams").child(fbj.getSignature()).setValue(fbj);
 
     }
-
-
-
-
 
 
     void sendJamToFirebase(){
