@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                         .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
                             @Override
                             public void onInput(MaterialDialog dialog, CharSequence input) {
-                                checkFirebaseForJam(input.toString());
+                                addSharedJamFromFirebase(input.toString());
                             }
                         })
                         .show();
