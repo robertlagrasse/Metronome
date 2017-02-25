@@ -20,4 +20,5 @@
     <string name="jam_already_downloaded">You\'ve already downloaded this jam!</string>
     <string name="pattern_editor">Pattern Editor</string>
     <string name="kit_editor">Kit Editor</string>
+    <string name="network_required">This function requires a network connection!</string>
 </resources>

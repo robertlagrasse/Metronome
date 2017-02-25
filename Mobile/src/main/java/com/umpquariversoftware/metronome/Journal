@@ -1,9 +1,8 @@
 Parking lot for thoughts and notes.
 
 MainActivity -
-DONE - Removal of legacy database calls for everything but the components.
 
-Check for online state, and kill buttons and other cloud dependant functions.
+DONE! - Check for online state, and kill buttons and other cloud dependant functions.
 
 Lock Orientation for all child activities.
 

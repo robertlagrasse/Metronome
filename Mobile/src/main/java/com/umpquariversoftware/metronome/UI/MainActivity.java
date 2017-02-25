@@ -3,14 +3,18 @@ package com.umpquariversoftware.metronome.UI;
 
 import android.app.Dialog;
 import android.app.LoaderManager;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -43,6 +47,7 @@ import com.umpquariversoftware.metronome.FireBase.FirebaseKit;
 import com.umpquariversoftware.metronome.FireBase.FirebasePattern;
 import com.umpquariversoftware.metronome.R;
 import com.umpquariversoftware.metronome.database.dbContract;
+import com.umpquariversoftware.metronome.elements.Component;
 import com.umpquariversoftware.metronome.elements.Jam;
 import com.umpquariversoftware.metronome.elements.Kit;
 import com.umpquariversoftware.metronome.elements.Pattern;
@@ -87,24 +92,11 @@ import static com.umpquariversoftware.metronome.database.dbContract.*;
 public class MainActivity extends AppCompatActivity{
     String TAG = "MainActivity";
     Jam mJam = new Jam();
-    String mKitID, mPatternID;
     Boolean beatServiceRunning = false;
+    static Boolean networkIsConnected;
     private Toolbar toolbar;
-    Context mContext;
+    static Context mContext;
     final int TEMPO_OFFSET = 30; // Seekbar starts at 0. Offset calibrates to minimum tempo.
-
-
-    /**
-     *  Three cursor adapters and their associated loaders.
-     */
-    patternCursorAdapter mPatternCursorAdapter;
-    Cursor mPatternCursor;
-
-    kitCursorAdapter mKitCursorAdapter;
-    Cursor mKitCursor;
-
-    jamCursorAdapter mJamCursorAdapter;
-    Cursor mJamCursor;
 
     ArrayList<FirebasePattern> mPatterns = new ArrayList<>();
     ArrayList<FirebasePattern> mMasterPatterns = new ArrayList<>();
@@ -131,13 +123,17 @@ public class MainActivity extends AppCompatActivity{
     Boolean mUserListSearchResultsBack = false;
     FirebaseJam mUserListJam, mMasterListJam;
 
-    private static final int PATTERN_LOADER_ID = 0;
-    private static final int KIT_LOADER_ID = 1;
-    private static final int JAM_LOADER_ID = 2;
-
     @Override
     public void onResume() {
         super.onResume();
+
+        ConnectivityManager cm =
+                (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        networkIsConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
         mPatternListAdapter.notifyDataSetChanged();
         mKitListAdapter.notifyDataSetChanged();
         mJamListAdapter.notifyDataSetChanged();
@@ -152,6 +148,16 @@ public class MainActivity extends AppCompatActivity{
 
         mContext = this;
 
+        ConnectivityManager cm =
+                (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        registerReceiver(new MainActivity.networkStatusChangeReceiver(),
+                new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        networkIsConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
         SharedPreferences prefs = getSharedPreferences(getPackageName(), MODE_PRIVATE);
         if(prefs.getBoolean("firstrun", true)){
             createComponentsTable();
@@ -163,16 +169,11 @@ public class MainActivity extends AppCompatActivity{
             beatServiceRunning = true;
         }
 
-
-
-        /**
-         *
+        /***
          * Setup some local resources for use offline
          * Setup the UI
          * Grab online data
-         *
-         * */
-
+         ***/
 
         createLocalResources();
 
@@ -184,9 +185,7 @@ public class MainActivity extends AppCompatActivity{
         actionButton();
 
         grabData();
-
     }
-
 
     /**
      * Core Functionality
@@ -316,37 +315,48 @@ public class MainActivity extends AppCompatActivity{
         setSupportActionBar(toolbar);
 
         ImageView searchForSharedJamButton = (ImageView) findViewById(R.id.searchForSharedJamButton);
-        searchForSharedJamButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new MaterialDialog.Builder(mContext).title(R.string.enter_string)
-                        .content(R.string.content_test)
-                        .inputType(InputType.TYPE_CLASS_TEXT)
-                        .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
-                            @Override
-                            public void onInput(MaterialDialog dialog, CharSequence input) {
-                                addSharedJamFromFirebase(input.toString());
-                            }
-                        })
-                        .show();
-            }
-        });
-
         ImageView shareJamButton = (ImageView) findViewById(R.id.shareJamButton);
-        shareJamButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                shareJam();
-            }
-        });
-
         ImageView saveJamToCloud = (ImageView) findViewById(R.id.saveJamToCloud);
-        saveJamToCloud.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sendJamToFirebase();
-            }
-        });
+
+        if(networkIsConnected){
+            searchForSharedJamButton.setVisibility(View.VISIBLE);
+            searchForSharedJamButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new MaterialDialog.Builder(mContext).title(R.string.enter_string)
+                            .content(R.string.content_test)
+                            .inputType(InputType.TYPE_CLASS_TEXT)
+                            .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
+                                @Override
+                                public void onInput(MaterialDialog dialog, CharSequence input) {
+                                    addSharedJamFromFirebase(input.toString());
+                                }
+                            })
+                            .show();
+                }
+            });
+
+            shareJamButton.setVisibility(View.VISIBLE);
+            shareJamButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    shareJam();
+                }
+            });
+
+            saveJamToCloud.setVisibility(View.VISIBLE);
+            saveJamToCloud.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    sendJamToFirebase();
+                }
+            });
+
+        } else {
+            searchForSharedJamButton.setVisibility(View.INVISIBLE);
+            shareJamButton.setVisibility(View.INVISIBLE);
+            saveJamToCloud.setVisibility(View.INVISIBLE);
+        }
     }
 
     public void tempoChooser(){
@@ -860,13 +870,21 @@ public class MainActivity extends AppCompatActivity{
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case (R.id.menuPatternEditor):{
-                Intent i = new Intent(this, PatternEditor.class);
-                startActivity(i);
+                if(networkIsConnected){
+                    Intent i = new Intent(this, PatternEditor.class);
+                    startActivity(i);
+                }else{
+                    Toast.makeText(mContext, R.string.network_required, Toast.LENGTH_LONG).show();
+                }
                 return true;
             }
             case R.id.menuKitEditor:{
-                Intent i = new Intent(this, KitEditor.class);
-                startActivity(i);
+                if(networkIsConnected){
+                    Intent i = new Intent(this, KitEditor.class);
+                    startActivity(i);
+                }else{
+                    Toast.makeText(mContext, R.string.network_required, Toast.LENGTH_LONG).show();
+                }
                 return true;
             }
             default: {
@@ -965,6 +983,25 @@ public class MainActivity extends AppCompatActivity{
     protected void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
         outState.putString("jamSignature", new FirebaseJam(mJam).getSignature());
+    }
+
+    public class networkStatusChangeReceiver extends BroadcastReceiver {
+
+        public networkStatusChangeReceiver() {
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ConnectivityManager cm =
+                    (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            networkIsConnected = activeNetwork != null &&
+                    activeNetwork.isConnectedOrConnecting();
+
+            Log.e("netStatusChangeReceiver", "networkIsConnected = " + networkIsConnected);
+            setupToolbar();
+        }
     }
 
 
