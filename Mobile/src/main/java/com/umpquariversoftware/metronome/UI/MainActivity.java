@@ -84,7 +84,7 @@ import static com.umpquariversoftware.metronome.database.dbContract.*;
  */
 
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MainActivity extends AppCompatActivity{
     String TAG = "MainActivity";
     Jam mJam = new Jam();
     String mKitID, mPatternID;
@@ -146,49 +146,35 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mContext = this;
-
-        if (savedInstanceState != null){
-            // Already running.
-        } else {
-            beatServiceRunning = false;
-        }
-
         setContentView(R.layout.activity_main);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
 
-        /**
-         * Is this the first time we've ever run?
-         * */
+        mContext = this;
 
         SharedPreferences prefs = getSharedPreferences(getPackageName(), MODE_PRIVATE);
-
         if(prefs.getBoolean("firstrun", true)){
             createComponentsTable();
             prefs.edit().putBoolean("firstrun", false).commit();
         }
 
-        /**
-         * Start the beat service. Do this before you stand up the UI components
-         * so they have someplace to send events.
-         * **/
-
-        if(!beatServiceRunning){
+        if (savedInstanceState == null){
             launchBeatService();
             beatServiceRunning = true;
         }
 
+
+
         /**
-         * Create Local Resources available offline
+         *
+         * Setup some local resources for use offline
+         * Setup the UI
+         * Grab online data
+         *
          * */
 
-        createLocalResources();
 
-        /**
-         * Build the UI
-         */
+        createLocalResources();
 
         setupToolbar();
         tempoChooser();
@@ -197,12 +183,107 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         jamChooser();
         actionButton();
 
-        /**
-         * Load data
-         * */
-
         grabData();
 
+    }
+
+
+    /**
+     * Core Functionality
+     * **/
+
+    private void createComponentsTable(){
+        ContentValues contentValues;
+        ArrayList<ContentValues> components = new ArrayList<>();
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Default Bass");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.bass);
+        contentValues.put(ComponentTable.HEXID, "00");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Default Button1");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.button1);
+        contentValues.put(ComponentTable.HEXID, "01");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Default Button3");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.button3);
+        contentValues.put(ComponentTable.HEXID, "02");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Default Crash");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.default_crash);
+        contentValues.put(ComponentTable.HEXID, "03");
+
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Default HiHat");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.default_highhat);
+        contentValues.put(ComponentTable.HEXID, "04");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Default Kick");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.default_kick);
+        contentValues.put(ComponentTable.HEXID, "05");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Default Ride");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.default_ride);
+        contentValues.put(ComponentTable.HEXID, "06");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Default Snare");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.default_snare);
+        contentValues.put(ComponentTable.HEXID, "07");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Default Tom1");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.default_tom1);
+        contentValues.put(ComponentTable.HEXID, "08");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Default Tom2");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.default_tom2);
+        contentValues.put(ComponentTable.HEXID, "09");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Default Tom3");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.default_tom3);
+        contentValues.put(ComponentTable.HEXID, "0A");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Default HiHat");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.hihat);
+        contentValues.put(ComponentTable.HEXID, "0B");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Default Snare");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.snare);
+        contentValues.put(ComponentTable.HEXID, "0C");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Default Tom");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.tom);
+        contentValues.put(ComponentTable.HEXID, "0D");
+        components.add(contentValues);
+
+        for(int x=0;x<components.size();x++){
+            getContentResolver().insert(buildComponentUri(), components.get(x));
+        }
 
     }
 
@@ -210,6 +291,20 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         Intent i = new Intent(this, BeatService.class);
         i.putExtra("jamID", 2L);
         startService(i);
+    }
+
+    void createLocalResources(){
+        mLocalPattern.add(new FirebasePattern("1 Beat (Local)","01"));
+        mLocalPattern.add(new FirebasePattern("2 Beat (Local)","0102"));
+        mLocalPattern.add(new FirebasePattern("3 Beat (Local)", "010102"));
+        mLocalPattern.add(new FirebasePattern("4 Beat (Local)", "01010102"));
+
+        mLocalKits.add(new FirebaseKit("Standard Kit (Local)", "030405060708090A"));
+
+        mLocalJams.add(new FirebaseJam("1 Beat Jam (Local)", 90, "030405060708090A", "01"));
+        mLocalJams.add(new FirebaseJam("2 Beat Jam (Local)", 90, "030405060708090A", "0102"));
+        mLocalJams.add(new FirebaseJam("3 Beat Jam (Local)", 90, "030405060708090A", "010102"));
+        mLocalJams.add(new FirebaseJam("4 Beat Jam (Local)", 90, "030405060708090A", "01010102"));
     }
 
     public void setupToolbar(){
@@ -487,6 +582,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mJam.setPattern(pattern);
         mJam.setTempo(tempo);
 
+        SeekBar tempoBar = (SeekBar) findViewById(R.id.tempoBar);
+        tempoBar.setProgress(tempo-TEMPO_OFFSET);
+
         mJamListAdapter.notifyDataSetChanged();
         mPatternListAdapter.notifyDataSetChanged();
         mKitListAdapter.notifyDataSetChanged();
@@ -658,352 +756,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 });
     }
 
-    /**
-     * Loaders and Data Source related methods
-     * */
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        Log.e("onCreateLoader", "int i = " + i);
-        switch (i) {
-            case PATTERN_LOADER_ID:
-                return new CursorLoader(this, buildPatternUri(),
-                        null,
-                        null,
-                        null,
-                        null);
-            case KIT_LOADER_ID:
-                return new CursorLoader(this, buildKitUri(),
-                        null,
-                        null,
-                        null,
-                        null);
-            case JAM_LOADER_ID:
-                return new CursorLoader(this, buildJamUri(),
-                        null,
-                        null,
-                        null,
-                        null);
-        }
-        return null;
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        switch(loader.getId()) {
-            case PATTERN_LOADER_ID:
-             //   mPatternCursorAdapter.swapCursor(data);
-                mPatternCursor = data;
-                break;
-            case KIT_LOADER_ID:
-             //   mKitCursorAdapter.swapCursor(data);
-                mKitCursor = data;
-                break;
-            case JAM_LOADER_ID:
-             //   mJamCursorAdapter.swapCursor(data);
-                mJamCursor = data;
-                break;
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
-
-    private void createComponentsTable(){
-        ContentValues contentValues;
-        ArrayList<ContentValues> components = new ArrayList<>();
-
-        contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Bass");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.bass);
-        contentValues.put(ComponentTable.HEXID, "00");
-        components.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Button1");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.button1);
-        contentValues.put(ComponentTable.HEXID, "01");
-        components.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Button3");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.button3);
-        contentValues.put(ComponentTable.HEXID, "02");
-        components.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Crash");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.default_crash);
-        contentValues.put(ComponentTable.HEXID, "03");
-
-        components.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default HiHat");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.default_highhat);
-        contentValues.put(ComponentTable.HEXID, "04");
-        components.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Kick");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.default_kick);
-        contentValues.put(ComponentTable.HEXID, "05");
-        components.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Ride");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.default_ride);
-        contentValues.put(ComponentTable.HEXID, "06");
-        components.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Snare");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.default_snare);
-        contentValues.put(ComponentTable.HEXID, "07");
-        components.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Tom1");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.default_tom1);
-        contentValues.put(ComponentTable.HEXID, "08");
-        components.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Tom2");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.default_tom2);
-        contentValues.put(ComponentTable.HEXID, "09");
-        components.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Tom3");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.default_tom3);
-        contentValues.put(ComponentTable.HEXID, "0A");
-        components.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default HiHat");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.hihat);
-        contentValues.put(ComponentTable.HEXID, "0B");
-        components.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Snare");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.snare);
-        contentValues.put(ComponentTable.HEXID, "0C");
-        components.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Tom");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.tom);
-        contentValues.put(ComponentTable.HEXID, "0D");
-        components.add(contentValues);
-
-        for(int x=0;x<components.size();x++){
-            getContentResolver().insert(buildComponentUri(), components.get(x));
-        }
-
-    }
-
-    public void resetLoaders(){
-        Log.e("resetLoaders", "resetLoaders");
-        getLoaderManager().restartLoader(PATTERN_LOADER_ID, null, this);
-        getLoaderManager().restartLoader(KIT_LOADER_ID, null, this);
-        getLoaderManager().restartLoader(JAM_LOADER_ID, null, this);
-    }
-
-    /**
-     * Soon to be deprecated entirely.
-     * */
-
-
-    private void createKitTable(){
-        ArrayList<ContentValues> kits = new ArrayList<>();
-        ContentValues contentValues;
-
-        contentValues = new ContentValues();
-        contentValues.put(KitTable.NAME, "Default Kit");
-        contentValues.put(KitTable.COMPONENTS, "0102030405060708");
-        kits.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(KitTable.NAME, "Another Kit");
-        contentValues.put(KitTable.COMPONENTS, "0C0A0B040508090A");
-        kits.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(KitTable.NAME, "A New Kit");
-        contentValues.put(KitTable.COMPONENTS, "05040609080A060C");
-        kits.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(KitTable.NAME, "Unique Kit Kit");
-        contentValues.put(KitTable.COMPONENTS, "04080A0C06090703");
-        kits.add(contentValues);
-
-        for(int x=0;x<kits.size();x++){
-            Uri i = getContentResolver().insert(buildKitUri(), kits.get(x));
-            Log.e("CreateKitTable", "insert() Returned URI:" + i.toString());
-        }
-
-        DatabaseReference mDatabase;
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        for(int x=0;x<kits.size();x++) {
-            String name = kits.get(x).getAsString(KitTable.NAME);
-            String signature = kits.get(x).getAsString(KitTable.COMPONENTS);
-            FirebaseKit fbk = new FirebaseKit(name, signature);
-
-            mDatabase.child("kits")
-                    .child("master")
-                    .child(fbk.getSignature())
-                    .setValue(fbk);
-        }
-    }
-
-    private void createPatternTable(){
-        ArrayList<ContentValues> patterns = new ArrayList<>();
-        ContentValues contentValues;
-
-        contentValues = new ContentValues();
-        contentValues.put(PatternTable.NAME, "Default Pattern");
-        contentValues.put(PatternTable.SEQUENCE, "01");
-        patterns.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(PatternTable.NAME, "2 Beat");
-        contentValues.put(PatternTable.SEQUENCE, "0102");
-        patterns.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(PatternTable.NAME, "4 Beat");
-        contentValues.put(PatternTable.SEQUENCE, "01010201");
-        patterns.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(PatternTable.NAME, "3 Beat");
-        contentValues.put(PatternTable.SEQUENCE, "010103");
-        patterns.add(contentValues);
-
-        for(int x=0;x<patterns.size();x++){
-            Uri i = getContentResolver().insert(buildPatternUri(), patterns.get(x));
-            Log.e("CreatePatternTable", "insert() Returned URI:" + i.toString());
-        }
-
-        DatabaseReference mDatabase;
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        for(int x=0;x<patterns.size();x++) {
-            String name = patterns.get(x).getAsString(PatternTable.NAME);
-            String signature = patterns.get(x).getAsString(PatternTable.SEQUENCE);
-            FirebasePattern fbp = new FirebasePattern(name, signature);
-            Log.e("CreatePatternTable", "name: " + name);
-            Log.e("CreatePatternTable", "signature: " + signature);
-
-            mDatabase.child("patterns")
-                    .child("master")
-                    .child(fbp.getSignature())
-                    .setValue(fbp);
-        }
-    }
-
-    private void createJamTable(){
-        ArrayList<ContentValues> jams = new ArrayList<>();
-        ContentValues contentValues;
-
-        contentValues = new ContentValues();
-        contentValues.put(JamTable.NAME, "Default Jam");
-        contentValues.put(JamTable.KIT_ID, "1");
-        contentValues.put(JamTable.PATTERN_ID, "1");
-        contentValues.put(JamTable.TEMPO, "60");
-        jams.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(JamTable.NAME, "Jam Two");
-        contentValues.put(JamTable.KIT_ID, "2");
-        contentValues.put(JamTable.PATTERN_ID, "2");
-        contentValues.put(JamTable.TEMPO, "90");
-        jams.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(JamTable.NAME, "Jam 3");
-        contentValues.put(JamTable.KIT_ID, "3");
-        contentValues.put(JamTable.PATTERN_ID, "3");
-        contentValues.put(JamTable.TEMPO, "120");
-        jams.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(JamTable.NAME, "Jam 4");
-        contentValues.put(JamTable.KIT_ID, "4");
-        contentValues.put(JamTable.PATTERN_ID, "4");
-        contentValues.put(JamTable.TEMPO, "180");
-        jams.add(contentValues);
-
-
-
-        for(int x=0;x<jams.size();x++){
-            Uri i = getContentResolver().insert(buildJamUri(), jams.get(x));
-        }
-
-        ArrayList<ContentValues> FirebaseJams = new ArrayList<>();
-
-        contentValues = new ContentValues();
-        contentValues.put(JamTable.NAME, "Jam 1");
-        contentValues.put(JamTable.KIT_ID, "0102030405060708");
-        contentValues.put(JamTable.PATTERN_ID, "01");
-        contentValues.put(JamTable.TEMPO, "180");
-        FirebaseJams.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(JamTable.NAME, "Jam 2");
-        contentValues.put(JamTable.KIT_ID, "0C0A0B040508090A");
-        contentValues.put(JamTable.PATTERN_ID, "0102");
-        contentValues.put(JamTable.TEMPO, "180");
-        FirebaseJams.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(JamTable.NAME, "Jam 3");
-        contentValues.put(JamTable.KIT_ID, "05040609080A060C");
-        contentValues.put(JamTable.PATTERN_ID, "01010201");
-        contentValues.put(JamTable.TEMPO, "180");
-        FirebaseJams.add(contentValues);
-
-        contentValues = new ContentValues();
-        contentValues.put(JamTable.NAME, "Jam 4");
-        contentValues.put(JamTable.KIT_ID, "04080A0C06090703");
-        contentValues.put(JamTable.PATTERN_ID, "010103");
-        contentValues.put(JamTable.TEMPO, "180");
-        FirebaseJams.add(contentValues);
-
-        DatabaseReference mDatabase;
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        for(int x=0;x<FirebaseJams.size();x++) {
-            String name = FirebaseJams.get(x).getAsString(JamTable.NAME);
-            String kitSignature = FirebaseJams.get(x).getAsString(JamTable.KIT_ID);
-            String patternSignature = FirebaseJams.get(x).getAsString(JamTable.PATTERN_ID);
-            int tempo = FirebaseJams.get(x).getAsInteger(JamTable.TEMPO);
-
-            FirebaseJam fbj = new FirebaseJam(tempo, kitSignature ,patternSignature);
-            fbj.setName(name);
-
-            mDatabase.child("jams")
-                    .child("master")
-                    .child(fbj.getSignature())
-                    .setValue(fbj);
-        }
-
-
-    }
-
-
-
-    protected void onSaveInstanceState(Bundle outState){
-        super.onSaveInstanceState(outState);
-        outState.putString("jamSignature", new FirebaseJam(mJam).getSignature());
-    }
-
     public void sendBeatBroadcast(boolean fab){
         Intent intent = new Intent();
         intent.setAction("com.umpquariversoftware.metronome.STARTSTOP");
@@ -1024,90 +776,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         sendBroadcast(intent);
     }
 
-    public void saveJam(final Boolean writeToFirebase){
-        // search for a jam that matches the current setup (tempo, pattern id, and kit id)
-        // build a uri specific to the task, send it to the content provider
-        // If there's no Jam like this one, pop up a dialog box that asks for a name
-        // assign that name to mJam
-        // wrap up contentValues, insert()
-
-        ContentValues contentValues;
-
-        contentValues = new ContentValues();
-        contentValues.put(JamTable.NAME, mJam.getName());
-        contentValues.put(JamTable.KIT_ID, mJam.getKit().getDatabaseID());
-        contentValues.put(JamTable.PATTERN_ID, mJam.getPattern().getDatabaseID());
-        contentValues.put(JamTable.TEMPO, mJam.getTempo());
-
-        Uri uri = buildJamByAttributesUri(String.valueOf(mJam.getTempo()),
-                String.valueOf(mJam.getKit().getDatabaseID()),
-                String.valueOf(mJam.getPattern().getDatabaseID()));
-
-        Cursor cursor = getContentResolver().query(uri,null,null,null,null);
-
-
-        Log.e("saveJam", "mJam.getName()" + mJam.getName());
-        Log.e("saveJam", "mJam.getKit().getDatabaseID()" + mJam.getKit().getDatabaseID());
-        Log.e("saveJam", "mJam.getPattern().getDatabaseID()" + mJam.getPattern().getDatabaseID());
-        Log.e("saveJam", "mJam.getTempo()" + mJam.getTempo());
-        Log.e("saveJam", "uri: " + uri);
-        Log.e("saveJam", "cursor.getCount(): " + cursor.getCount());
-
-        if(cursor.getCount()!=0){
-            cursor.moveToFirst();
-            String JamName = cursor.getString(cursor.getColumnIndex(dbContract.JamTable.NAME));
-            cursor.close();
-
-            // Tell the user the pattern already exists. Show name.
-            final Dialog dialog = new Dialog(this);
-
-            dialog.setContentView(R.layout.alert_dialog);
-            dialog.setTitle("EXISTS!");
-
-            TextView alertText = (TextView) dialog.findViewById(R.id.alertText);
-            alertText.setText(R.string.jam_exists);
-
-            TextView alertText2 = (TextView) dialog.findViewById(R.id.alertText2);
-            alertText2.setText(JamName);
-
-
-            Button okButton = (Button) dialog.findViewById(R.id.alertOK);
-            okButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    dialog.cancel();
-                }
-            });
-            dialog.show();
-
-        } else {
-            new MaterialDialog.Builder(this).title(R.string.enter_pattern_name)
-                    .content(R.string.content_test)
-                    .inputType(InputType.TYPE_CLASS_TEXT)
-                    .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
-                        @Override
-                        public void onInput(MaterialDialog dialog, CharSequence input) {
-                            ContentValues contentValues;
-
-                            contentValues = new ContentValues();
-                            contentValues.put(dbContract.JamTable.NAME, input.toString());
-                            contentValues.put(JamTable.TEMPO, mJam.getTempo());
-                            contentValues.put(JamTable.KIT_ID, mJam.getKit().getDatabaseID());
-                            contentValues.put(JamTable.PATTERN_ID, mJam.getPattern().getDatabaseID());
-
-                            Uri i = getContentResolver().insert(buildJamUri(), contentValues);
-                            Log.e("CreatePatternTable", "insert() Returned URI:" + i.toString());
-                            getLoaderManager().getLoader(JAM_LOADER_ID).onContentChanged();
-                            if(writeToFirebase){
-                                writeJamtoFirebase();
-                            }
-
-                        }
-                    })
-                    .show();
-        }
-        cursor.close();
-    }
+    /**
+     * Toolbar Functions
+     * */
 
     public void shareJam(){
         // Write to the shared jams folder everyone has access to
@@ -1124,17 +795,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         emailIntent.putExtra(Intent.EXTRA_TEXT, fbj.getSignature());
         startActivity(Intent.createChooser(emailIntent, "Send email..."));
     }
-
-    void writeJamtoFirebase(){
-
-        DatabaseReference mDatabase;
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        FirebaseJam fbj = new FirebaseJam(mJam);
-        mDatabase.child("jams").child(fbj.getSignature()).setValue(fbj);
-
-    }
-
 
     void sendJamToFirebase(){
         /**
@@ -1190,6 +850,36 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 });
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case (R.id.menuPatternEditor):{
+                Intent i = new Intent(this, PatternEditor.class);
+                startActivity(i);
+                return true;
+            }
+            case R.id.menuKitEditor:{
+                Intent i = new Intent(this, KitEditor.class);
+                startActivity(i);
+                return true;
+            }
+            default: {
+                return super.onOptionsItemSelected(item);
+            }
+        }
+    }
+
+
+    /**
+     * Utilities/Pushing data around
+     * */
+
     void alert(String text1, String text2){
         final Dialog dialog = new Dialog(mContext);
 
@@ -1235,119 +925,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 .show();
     }
 
-    void checkFirebaseForJam(String signature){
-
-        DatabaseReference mDatabase;
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        mDatabase.child("jams").child(signature)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        FirebaseJam newFbj = dataSnapshot.getValue(FirebaseJam.class);
-                        if (newFbj != null) {
-                            Log.e("MainActivity", "checkFirebaseForJam() newFbj was populated by Firebase call. Signature: " + newFbj.getSignature());
-                            Log.e("MainActivity", "checkFirebaseForJam() newFbj.getTempo(): " + newFbj.getTempo());
-                            Log.e("MainActivity", "checkFirebaseForJam() newFbj.getPattern(): " + newFbj.getPattern());
-                            Log.e("MainActivity", "checkFirebaseForJam() newFbj.getKit(): " + newFbj.getKit());
-
-
-                            int tempo = newFbj.getTempo();
-                            Pattern pattern = new Pattern(newFbj.getSignature(),newFbj.getPattern(),mContext);
-                            Kit kit = new Kit(newFbj.getSignature(),newFbj.getKit(),mContext);
-
-                            Jam jam = new Jam();
-                            jam.setName(newFbj.getSignature());
-                            jam.setTempo(tempo);
-                            jam.setPattern(pattern);
-                            jam.setKit(kit);
-
-                            Uri uri = buildPatternBySignatureURI(pattern.getPatternHexSignature());
-                            Cursor cursor = getContentResolver().query(uri,null,null,null,null);
-                            if(cursor != null && cursor.getCount()!=0){
-                                cursor.moveToFirst();
-                                pattern.setDatabaseID(Integer.parseInt(cursor.getString(cursor.getColumnIndex(PatternTable.ID))));
-                            } else {
-                                pattern.setDatabaseID(666);
-                            }
-                            cursor.close();
-
-                            uri = buildKitBySignatureUri(kit.getSignature());
-                            cursor = getContentResolver().query(uri,null,null,null,null);
-                            if(cursor != null && cursor.getCount()!=0){
-                                cursor.moveToFirst();
-                                kit.setDatabaseID(Integer.parseInt(cursor.getString(cursor.getColumnIndex(KitTable.ID))));
-                            } else {
-                                kit.setDatabaseID(666);
-                            }
-                            cursor.close();
-
-                            if(isJamInLocalDB(jam)){
-                                Toast.makeText(mContext, R.string.jam_already_downloaded, Toast.LENGTH_LONG).show();
-                            } else {
-                                ContentValues contentValues;
-
-                                contentValues = new ContentValues();
-                                contentValues.put(JamTable.NAME, jam.getName());
-                                contentValues.put(JamTable.KIT_ID, jam.getKit().getDatabaseID());
-                                contentValues.put(JamTable.PATTERN_ID, jam.getPattern().getDatabaseID());
-                                contentValues.put(JamTable.TEMPO, jam.getTempo());
-
-                                Uri i = getContentResolver().insert(buildJamUri(), contentValues);
-                                Log.e("checkFirebaseForJam()", "Database insert returned: " + i.toString());
-                            }
-
-                        } else {
-                            Toast.makeText(mContext, R.string.signature_not_found, Toast.LENGTH_LONG).show();
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-    }
-
-    private Boolean isJamInLocalDB(Jam jam){
-
-        Uri uri = buildJamByAttributesUri(String.valueOf(jam.getTempo()),
-                String.valueOf(jam.getKit().getDatabaseID()),
-                String.valueOf(jam.getPattern().getDatabaseID()));
-
-        Cursor cursor = getContentResolver().query(uri,null,null,null,null);
-        if(cursor.getCount()!=0){
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case (R.id.menuPatternEditor):{
-                Intent i = new Intent(this, PatternEditor.class);
-                startActivity(i);
-                return true;
-            }
-            case R.id.menuKitEditor:{
-                Intent i = new Intent(this, KitEditor.class);
-                startActivity(i);
-                return true;
-            }
-            default: {
-                return super.onOptionsItemSelected(item);
-            }
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
     public void addSharedJamFromFirebase(String signature){
         DatabaseReference mDatabase;
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -1385,17 +962,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
-    void createLocalResources(){
-        mLocalPattern.add(new FirebasePattern("1 Beat (Local)","01"));
-        mLocalPattern.add(new FirebasePattern("2 Beat (Local)","0102"));
-        mLocalPattern.add(new FirebasePattern("3 Beat (Local)", "010102"));
-        mLocalPattern.add(new FirebasePattern("4 Beat (Local)", "01010102"));
-
-        mLocalKits.add(new FirebaseKit("Standard Kit (Local)", "030405060708090A"));
-
-        mLocalJams.add(new FirebaseJam("1 Beat Jam (Local)", 90, "030405060708090A", "01"));
-        mLocalJams.add(new FirebaseJam("2 Beat Jam (Local)", 90, "030405060708090A", "0102"));
-        mLocalJams.add(new FirebaseJam("3 Beat Jam (Local)", 90, "030405060708090A", "010102"));
-        mLocalJams.add(new FirebaseJam("4 Beat Jam (Local)", 90, "030405060708090A", "01010102"));
+    protected void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        outState.putString("jamSignature", new FirebaseJam(mJam).getSignature());
     }
+
+
 }

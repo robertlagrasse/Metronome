@@ -1,12 +1,13 @@
 Parking lot for thoughts and notes.
 
 MainActivity -
-Removal of legacy database calls for everything but the components.
-
-DONE - in/outstate - keep track of the last jam the user was working on - Actually, just drop to the first
-Local pattern and be done with it for now.
+DONE - Removal of legacy database calls for everything but the components.
 
 Check for online state, and kill buttons and other cloud dependant functions.
+
+Lock Orientation for all child activities.
+
+Larger font for Tempo
 
 Admob
 
