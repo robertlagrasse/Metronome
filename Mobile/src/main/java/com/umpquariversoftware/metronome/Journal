@@ -2,9 +2,7 @@ Parking lot for thoughts and notes.
 
 MainActivity -
 
-DONE! - Check for online state, and kill buttons and other cloud dependant functions.
-
-Lock Orientation for all child activities.
+DONE - Lock Orientation for all child activities.
 
 Larger font for Tempo
 

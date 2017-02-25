@@ -7,6 +7,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.media.AudioAttributes;
 import android.media.SoundPool;
@@ -78,6 +79,8 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.kit_editor);
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         mContext = this;
         /**
          * Point the cursor at the first item in the component database
@@ -113,57 +116,6 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
         fab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 check(mKit.getSignature());
-//                //First check to see if the kit exists in the database already
-//                Cursor cursor = getContentResolver().query(buildKitBySignatureUri(mKit.getSignature()),
-//                        null,
-//                        null,
-//                        null,
-//                        null);
-//
-//                if(cursor.getCount()!=0) {
-//                    cursor.moveToFirst();
-//                    String kitName = cursor.getString(cursor.getColumnIndex(dbContract.KitTable.NAME));
-//                    cursor.close();
-//
-//                    Log.e("KitEditor", "Cursor was not empty. Name returned was: " + kitName);
-//                    final Dialog dialog = new Dialog(mContext);
-//
-//                    dialog.setContentView(R.layout.alert_dialog);
-//                    dialog.setTitle("EXISTS!");
-//
-//                    TextView alertText = (TextView) dialog.findViewById(R.id.alertText);
-//                    alertText.setText(R.string.kit_exists);
-//
-//                    TextView alertText2 = (TextView) dialog.findViewById(R.id.alertText2);
-//                    alertText2.setText(kitName);
-//
-//                    Button okButton = (Button) dialog.findViewById(R.id.alertOK);
-//                    okButton.setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View view) {
-//                            dialog.cancel();
-//                        }
-//                    });
-//                    dialog.show();
-//                } else {
-//                    new MaterialDialog.Builder(mContext).title(R.string.enter_kit_name)
-//                        .content(R.string.content_test)
-//                        .inputType(InputType.TYPE_CLASS_TEXT)
-//                        .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
-//                            @Override
-//                            public void onInput(MaterialDialog dialog, CharSequence input) {
-//                                ContentValues contentValues;
-//
-//                                contentValues = new ContentValues();
-//                                contentValues.put(dbContract.KitTable.NAME, input.toString());
-//                                contentValues.put(dbContract.KitTable.COMPONENTS, mKit.getSignature());
-//
-//                                Uri i = getContentResolver().insert(buildKitUri(), contentValues);
-//                                Log.e("KitEditor", "insert() Returned URI:" + i.toString());
-//                            }
-//                        })
-//                        .show();
-//                }
             }
         });
 
@@ -363,7 +315,6 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
 
         TextView alertText2 = (TextView) dialog.findViewById(R.id.alertText2);
         alertText2.setText(text2);
-
 
         Button okButton = (Button) dialog.findViewById(R.id.alertOK);
         okButton.setOnClickListener(new View.OnClickListener() {
