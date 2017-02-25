@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "235960771510-o5j81rob6du0540vvc3qfej633u88t0j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.umpquariversoftware.metronome",
+            "certificate_hash": "0bea0b45401edd1e4febfc6f25d4b1878446df4f"
+          }
+        },
+        {
           "client_id": "235960771510-na2fvkretikqanrubre6aarok974hk2h.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

@@ -12,8 +12,8 @@
     <string name="input_prefill" />
     <string name="alertOK">OK</string>
     <string name="pattern_exists">This pattern already exists!\nIt\'s called:</string>
-    <string name="jam_exists">This Jam Already Exists!\\nIts name is:</string>
-    <string name="kit_exists">A kit just like this already exists!\\nIt\'s called:</string>
+    <string name="jam_exists">This Jam Already Exists!\nIts name is:</string>
+    <string name="kit_exists">A kit just like this already exists!\nIt\'s called:</string>
     <string name="enter_kit_name">Enter Kit Name:</string>
     <string name="enter_string">Enter Jam Identifier</string>
     <string name="signature_not_found">Sorry. That signature was not found.</string>
@@ -21,5 +21,5 @@
     <string name="pattern_editor">Pattern Editor</string>
     <string name="kit_editor">Kit Editor</string>
     <string name="network_required">This function requires a network connection!</string>
-    <string name="banner_ad_unit_id">ca-app-pub-8040545141030965/9922021136</string>
+    <string name="banner_ad_unit_id">ca-app-pub-8040545141030965/3338933936</string>
 </resources>

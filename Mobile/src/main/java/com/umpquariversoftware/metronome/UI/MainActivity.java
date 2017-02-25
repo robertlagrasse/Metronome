@@ -38,6 +38,7 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.auth.FirebaseAuth;
@@ -229,10 +230,15 @@ public class MainActivity extends AppCompatActivity{
          * Get that money!
          * */
 
-        MobileAds.initialize(getApplicationContext(), "ca-app-pub-8040545141030965/9922021136");
+        MobileAds.initialize(getApplicationContext(), "ca-app-pub-8040545141030965~5491821531");
+
         AdView mAdView = (AdView) findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
+
+        AdRequest adRequest = new AdRequest.Builder()
+         //       .addTestDevice("74D61A4429900485751F374428FB6C95")
+                .build();
         mAdView.loadAd(adRequest);
+
     }
 
     /**
