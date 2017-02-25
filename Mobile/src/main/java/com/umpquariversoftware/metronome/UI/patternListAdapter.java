@@ -33,8 +33,6 @@ public class patternListAdapter extends RecyclerView.Adapter<patternListAdapter.
         super();
         this.mContext = mContext;
         this.firebasePatterns = firebasePatterns;
-        Log.e("patternListAdapter", "Created. firebasePatterns.size(): "+ firebasePatterns.size());
-
     }
 
     @Override
@@ -47,7 +45,6 @@ public class patternListAdapter extends RecyclerView.Adapter<patternListAdapter.
 
     @Override
     public void onBindViewHolder(patternListAdapter.ViewHolder viewHolder, int position) {
-        Log.e("patternListAdapter", "onBindViewHolder");
 
         String name = firebasePatterns.get(position).getName();
         String signature = firebasePatterns.get(position).getSignature();
@@ -111,7 +108,6 @@ public class patternListAdapter extends RecyclerView.Adapter<patternListAdapter.
 
         @Override
         public void onClick(View view) {
-            Log.e("patternCursorAdapter", "Viewholder onClick()");
         }
     }
 

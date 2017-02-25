@@ -35,7 +35,6 @@ public class kitListAdapter extends RecyclerView.Adapter<kitListAdapter.ViewHold
         super();
         this.mContext = mContext;
         this.firebaseKits = firebaseKits;
-        Log.e("patternListAdapter", "Created. firebaseKits.size(): "+ firebaseKits.size());
 
     }
 
@@ -49,7 +48,6 @@ public class kitListAdapter extends RecyclerView.Adapter<kitListAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(kitListAdapter.ViewHolder viewHolder, int position) {
-        Log.e("kitListAdapter", "onBindViewHolder");
 
         String name = firebaseKits.get(position).getName();
         String signature = firebaseKits.get(position).getSignature();
@@ -105,7 +103,6 @@ public class kitListAdapter extends RecyclerView.Adapter<kitListAdapter.ViewHold
 
         @Override
         public void onClick(View view) {
-            Log.e("patternCursorAdapter", "Viewholder onClick()");
         }
     }
 

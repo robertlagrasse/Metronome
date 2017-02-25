@@ -1,9 +1,7 @@
 package com.umpquariversoftware.metronome.kitEditor;
 
 import android.app.Dialog;
-import android.app.IntentService;
 import android.app.LoaderManager;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
@@ -11,14 +9,11 @@ import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.media.AudioAttributes;
 import android.media.SoundPool;
-import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SnapHelper;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
@@ -32,11 +27,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.umpquariversoftware.metronome.FireBase.FirebaseKit;
-import com.umpquariversoftware.metronome.FireBase.FirebasePattern;
 import com.umpquariversoftware.metronome.R;
 import com.umpquariversoftware.metronome.UI.RecyclerViewItemClickListener;
 import com.umpquariversoftware.metronome.UI.SnappyRecyclerView;
-import com.umpquariversoftware.metronome.UI.kitCursorAdapter;
 import com.umpquariversoftware.metronome.database.dbContract;
 import com.umpquariversoftware.metronome.elements.Component;
 import com.umpquariversoftware.metronome.elements.Kit;
@@ -45,12 +38,6 @@ import java.util.ArrayList;
 
 import static com.umpquariversoftware.metronome.database.dbContract.buildAllComponentsUri;
 import static com.umpquariversoftware.metronome.database.dbContract.buildComponentByDbIDUri;
-import static com.umpquariversoftware.metronome.database.dbContract.buildComponentUri;
-import static com.umpquariversoftware.metronome.database.dbContract.buildJamUri;
-import static com.umpquariversoftware.metronome.database.dbContract.buildKitBySignatureUri;
-import static com.umpquariversoftware.metronome.database.dbContract.buildKitUri;
-import static com.umpquariversoftware.metronome.database.dbContract.buildPatternBySignatureURI;
-import static com.umpquariversoftware.metronome.database.dbContract.buildPatternUri;
 
 public class KitEditor extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -195,7 +182,6 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                         retCursor.moveToFirst();
                         // put that component in the Kit component(0)
                         Component component = new Component(retCursor);
-                        Log.e("rvComponent1", "component.getResource: " + component.getResource());
                         mKit.replaceComponent(finalX,component);
                     }
                 }
@@ -210,7 +196,6 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        Log.e("onCreateLoader", "int i = " + i);
         switch (i) {
             case COMPONENT_LOADER_ID:
                 return new CursorLoader(this, buildAllComponentsUri(),
@@ -228,7 +213,6 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
             case COMPONENT_LOADER_ID:
                 mComponentCursorAdapter.swapCursor(data);
                 mComponentCursor = data;
-                Log.e("KitEditor", "onLoadFinished data.getCount(): " + data.getCount());
                 mComponentCount = data.getCount();
                 break;
         }

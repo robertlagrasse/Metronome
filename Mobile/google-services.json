@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "235960771510-na2fvkretikqanrubre6aarok974hk2h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.umpquariversoftware.metronome",
+            "certificate_hash": "3784eaff855c4bc2da5a50a3d7dfd2a6f3a7187d"
+          }
+        },
+        {
           "client_id": "235960771510-i0uc774kclf5nihjgq45422231eu42kl.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "235960771510-i0uc774kclf5nihjgq45422231eu42kl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

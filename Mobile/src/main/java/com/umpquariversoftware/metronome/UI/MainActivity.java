@@ -16,6 +16,7 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -36,6 +37,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -97,6 +103,9 @@ public class MainActivity extends AppCompatActivity{
     private Toolbar toolbar;
     static Context mContext;
     final int TEMPO_OFFSET = 30; // Seekbar starts at 0. Offset calibrates to minimum tempo.
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+
 
     ArrayList<FirebasePattern> mPatterns = new ArrayList<>();
     ArrayList<FirebasePattern> mMasterPatterns = new ArrayList<>();
@@ -140,11 +149,41 @@ public class MainActivity extends AppCompatActivity{
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+
+        mAuth = FirebaseAuth.getInstance();
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                }
+                // ...
+            }
+        };
 
         mContext = this;
 
@@ -185,6 +224,15 @@ public class MainActivity extends AppCompatActivity{
         actionButton();
 
         grabData();
+
+        /**
+         * Get that money!
+         * */
+
+        MobileAds.initialize(getApplicationContext(), "ca-app-pub-8040545141030965/9922021136");
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
     }
 
     /**
@@ -385,7 +433,6 @@ public class MainActivity extends AppCompatActivity{
     }
 
     void patternChooser(){
-        Log.e("patternChooser", "called ");
 
         final SnappyRecyclerView patternRecyclerView = (SnappyRecyclerView) findViewById(R.id.patternRecyclerView);
         patternRecyclerView.setHasFixedSize(true);
@@ -403,7 +450,6 @@ public class MainActivity extends AppCompatActivity{
                     @Override
                     public void onItemClick(View v, int position) {
                         // read info, do stuff.
-                        Log.e("recyclerview", "clicked " + position);
                     }
 
                 }));
@@ -451,7 +497,6 @@ public class MainActivity extends AppCompatActivity{
                     @Override
                     public void onItemClick(View v, int position) {
                         // read info, do stuff.
-                        Log.e("recyclerview", "clicked " + position);
                     }
 
                 }));
@@ -489,7 +534,6 @@ public class MainActivity extends AppCompatActivity{
                     @Override
                     public void onItemClick(View v, int position) {
                         // read info, do stuff.
-                        Log.e("recyclerview", "clicked " + position);
                     }
 
                 }));
@@ -561,7 +605,6 @@ public class MainActivity extends AppCompatActivity{
         startstop = (FloatingActionButton) findViewById(R.id.startStopButton);
         startstop.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Log.e("MainActivity", "startStop()");
                 sendBeatBroadcast(true);
             }
         });
@@ -612,20 +655,29 @@ public class MainActivity extends AppCompatActivity{
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        mMasterJams.clear();
                         for (DataSnapshot child: dataSnapshot.getChildren()) {
                             FirebaseJam fbj = child.getValue(FirebaseJam.class);
                             if (fbj != null) {
                                 mMasterJams.add(fbj);
                             }
                         }
+                        mJams.clear();
+                        mJams.addAll(mLocalJams);
                         mJams.addAll(mMasterJams);
+                        mJams.addAll(mUserJams);
                         mJamListAdapter.notifyDataSetChanged();
 
                     }
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
+                        mMasterJams.clear();
+                        mJams.clear();
+                        mJams.addAll(mLocalJams);
+                        mJams.addAll(mMasterJams);
+                        mJams.addAll(mUserJams);
+                        mJamListAdapter.notifyDataSetChanged();
                     }
                 });
 
@@ -634,15 +686,15 @@ public class MainActivity extends AppCompatActivity{
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         mUserJams.clear();
-                        mJams.clear();
-                        mJams.addAll(mLocalJams);
-                        mJams.addAll(mMasterJams);
                         for(DataSnapshot child: dataSnapshot.getChildren()){
                             FirebaseJam fbj = child.getValue(FirebaseJam.class);
                             if (fbj!=null){
                                 mUserJams.add(fbj);
                             }
                         }
+                        mJams.clear();
+                        mJams.addAll(mLocalJams);
+                        mJams.addAll(mMasterJams);
                         mJams.addAll(mUserJams);
                         mJamListAdapter.notifyDataSetChanged();
                     }
@@ -651,6 +703,8 @@ public class MainActivity extends AppCompatActivity{
                     public void onCancelled(DatabaseError databaseError) {
                         mJams.clear();
                         mJams.addAll(mLocalJams);
+                        mJams.addAll(mMasterJams);
+                        mJams.addAll(mUserJams);
                         mJamListAdapter.notifyDataSetChanged();
                     }
                 });
@@ -666,40 +720,16 @@ public class MainActivity extends AppCompatActivity{
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        mMasterKits.clear();
                         for (DataSnapshot child: dataSnapshot.getChildren()) {
                             FirebaseKit fbk = child.getValue(FirebaseKit.class);
                             if (fbk != null) {
                                 mMasterKits.add(fbk);
-                                Log.e("MainActivity", "Added Kit to ArrayList with signature: "
-                                        + fbk.getSignature()
-                                        + " at position: " + mKits.size());
                             }
                         }
-                        mKits.addAll(mMasterKits);
-                        mKitListAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-        mDatabase.child("kits").child("users").child("this_user")
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        mUserKits.clear();
                         mKits.clear();
                         mKits.addAll(mLocalKits);
                         mKits.addAll(mMasterKits);
-                        for(DataSnapshot child: dataSnapshot.getChildren()){
-                            FirebaseKit fbk = child.getValue(FirebaseKit.class);
-                            if(fbk!=null){
-                                mUserKits.add(fbk);
-
-                            }
-                        }
                         mKits.addAll(mUserKits);
                         mKitListAdapter.notifyDataSetChanged();
                     }
@@ -708,6 +738,37 @@ public class MainActivity extends AppCompatActivity{
                     public void onCancelled(DatabaseError databaseError) {
                         mKits.clear();
                         mKits.addAll(mLocalKits);
+                        mKits.addAll(mMasterKits);
+                        mKits.addAll(mUserKits);
+                        mKitListAdapter.notifyDataSetChanged();
+                    }
+                });
+
+        mDatabase.child("kits").child("users").child("this_user")
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        mUserKits.clear();
+                        for(DataSnapshot child: dataSnapshot.getChildren()){
+                            FirebaseKit fbk = child.getValue(FirebaseKit.class);
+                            if(fbk!=null){
+                                mUserKits.add(fbk);
+
+                            }
+                        }
+                        mKits.clear();
+                        mKits.addAll(mLocalKits);
+                        mKits.addAll(mMasterKits);
+                        mKits.addAll(mUserKits);
+                        mKitListAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        mKits.clear();
+                        mKits.addAll(mLocalKits);
+                        mKits.addAll(mMasterKits);
+                        mKits.addAll(mUserKits);
                         mKitListAdapter.notifyDataSetChanged();
                     }
                 });
@@ -717,22 +778,27 @@ public class MainActivity extends AppCompatActivity{
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        mMasterPatterns.clear();
                         for (DataSnapshot child: dataSnapshot.getChildren()) {
                             FirebasePattern fbp = child.getValue(FirebasePattern.class);
                             if (fbp != null) {
                                 mMasterPatterns.add(fbp);
-                                Log.e("MainActivity", "Added pattern to ArrayList with signature: "
-                                        + fbp.getSignature()
-                                        + " at position: " + mMasterPatterns.size());
                             }
                         }
+                        mPatterns.clear();
+                        mPatterns.addAll(mLocalPattern);
                         mPatterns.addAll(mMasterPatterns);
+                        mPatterns.addAll(mUserPatterns);
                         mPatternListAdapter.notifyDataSetChanged();
                     }
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
+                        mPatterns.clear();
+                        mPatterns.addAll(mLocalPattern);
+                        mPatterns.addAll(mMasterPatterns);
+                        mPatterns.addAll(mUserPatterns);
+                        mPatternListAdapter.notifyDataSetChanged();
                     }
                 });
 
@@ -742,18 +808,15 @@ public class MainActivity extends AppCompatActivity{
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         mUserPatterns.clear();
-                        mPatterns.clear();
-                        mPatterns.addAll(mLocalPattern);
-                        mPatterns.addAll(mMasterPatterns);
                         for (DataSnapshot child: dataSnapshot.getChildren()) {
                             FirebasePattern fbp = child.getValue(FirebasePattern.class);
                             if (fbp != null) {
                                 mUserPatterns.add(fbp);
-                                Log.e("MainActivity", "Added pattern to ArrayList with signature: "
-                                        + fbp.getSignature()
-                                        + " at position: " + mUserPatterns.size());
                             }
                         }
+                        mPatterns.clear();
+                        mPatterns.addAll(mLocalPattern);
+                        mPatterns.addAll(mMasterPatterns);
                         mPatterns.addAll(mUserPatterns);
                         mPatternListAdapter.notifyDataSetChanged();
                     }
@@ -762,6 +825,9 @@ public class MainActivity extends AppCompatActivity{
                     public void onCancelled(DatabaseError databaseError) {
                         mPatterns.clear();
                         mPatterns.addAll(mLocalPattern);
+                        mPatterns.addAll(mMasterPatterns);
+                        mPatterns.addAll(mUserPatterns);
+                        mPatternListAdapter.notifyDataSetChanged();
                     }
                 });
     }
@@ -770,15 +836,12 @@ public class MainActivity extends AppCompatActivity{
         Intent intent = new Intent();
         intent.setAction("com.umpquariversoftware.metronome.STARTSTOP");
 
-        Log.e("sendBeatBroadcast", "sending this tempo value: " + mJam.getTempo());
         intent.putExtra("tempo", mJam.getTempo());
 
-        Log.e("sendBeatBroadcast", "sending this pattern Signature: " + mJam.getPattern().getPatternHexSignature());
         intent.putExtra("pattern", mJam.getPattern().getPatternHexSignature());
 
         ArrayList<Integer> components = new ArrayList<>();
         for(int x = 0; x<8; ++x){
-            Log.e("sendBeatBroadcast", "adding this component: " + mJam.getKit().getComponents().get(x).getResource());
             components.add(mJam.getKit().getComponents().get(x).getResource());
         }
         intent.putIntegerArrayListExtra("components", components);
@@ -998,8 +1061,6 @@ public class MainActivity extends AppCompatActivity{
             NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
             networkIsConnected = activeNetwork != null &&
                     activeNetwork.isConnectedOrConnecting();
-
-            Log.e("netStatusChangeReceiver", "networkIsConnected = " + networkIsConnected);
             setupToolbar();
         }
     }

@@ -21,4 +21,5 @@
     <string name="pattern_editor">Pattern Editor</string>
     <string name="kit_editor">Kit Editor</string>
     <string name="network_required">This function requires a network connection!</string>
+    <string name="banner_ad_unit_id">ca-app-pub-8040545141030965/9922021136</string>
 </resources>

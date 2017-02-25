@@ -104,8 +104,6 @@ public class PatternEditor extends AppCompatActivity {
         String[] hvals = new String[horizontals.size()];
         hvals = horizontals.toArray(hvals);
 
-        Log.e("PatternEditor","Horizontal Values: " + hvals.toString());
-
         StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graph);
         staticLabelsFormatter.setVerticalLabels(mContext.getResources().getStringArray(R.array.patternGraphLabels));
         staticLabelsFormatter.setHorizontalLabels(hvals);
@@ -204,7 +202,6 @@ public class PatternEditor extends AppCompatActivity {
             public void onClick(View view) {
                 currentBeat--;
                 setupButtons();
-                Log.e("patternBeatLast","currentBeat: " + currentBeat);
             }
         });
 
@@ -213,7 +210,6 @@ public class PatternEditor extends AppCompatActivity {
             public void onClick(View view) {
                 currentBeat++;
                 setupButtons();
-                Log.e("patternBeatNext","currentBeat: " + currentBeat);
             }
         });
 

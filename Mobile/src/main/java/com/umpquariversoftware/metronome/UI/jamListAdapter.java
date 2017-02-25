@@ -36,8 +36,6 @@ public class jamListAdapter extends RecyclerView.Adapter<jamListAdapter.ViewHold
         super();
         this.mContext = mContext;
         this.firebaseJams = firebasejams;
-        Log.e("patternListAdapter", "Created. firebasejams.size(): "+ firebasejams.size());
-
     }
 
     @Override
@@ -84,7 +82,6 @@ public class jamListAdapter extends RecyclerView.Adapter<jamListAdapter.ViewHold
 
         @Override
         public void onClick(View view) {
-            Log.e("patternCursorAdapter", "Viewholder onClick()");
         }
     }
 

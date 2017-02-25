@@ -24,7 +24,6 @@ private static Context mContext;
 
 public componentCursorAdapter(Context context, Cursor cursor) {
         super(context, cursor);
-        Log.e("componentCursorAdapter", "constructor");
         mContext = context;
         }
 

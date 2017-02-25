@@ -31,56 +31,44 @@ public class contentProvider extends ContentProvider {
     private int uriSwitcher(Uri uri){
         switch(uri.getPathSegments().get(0)){
             case dbContract.ComponentTable.TABLE_NAME:{
-                Log.e("contentProvider","uriSwitcher() Matched COMPONENT");
                 return COMPONENT;
             }
             case dbContract.KitTable.TABLE_NAME:{
                 if(uri.getLastPathSegment().equals(dbContract.KitTable.TABLE_NAME)){
-                    Log.e("contentProvider","uriSwitcher() Matched ALL_KITS");
                     return ALL_KITS;
                 } else {
-                    Log.e("contentProvider","uriSwitcher() Matched KIT_BY_ID");
                     return KIT_BY_ID;
                 }
             }
             case dbContract.PatternTable.TABLE_NAME:{
                 if(uri.getLastPathSegment().equals(dbContract.PatternTable.TABLE_NAME)){
-                    Log.e("contentProvider","uriSwitcher() Matched ALL_PATTERNS");
                     return ALL_PATTERNS;
                 } else if(uri.getPathSegments().get(1).equals(dbContract.PatternTable.SEQUENCE)){
-                    Log.e("contentProvider","uriSwitcher() Matched PATTERN_BY_SEQUENCE");
                     return PATTERN_BY_SEQUENCE;
                 } else {
-                    Log.e("contentProvider","uriSwitcher() Matched PATTERN_BY_ID");
                     return PATTERN_BY_ID;
                 }
             }
             case dbContract.JamTable.TABLE_NAME:{
                 if(uri.getLastPathSegment().equals(dbContract.JamTable.TABLE_NAME)){
-                    Log.e("contentProvider","uriSwitcher() Matched ALL_JAMS");
                     return ALL_JAMS;
                 } else {
-                    Log.e("contentProvider","uriSwitcher() Matched JAM_BY_ID");
                     return JAM_BY_ID;
                 }
             }
             case "attributes":{
-                Log.e("contentProvider","uriSwitcher() Matched JAM_BY_ATTRIBUTES");
                 return JAM_BY_ATTRIBUTES;
             }
 
             case "component_by_db_id":{
-                Log.e("contentProvider","uriSwitcher() Matched component_by_db_id");
                 return COMPONENT_BY_DB_ID;
             }
 
             case "all_components":{
-                Log.e("contentProvider","uriSwitcher() Matched component_by_db_id");
                 return ALL_COMPONENTS;
             }
 
             case "kit_by_signature":{
-                Log.e("contentProvider","uriSwitcher() Matched kit_by_signature");
                 return KIT_BY_SIGNATURE;
             }
 
@@ -121,7 +109,6 @@ public class contentProvider extends ContentProvider {
         final SQLiteDatabase db = databaseManager.getWritableDatabase();
         long _id = 0;
 
-        Log.e("contentProvider","insert() calling uriSwitcher() with uri: " + uri.toString());
         switch (uriSwitcher(uri)){
             case COMPONENT:{
                 _id = db.insert(dbContract.ComponentTable.TABLE_NAME, null, values);
@@ -156,7 +143,6 @@ public class contentProvider extends ContentProvider {
 
         Cursor retCursor = null;
 
-        Log.e("contentProvider","query() calling uriSwitcher() with uri: " + uri.toString());
         switch(uriSwitcher(uri)){
             case COMPONENT:{
                 retCursor = databaseManager.getReadableDatabase().query(
@@ -247,7 +233,6 @@ public class contentProvider extends ContentProvider {
             }
 
             case PATTERN_BY_SEQUENCE:{
-                Log.e("ContentProvider", "uri.getPathSegments().get(2): " + uri.getPathSegments().get(2));
                 retCursor = databaseManager.getReadableDatabase().query(
                         dbContract.PatternTable.TABLE_NAME,
                         projection,
@@ -318,7 +303,6 @@ public class contentProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
-        Log.e("contentProvider","update() calling uriSwitcher() with uri: " + uri.toString());
 
         switch (uriSwitcher(uri)){
             case COMPONENT:{

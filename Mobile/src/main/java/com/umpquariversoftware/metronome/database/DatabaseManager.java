@@ -20,7 +20,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        Log.e(TAG, "onCreate Called");
         db.execSQL(dbContract.ComponentTable.CREATE_TABLE);
         db.execSQL(dbContract.KitTable.CREATE_TABLE);
         db.execSQL(dbContract.PatternTable.CREATE_TABLE);
@@ -29,7 +28,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.e(TAG, "New Database Created. Version: " + newVersion);
         // delete the existing database
         db.execSQL("DROP TABLE IF EXISTS " + dbContract.ComponentTable.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + dbContract.KitTable.TABLE_NAME);

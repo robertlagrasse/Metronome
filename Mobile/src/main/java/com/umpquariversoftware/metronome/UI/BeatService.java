@@ -44,14 +44,16 @@ public class BeatService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.e("BeatService", "onHandleIntent");
         mJamID = intent.getLongExtra("jamID",0);
-        mJam = buildJamFromDB(mJamID);
+        mJam = new Jam();
+        mJam.setTempo(60);
+        mJam.setKit(new Kit("temp", "0102030405060708", mContext));
+        mJam.setPattern(new Pattern("temp", "01", mContext));
+
     }
 
     @Override
     public void onCreate() {
-        Log.e("BeatService", "onCreate()");
         super.onCreate();
 
         isRunning = false;
@@ -61,111 +63,9 @@ public class BeatService extends IntentService {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.e("BeatService", "onDestroy");
-    }
-
-    public Jam buildJamFromDB(long id){
-
-        /**
-         * A Jam has to have the following parts:
-         *
-         * Name
-         * Tempo
-         * Kit
-         * Pattern
-         *
-         * We'll pull the Name and Tempo from the DB directly, along with references
-         * to the Kit and the Pattern info, then build the kit and the pattern from there.
-         *
-         */
-
-
-        // For now, just grab the first Jam. I'll build a way to track the last jam
-        // and pick that one specifically.
-
-        Cursor retCursor = getContentResolver().query(buildJamUri().buildUpon().appendPath(String.valueOf(id)).build(),
-                null,
-                null,
-                null,
-                null);
-        retCursor.moveToFirst();
-
-        String jamName = retCursor.getString(retCursor.getColumnIndex(dbContract.JamTable.NAME));
-        int jamTempo = Integer.parseInt(retCursor.getString(retCursor.getColumnIndex(dbContract.JamTable.TEMPO)));
-        int dbID = Integer.parseInt(retCursor.getString(retCursor.getColumnIndex(dbContract.JamTable.ID)));
-
-        String kitID = retCursor.getString(retCursor.getColumnIndex(dbContract.JamTable.KIT_ID));
-        String patternID = retCursor.getString(retCursor.getColumnIndex(dbContract.JamTable.PATTERN_ID));
-
-        retCursor.close();
-
-        /**
-         *
-         * Now we'll build the pattern. We'll use the pattern ID to get the pattern sequence
-         * from the database, then use that sequence to create the beats.
-         *
-         * A pattern is a name and an array list of beats.
-         *
-         * The Pattern class has a constructor that will build a pattern directly from a
-         * signature. It leverages a Beat constructor that creates a beat from an individual
-         * Hex value.
-         *
-         */
-
-        retCursor = getContentResolver().query(buildPatternUri().buildUpon().appendPath(patternID).build(),
-                null,
-                null,
-                null,
-                null);
-        retCursor.moveToFirst();
-
-        String patternName = retCursor.getString(retCursor.getColumnIndex(dbContract.PatternTable.NAME));
-        String patternSequence = retCursor.getString(retCursor.getColumnIndex(dbContract.PatternTable.SEQUENCE));
-
-        Pattern pattern = new Pattern(patternName, patternSequence, this);
-
-
-        /**
-         *
-         * Next we build the Kit. A kit is a name and an array list of components.
-         *
-         * We'll use the KitID to get the Kit sequence from the DB.
-         *
-         * The Kit class has a constructor that will build a kit directly from a signature.
-         *
-         */
-
-        retCursor = getContentResolver().query(buildKitUri().buildUpon().appendPath(kitID).build(),
-                null,
-                null,
-                null,
-                null);
-        retCursor.moveToFirst();
-
-        String kitComponents = retCursor.getString(retCursor.getColumnIndex(dbContract.KitTable.COMPONENTS));
-        String kitName = retCursor.getString(retCursor.getColumnIndex(dbContract.KitTable.NAME));
-        retCursor.close();
-
-        Kit kit = new Kit(kitName, kitComponents, this);
-        kit.setName(kitName);
-
-        /**
-         * Finally, we bring all of the pieces together and create the jam.
-         */
-
-        Jam jam = new Jam();
-
-        jam.setName(jamName);
-        jam.setTempo(jamTempo);
-        jam.setKit(kit);
-        jam.setPattern(pattern);
-        jam.setDbID(dbID);
-
-        return jam;
     }
 
     private static void flip(){
-        Log.e("TestService", "flip()");
         if(isRunning){
             stopTimer();
         } else {
@@ -267,27 +167,16 @@ public class BeatService extends IntentService {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.e("startStopReceiver", "onreceive()");
-            // Extract pattern signature and instantiate a new Pattern
+
             Pattern pattern = new Pattern("temp",intent.getStringExtra("pattern"),null);
-            // Log.e("startStopReceiver", "pattern signature: " + pattern.getPatternHexSignature());
-
-            // Extract tempo
             int tempo = intent.getIntExtra("tempo", 60);
-            // Log.e("startStopReceiver", "tempo: " + tempo);
-
-            // Build a kit
             Kit kit = new Kit();
 
-            // Extract the resource ID's from the ArrayList
-            // Build a component from each resource
-            // Add that component to the kit
             ArrayList<Integer> resourceIDs = intent.getIntegerArrayListExtra("components");
             for(int x=0; x<resourceIDs.size(); ++x){
                 Component component = new Component();
                 component.setResource(resourceIDs.get(x));
                 kit.addComponent(component);
-                // Log.e("startStopReceiver", "Received Component: " + resourceIDs.get(x));
             }
 
             // Tempo, Pattern and Kit defined, build a Jam
