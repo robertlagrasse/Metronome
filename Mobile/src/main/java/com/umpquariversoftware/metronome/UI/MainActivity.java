@@ -190,12 +190,10 @@ public class MainActivity extends AppCompatActivity{
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // User is signed in
-                    Toast.makeText(mContext, "You made it!", Toast.LENGTH_LONG).show();
                     userIsLoggedIn = true;
                     setupToolbar();
                     userID = user.getUid();
                     grabData();
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                 } else {
                     setupToolbar();
                     userIsLoggedIn = false;
@@ -206,7 +204,6 @@ public class MainActivity extends AppCompatActivity{
                                             new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
                                     .build(),
                             RC_SIGN_IN);
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
                 }
                 // ...
             }

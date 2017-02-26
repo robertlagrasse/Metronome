@@ -2,9 +2,52 @@ Parking lot for thoughts and notes.
 
 Widget
 
-Authentication - Authentication is working from an application perspective. The user is
+DONE! Authentication - Authentication is working from an application perspective. The user is
 redirected to the login process if he's not logged in. I see my own login hit the console.
-Now need to write rules on the firebase side.
+Firebase rules from console:
+
+{
+  "rules": {
+    "jams" : {
+      "shared": {
+        ".read" : true,
+        ".write" : true
+      },
+      "master": {
+        ".read" : true
+      },
+      "users": {
+        "$uid" :{
+          ".read": "$uid === auth.uid",
+          ".write": "$uid === auth.uid"
+        }
+      }
+
+    },
+    "kits" : {
+      "master" :{
+        ".read" : true
+      },
+      "users":{
+        "$uid" :{
+          ".read": "$uid === auth.uid",
+          ".write": "$uid === auth.uid"
+        }
+      }
+    },
+    "patterns" : {
+      "master" :{
+        ".read" : true
+      },
+      "users":{
+        "$uid" :{
+          ".read": "$uid === auth.uid",
+          ".write": "$uid === auth.uid"
+        }
+      }
+    }
+  }
+}
 
 Wear support
 
