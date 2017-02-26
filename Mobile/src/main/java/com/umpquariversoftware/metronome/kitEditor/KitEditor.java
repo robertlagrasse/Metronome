@@ -49,6 +49,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
     Context mContext;
     Boolean mMasterListSearchResultsBack = false;
     Boolean mUserListSearchResultsBack = false;
+    String userID = "";
 
     FirebaseKit mMasterListKit, mUserListKit;
 
@@ -69,6 +70,9 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         mContext = this;
+        userID = getIntent().getStringExtra("userID");
+
+        Log.e("KitEditor", "userID: " + userID);
         /**
          * Point the cursor at the first item in the component database
          * Use that row to build a component.
@@ -259,7 +263,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                     }
                 });
 
-        mDatabase.child("kits").child("users").child("this_user").child(signature)
+        mDatabase.child("kits").child("users").child(userID).child(signature)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -323,7 +327,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                         FirebaseKit fbk = new FirebaseKit(input.toString(), mKit.getSignature());
                         mDatabase.child("kits")
                                 .child("users")
-                                .child("this_user")
+                                .child(userID)
                                 .child(fbk.getSignature())
                                 .setValue(fbk);
                     }

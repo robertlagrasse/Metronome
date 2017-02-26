@@ -37,10 +37,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -62,6 +66,7 @@ import com.umpquariversoftware.metronome.kitEditor.KitEditor;
 import com.umpquariversoftware.metronome.patternEditor.PatternEditor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static com.umpquariversoftware.metronome.database.dbContract.*;
 
@@ -101,9 +106,12 @@ public class MainActivity extends AppCompatActivity{
     Jam mJam = new Jam();
     Boolean beatServiceRunning = false;
     static Boolean networkIsConnected;
+    static Boolean userIsLoggedIn;
     private Toolbar toolbar;
     static Context mContext;
+    String userID="this_user";
     final int TEMPO_OFFSET = 30; // Seekbar starts at 0. Offset calibrates to minimum tempo.
+
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
@@ -132,6 +140,9 @@ public class MainActivity extends AppCompatActivity{
     Boolean mMasterListSearchResultsBack = false;
     Boolean mUserListSearchResultsBack = false;
     FirebaseJam mUserListJam, mMasterListJam;
+
+    private static final int RC_SIGN_IN = 69;
+
 
     @Override
     public void onResume() {
@@ -171,20 +182,36 @@ public class MainActivity extends AppCompatActivity{
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
 
         mAuth = FirebaseAuth.getInstance();
+        userIsLoggedIn = false;
+
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // User is signed in
+                    Toast.makeText(mContext, "You made it!", Toast.LENGTH_LONG).show();
+                    userIsLoggedIn = true;
+                    setupToolbar();
+                    userID = user.getUid();
+                    grabData();
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                 } else {
-                    // User is signed out
+                    setupToolbar();
+                    userIsLoggedIn = false;
+                    startActivityForResult(
+                            AuthUI.getInstance()
+                                    .createSignInIntentBuilder()
+                                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                                            new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                                    .build(),
+                            RC_SIGN_IN);
                     Log.d(TAG, "onAuthStateChanged:signed_out");
                 }
                 // ...
             }
         };
+
 
         mContext = this;
 
@@ -224,18 +251,16 @@ public class MainActivity extends AppCompatActivity{
         jamChooser();
         actionButton();
 
-        grabData();
-
         /**
          * Get that money!
          * */
 
-        MobileAds.initialize(getApplicationContext(), "ca-app-pub-8040545141030965~5491821531");
+        // MobileAds.initialize(getApplicationContext(), "ca-app-pub-8040545141030965~5491821531");
 
         AdView mAdView = (AdView) findViewById(R.id.adView);
 
         AdRequest adRequest = new AdRequest.Builder()
-         //       .addTestDevice("74D61A4429900485751F374428FB6C95")
+                .addTestDevice("74D61A4429900485751F374428FB6C95")
                 .build();
         mAdView.loadAd(adRequest);
 
@@ -372,7 +397,7 @@ public class MainActivity extends AppCompatActivity{
         ImageView shareJamButton = (ImageView) findViewById(R.id.shareJamButton);
         ImageView saveJamToCloud = (ImageView) findViewById(R.id.saveJamToCloud);
 
-        if(networkIsConnected){
+        if(networkIsConnected && userIsLoggedIn){
             searchForSharedJamButton.setVisibility(View.VISIBLE);
             searchForSharedJamButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -445,9 +470,6 @@ public class MainActivity extends AppCompatActivity{
         LinearLayoutManager patternLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         patternRecyclerView.setLayoutManager(patternLinearLayoutManager);
 
-        final SnapHelper snapHelper = new LinearSnapHelper();
-        snapHelper.attachToRecyclerView(patternRecyclerView);
-
         mPatternListAdapter = new patternListAdapter(mPatterns, mContext);
         patternRecyclerView.setAdapter(mPatternListAdapter);
 
@@ -473,15 +495,6 @@ public class MainActivity extends AppCompatActivity{
                     mJam.setPattern(pattern);
                     sendBeatBroadcast(false);
                 }
-            }
-        });
-
-        patternRecyclerView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                Intent i = new Intent(getApplicationContext(), PatternEditor.class);
-                startActivity(i);
-                return true;
             }
         });
     }
@@ -687,7 +700,7 @@ public class MainActivity extends AppCompatActivity{
                     }
                 });
 
-        mDatabase.child("jams").child("users").child("this_user")
+        mDatabase.child("jams").child("users").child(userID)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -750,7 +763,7 @@ public class MainActivity extends AppCompatActivity{
                     }
                 });
 
-        mDatabase.child("kits").child("users").child("this_user")
+        mDatabase.child("kits").child("users").child(userID)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -809,7 +822,7 @@ public class MainActivity extends AppCompatActivity{
                 });
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.child("patterns").child("users").child("this_user")
+        mDatabase.child("patterns").child("users").child(userID)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -900,7 +913,7 @@ public class MainActivity extends AppCompatActivity{
         }
         mMasterListSearchResultsBack = true;
 
-        mDatabase.child("jams").child("users").child("this_user").child(signature)
+        mDatabase.child("jams").child("users").child(userID).child(signature)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -939,8 +952,10 @@ public class MainActivity extends AppCompatActivity{
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case (R.id.menuPatternEditor):{
-                if(networkIsConnected){
+                if(networkIsConnected && userIsLoggedIn){
                     Intent i = new Intent(this, PatternEditor.class);
+                    i.putExtra("userID", userID);
+                    Log.e("MainActivity", "userID: " + userID);
                     startActivity(i);
                 }else{
                     Toast.makeText(mContext, R.string.network_required, Toast.LENGTH_LONG).show();
@@ -948,8 +963,10 @@ public class MainActivity extends AppCompatActivity{
                 return true;
             }
             case R.id.menuKitEditor:{
-                if(networkIsConnected){
+                if(networkIsConnected && userIsLoggedIn){
                     Intent i = new Intent(this, KitEditor.class);
+                    i.putExtra("userID", userID);
+                    Log.e("MainActivity", "userID: " + userID);
                     startActivity(i);
                 }else{
                     Toast.makeText(mContext, R.string.network_required, Toast.LENGTH_LONG).show();
@@ -961,7 +978,6 @@ public class MainActivity extends AppCompatActivity{
             }
         }
     }
-
 
     /**
      * Utilities/Pushing data around
@@ -1004,7 +1020,7 @@ public class MainActivity extends AppCompatActivity{
                         fbj.setName(input.toString());
                         mDatabase.child("jams")
                                 .child("users")
-                                .child("this_user")
+                                .child(userID)
                                 .child(fbj.getSignature())
                                 .setValue(fbj);
                     }
@@ -1070,6 +1086,4 @@ public class MainActivity extends AppCompatActivity{
             setupToolbar();
         }
     }
-
-
 }

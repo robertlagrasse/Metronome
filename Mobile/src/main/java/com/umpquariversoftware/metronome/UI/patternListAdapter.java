@@ -64,6 +64,7 @@ public class patternListAdapter extends RecyclerView.Adapter<patternListAdapter.
 
         ArrayList<String> horizontals = new ArrayList<>();
 
+        horizontals.clear();
         for(int i=0;i<tempPattern.getLength();++i){
             horizontals.add(String.valueOf(i+1));
         }
@@ -79,6 +80,7 @@ public class patternListAdapter extends RecyclerView.Adapter<patternListAdapter.
         staticLabelsFormatter.setHorizontalLabels(hvals);
         viewHolder.patternGraphView.getGridLabelRenderer().setLabelFormatter(staticLabelsFormatter);
 
+        viewHolder.patternGraphView.removeAllSeries();
         viewHolder.patternGraphView.addSeries(series);
         viewHolder.patternName.setText(name);
     }
@@ -109,9 +111,5 @@ public class patternListAdapter extends RecyclerView.Adapter<patternListAdapter.
         @Override
         public void onClick(View view) {
         }
-    }
-
-    public ArrayList<FirebasePattern> getFirebasePatterns() {
-        return firebasePatterns;
     }
 }

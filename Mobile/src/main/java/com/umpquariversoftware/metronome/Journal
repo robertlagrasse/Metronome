@@ -1,12 +1,10 @@
 Parking lot for thoughts and notes.
 
-
-
 Widget
 
-Admob - DONE. Test ads displaying
-
-Authentication - pretty necessary
+Authentication - Authentication is working from an application perspective. The user is
+redirected to the login process if he's not logged in. I see my own login hit the console.
+Now need to write rules on the firebase side.
 
 Wear support
 

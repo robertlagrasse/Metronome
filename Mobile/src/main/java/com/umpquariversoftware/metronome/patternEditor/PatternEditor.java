@@ -47,6 +47,7 @@ public class PatternEditor extends AppCompatActivity {
     Pattern pattern = new Pattern("New Pattern", "01", null);
     Beat beat = new Beat();
     Context mContext;
+    String userID = "";
 
     Boolean mMasterListSearchResultsBack = false;
     Boolean mUserListSearchResultsBack = false;
@@ -60,6 +61,7 @@ public class PatternEditor extends AppCompatActivity {
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         mContext = this;
+        userID = getIntent().getStringExtra("userID");
 
         /**
          * Build a basic pattern so you have something to display
@@ -354,7 +356,7 @@ public class PatternEditor extends AppCompatActivity {
                 }
         });
 
-        mDatabase.child("patterns").child("users").child("this_user").child(signature)
+        mDatabase.child("patterns").child("users").child(userID).child(signature)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -419,7 +421,7 @@ public class PatternEditor extends AppCompatActivity {
                         FirebasePattern fbp = new FirebasePattern(input.toString(), pattern.getPatternHexSignature());
                         mDatabase.child("patterns")
                                 .child("users")
-                                .child("this_user")
+                                .child(userID)
                                 .child(fbp.getSignature())
                                 .setValue(fbp);
                     }
