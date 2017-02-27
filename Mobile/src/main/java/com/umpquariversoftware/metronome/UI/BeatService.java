@@ -12,6 +12,7 @@ import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.umpquariversoftware.metronome.database.dbContract;
 import com.umpquariversoftware.metronome.elements.Beat;
@@ -167,35 +168,60 @@ public class BeatService extends IntentService {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.e("BeatService","startStopReceiver/onReceive()");
+            Boolean widget = intent.getBooleanExtra("widget", false);
 
-            Pattern pattern = new Pattern("temp",intent.getStringExtra("pattern"),null);
-            int tempo = intent.getIntExtra("tempo", 60);
-            Kit kit = new Kit();
+            if(!widget) {
 
-            ArrayList<Integer> resourceIDs = intent.getIntegerArrayListExtra("components");
-            for(int x=0; x<resourceIDs.size(); ++x){
-                Component component = new Component();
-                component.setResource(resourceIDs.get(x));
-                kit.addComponent(component);
+                Log.e("BeatService", "startStopReceiver onReceive() intent.getStringExtra(\"jamName\") "+ intent.getStringExtra("jamName"));
+
+                String name = intent.getStringExtra("jamName");
+                if (name == null){
+                    name = "No name sent";
+                }
+                Pattern pattern = new Pattern("temp", intent.getStringExtra("pattern"), null);
+                int tempo = intent.getIntExtra("tempo", 60);
+                Kit kit = new Kit();
+
+                ArrayList<Integer> resourceIDs = intent.getIntegerArrayListExtra("components");
+                for (int x = 0; x < resourceIDs.size(); ++x) {
+                    Component component = new Component();
+                    component.setResource(resourceIDs.get(x));
+                    kit.addComponent(component);
+                }
+
+                // Tempo, Pattern and Kit defined, build a Jam
+                Jam jam = new Jam();
+                jam.setKit(kit);
+                jam.setPattern(pattern);
+                jam.setTempo(tempo);
+                jam.setName(name);
+                mJam = jam;
             }
 
-            // Tempo, Pattern and Kit defined, build a Jam
-            Jam jam = new Jam();
-            jam.setKit(kit);
-            jam.setPattern(pattern);
-            jam.setTempo(tempo);
-            mJam=jam;
-
-            Boolean fab = intent.getBooleanExtra("fab", false);
-
-            if(fab){
-                flip();
+            if (mJam == null || mJam.getKit() == null || mJam.getPattern() == null){
+                Log.e("startStopReceiver","Service not running.");
             } else {
-                if(isRunning){
-                    stopTimer();
+
+                    Log.e("BeatService", "onReceive Broadcasting APPWIDGET_UPDATE");
+                    String ACTION_DATA_UPDATED =
+                            "android.appwidget.action.APPWIDGET_UPDATE";
+
+                    Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED)
+                            .setPackage(context.getPackageName());
+                    dataUpdatedIntent.putExtra("jamName", mJam.getName());
+                    context.sendBroadcast(dataUpdatedIntent);
+
+                Boolean fab = intent.getBooleanExtra("fab", false);
+
+                if (fab) {
+                    flip();
+                } else {
+                    if (isRunning) {
+                        stopTimer();
+                    }
                 }
             }
-
         }
     }
 

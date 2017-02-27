@@ -22,4 +22,7 @@
     <string name="kit_editor">Kit Editor</string>
     <string name="network_required">This function requires a network connection!</string>
     <string name="banner_ad_unit_id">ca-app-pub-8040545141030965/3338933936</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="choose_in_app">Jam</string>
 </resources>

@@ -110,6 +110,7 @@ public class MainActivity extends AppCompatActivity{
     private Toolbar toolbar;
     static Context mContext;
     String userID="this_user";
+    String WIDGET_RECEIVER_INTENT = "com.umpquariversoftware.metronome.WIDGET";
     final int TEMPO_OFFSET = 30; // Seekbar starts at 0. Offset calibrates to minimum tempo.
 
     private FirebaseAuth mAuth;
@@ -194,6 +195,7 @@ public class MainActivity extends AppCompatActivity{
                     setupToolbar();
                     userID = user.getUid();
                     grabData();
+
                 } else {
                     setupToolbar();
                     userIsLoggedIn = false;
@@ -217,6 +219,7 @@ public class MainActivity extends AppCompatActivity{
 
         registerReceiver(new MainActivity.networkStatusChangeReceiver(),
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         networkIsConnected = activeNetwork != null &&
@@ -260,6 +263,14 @@ public class MainActivity extends AppCompatActivity{
                 .addTestDevice("74D61A4429900485751F374428FB6C95")
                 .build();
         mAdView.loadAd(adRequest);
+
+        /**
+         * Widgetry
+         *
+         * Receiver catches button clicks from the Widget
+         * Sends request to the service as if the button were clicked from main app
+         * Service updates widget to reflect current status.
+         * */
 
     }
 
@@ -562,8 +573,8 @@ public class MainActivity extends AppCompatActivity{
                     int position = jamRecyclerView.getFirstVisibleItemPosition();
                     Kit kit = new Kit("temp", mJams.get(position).getKit(), mContext);
                     Pattern pattern = new Pattern("name", mJams.get(position).getPattern(), mContext);
-                    int tempo = mJams.get(0).getTempo();
-                    mJam.setName(mJams.get(0).getName());
+                    int tempo = mJams.get(position).getTempo();
+                    mJam.setName(mJams.get(position).getName());
                     mJam.setKit(kit);
                     mJam.setPattern(pattern);
                     mJam.setTempo(tempo);
@@ -647,9 +658,12 @@ public class MainActivity extends AppCompatActivity{
         Kit kit = new Kit("name", mJams.get(0).getKit(), mContext);
         Pattern pattern = new Pattern("name", mJams.get(0).getPattern(), mContext);
         int tempo = mJams.get(0).getTempo();
+        String name = mJams.get(0).getName();
         mJam.setKit(kit);
         mJam.setPattern(pattern);
         mJam.setTempo(tempo);
+        mJam.setName(name);
+        sendBeatBroadcast(false);
 
         SeekBar tempoBar = (SeekBar) findViewById(R.id.tempoBar);
         tempoBar.setProgress(tempo-TEMPO_OFFSET);
@@ -851,6 +865,8 @@ public class MainActivity extends AppCompatActivity{
     public void sendBeatBroadcast(boolean fab){
         Intent intent = new Intent();
         intent.setAction("com.umpquariversoftware.metronome.STARTSTOP");
+
+        intent.putExtra("jamName", mJam.getName());
 
         intent.putExtra("tempo", mJam.getTempo());
 
@@ -1083,4 +1099,16 @@ public class MainActivity extends AppCompatActivity{
             setupToolbar();
         }
     }
+
+    public class widgetReceiver extends BroadcastReceiver {
+
+        public widgetReceiver() {
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            sendBeatBroadcast(true);
+        }
+    }
+
 }
