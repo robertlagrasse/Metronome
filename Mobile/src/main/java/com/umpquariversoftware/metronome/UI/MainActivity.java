@@ -416,7 +416,9 @@ public class MainActivity extends AppCompatActivity{
                             .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
                                 @Override
                                 public void onInput(MaterialDialog dialog, CharSequence input) {
-                                    addSharedJamFromFirebase(input.toString());
+                                    if(input.length()>0){
+                                        addSharedJamFromFirebase(input.toString());
+                                    }
                                 }
                             })
                             .show();

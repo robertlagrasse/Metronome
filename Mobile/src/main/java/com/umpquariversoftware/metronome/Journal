@@ -1,11 +1,10 @@
 Parking lot for thoughts and notes.
 
-Widget
-
-Done - Widget now starts and stops the current jam, and receives the name of the jam sent from the beat
-service. Will need to doll this up a bit and initialize with a broadcast from Main Activity
-
 Wear support
+
+Watch App - simple vibration on the beat. 1, 2, 3, 4 beat patterns, with a longer|stronger vibration
+on beat 1. Layout up/down controls tempo. Left/right controls pattern. Center displays and acts
+as stop/start.
 
 Time to knock some stuff out!
 
