@@ -283,88 +283,458 @@ public class MainActivity extends AppCompatActivity{
         ArrayList<ContentValues> components = new ArrayList<>();
 
         contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Bass");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.bass);
+        contentValues.put(ComponentTable.NAME, "Clap 1");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.clap_1);
         contentValues.put(ComponentTable.HEXID, "00");
         components.add(contentValues);
 
         contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Button1");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.button1);
+        contentValues.put(ComponentTable.NAME, "Clap 2");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.clap_2);
         contentValues.put(ComponentTable.HEXID, "01");
         components.add(contentValues);
 
         contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Button3");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.button3);
+        contentValues.put(ComponentTable.NAME, "Clap 3");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.clap_3);
         contentValues.put(ComponentTable.HEXID, "02");
         components.add(contentValues);
 
         contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Crash");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.default_crash);
+        contentValues.put(ComponentTable.NAME, "Clap 4");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.clap_4);
         contentValues.put(ComponentTable.HEXID, "03");
-
         components.add(contentValues);
 
         contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default HiHat");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.default_highhat);
+        contentValues.put(ComponentTable.NAME, "Cymbal 1");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.cymbal_1);
         contentValues.put(ComponentTable.HEXID, "04");
         components.add(contentValues);
 
         contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Kick");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.default_kick);
+        contentValues.put(ComponentTable.NAME, "Cymbal 2");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.cymbal_2);
         contentValues.put(ComponentTable.HEXID, "05");
         components.add(contentValues);
 
         contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Ride");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.default_ride);
+        contentValues.put(ComponentTable.NAME, "Cymbal 3");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.cymbal_3);
         contentValues.put(ComponentTable.HEXID, "06");
         components.add(contentValues);
 
         contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Snare");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.default_snare);
+        contentValues.put(ComponentTable.NAME, "Flam 1");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.flam_1);
         contentValues.put(ComponentTable.HEXID, "07");
         components.add(contentValues);
 
         contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Tom1");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.default_tom1);
+        contentValues.put(ComponentTable.NAME, "Flam 2");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.flam_2);
         contentValues.put(ComponentTable.HEXID, "08");
         components.add(contentValues);
 
         contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Tom2");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.default_tom2);
+        contentValues.put(ComponentTable.NAME, "Flam 3");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.flam_3);
         contentValues.put(ComponentTable.HEXID, "09");
         components.add(contentValues);
 
         contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Tom3");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.default_tom3);
+        contentValues.put(ComponentTable.NAME, "Flam 4");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.flam_4);
         contentValues.put(ComponentTable.HEXID, "0A");
         components.add(contentValues);
 
         contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default HiHat");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.hihat);
+        contentValues.put(ComponentTable.NAME, "Flam 5");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.flam_5);
         contentValues.put(ComponentTable.HEXID, "0B");
         components.add(contentValues);
 
         contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Snare");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.snare);
+        contentValues.put(ComponentTable.NAME, "Flam 6");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.flam_6);
         contentValues.put(ComponentTable.HEXID, "0C");
         components.add(contentValues);
 
         contentValues = new ContentValues();
-        contentValues.put(ComponentTable.NAME, "Default Tom");
-        contentValues.put(ComponentTable.RESOURCE, R.raw.tom);
+        contentValues.put(ComponentTable.NAME, "Flam 7");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.flam_7);
         contentValues.put(ComponentTable.HEXID, "0D");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Flam 8");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.flam_8);
+        contentValues.put(ComponentTable.HEXID, "0E");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Hat 1");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.hat_1);
+        contentValues.put(ComponentTable.HEXID, "0F");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Hat 2");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.hat_2);
+        contentValues.put(ComponentTable.HEXID, "10");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Hat 3");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.hat_3);
+        contentValues.put(ComponentTable.HEXID, "11");
+        components.add(contentValues);
+
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Hat 4");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.hat_4);
+        contentValues.put(ComponentTable.HEXID, "12");
+        components.add(contentValues);
+
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Hat 5");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.hat_5);
+        contentValues.put(ComponentTable.HEXID, "13");
+        components.add(contentValues);
+
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Hat 6");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.hat_6);
+        contentValues.put(ComponentTable.HEXID, "14");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Hat 7");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.hat_7);
+        contentValues.put(ComponentTable.HEXID, "15");
+        components.add(contentValues);
+
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Hat 8");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.hat_8);
+        contentValues.put(ComponentTable.HEXID, "16");
+        components.add(contentValues);
+
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Kick 1");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.kick_1);
+        contentValues.put(ComponentTable.HEXID, "17");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Kick 2");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.kick_2);
+        contentValues.put(ComponentTable.HEXID, "18");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Kick 3");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.kick_3);
+        contentValues.put(ComponentTable.HEXID, "19");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Kick 4");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.kick_4);
+        contentValues.put(ComponentTable.HEXID, "1A");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Kick 5");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.kick_5);
+        contentValues.put(ComponentTable.HEXID, "1B");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Kick 6");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.kick_6);
+        contentValues.put(ComponentTable.HEXID, "1C");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Kick 7");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.kick_7);
+        contentValues.put(ComponentTable.HEXID, "1D");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Kick 8");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.kick_8);
+        contentValues.put(ComponentTable.HEXID, "1E");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Kick 9");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.kick_9);
+        contentValues.put(ComponentTable.HEXID, "1F");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Kick 10");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.kick_10);
+        contentValues.put(ComponentTable.HEXID, "20");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Kick 11");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.kick_11);
+        contentValues.put(ComponentTable.HEXID, "21");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Kick 12");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.kick_12);
+        contentValues.put(ComponentTable.HEXID, "22");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Kick 13");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.kick_13);
+        contentValues.put(ComponentTable.HEXID, "23");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Rim 1");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.rim_1);
+        contentValues.put(ComponentTable.HEXID, "24");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Rim 2");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.rim_2);
+        contentValues.put(ComponentTable.HEXID, "25");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Rim 3");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.rim_3);
+        contentValues.put(ComponentTable.HEXID, "26");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Rim 4");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.rim_4);
+        contentValues.put(ComponentTable.HEXID, "27");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Rim 5");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.rim_5);
+        contentValues.put(ComponentTable.HEXID, "28");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Rim 6");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.rim_6);
+        contentValues.put(ComponentTable.HEXID, "29");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Rim 7");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.rim_7);
+        contentValues.put(ComponentTable.HEXID, "2A");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Rim 8");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.rim_8);
+        contentValues.put(ComponentTable.HEXID, "2B");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Rim 9");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.rim_9);
+        contentValues.put(ComponentTable.HEXID, "2C");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Rim 10");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.rim_10);
+        contentValues.put(ComponentTable.HEXID, "2D");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Rim 11");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.rim_11);
+        contentValues.put(ComponentTable.HEXID, "2E");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Snare 1");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.snare_1);
+        contentValues.put(ComponentTable.HEXID, "2F");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Snare 2");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.snare_2);
+        contentValues.put(ComponentTable.HEXID, "30");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Snare 3");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.snare_3);
+        contentValues.put(ComponentTable.HEXID, "31");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Snare 4");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.snare_4);
+        contentValues.put(ComponentTable.HEXID, "32");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Snare 5");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.snare_5);
+        contentValues.put(ComponentTable.HEXID, "33");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Snare 6");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.snare_6);
+        contentValues.put(ComponentTable.HEXID, "34");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Snare 7");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.snare_7);
+        contentValues.put(ComponentTable.HEXID, "35");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Snare 8");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.snare_8);
+        contentValues.put(ComponentTable.HEXID, "36");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Snare 9");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.snare_9);
+        contentValues.put(ComponentTable.HEXID, "37");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Snare 10");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.snare_10);
+        contentValues.put(ComponentTable.HEXID, "38");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Snare 11");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.snare_11);
+        contentValues.put(ComponentTable.HEXID, "39");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Snare 12");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.snare_12);
+        contentValues.put(ComponentTable.HEXID, "3A");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Tom 1");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.tom_1);
+        contentValues.put(ComponentTable.HEXID, "3B");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Tom 2");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.tom_2);
+        contentValues.put(ComponentTable.HEXID, "3C");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Tom 3");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.tom_3);
+        contentValues.put(ComponentTable.HEXID, "3D");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Tom 4");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.tom_4);
+        contentValues.put(ComponentTable.HEXID, "3E");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Tom 5");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.tom_5);
+        contentValues.put(ComponentTable.HEXID, "3F");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Tom 6");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.tom_6);
+        contentValues.put(ComponentTable.HEXID, "40");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Tom 7");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.tom_7);
+        contentValues.put(ComponentTable.HEXID, "41");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Tom 8");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.tom_8);
+        contentValues.put(ComponentTable.HEXID, "42");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Tom 9");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.tom_9);
+        contentValues.put(ComponentTable.HEXID, "43");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Tom 10");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.tom_10);
+        contentValues.put(ComponentTable.HEXID, "44");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Tom 11");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.tom_11);
+        contentValues.put(ComponentTable.HEXID, "45");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Tom 12");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.tom_12);
+        contentValues.put(ComponentTable.HEXID, "46");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Tom 13");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.tom_13);
+        contentValues.put(ComponentTable.HEXID, "47");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Tom 14");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.tom_14);
+        contentValues.put(ComponentTable.HEXID, "48");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Tom 15");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.tom_15);
+        contentValues.put(ComponentTable.HEXID, "49");
+        components.add(contentValues);
+
+        contentValues = new ContentValues();
+        contentValues.put(ComponentTable.NAME, "Tom 16");
+        contentValues.put(ComponentTable.RESOURCE, R.raw.tom_16);
+        contentValues.put(ComponentTable.HEXID, "4A");
         components.add(contentValues);
 
         for(int x=0;x<components.size();x++){

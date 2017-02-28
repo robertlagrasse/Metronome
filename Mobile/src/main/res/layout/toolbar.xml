@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -15,21 +16,24 @@
             android:layout_height="match_parent"
             android:layout_weight="2"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-            android:layout_gravity="center" />
+            android:layout_gravity="center"
+            android:textColor="@color/cardview_light_background" />
 
         <ImageView
             android:id="@+id/searchForSharedJamButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:src="@android:drawable/ic_menu_search"/>
+            android:src="@drawable/ic_magnify"
+            app:srcCompat="@android:drawable/stat_sys_download" />
 
         <ImageView
             android:id="@+id/shareJamButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:src="@android:drawable/ic_menu_share"/>
+            android:src="@android:drawable/ic_menu_share"
+            app:srcCompat="@android:drawable/ic_menu_share" />
 
         <ImageView
             android:id="@+id/saveJamToCloud"
