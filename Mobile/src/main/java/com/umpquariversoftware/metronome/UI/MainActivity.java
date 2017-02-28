@@ -780,8 +780,8 @@ public class MainActivity extends AppCompatActivity{
             searchForSharedJamButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    new MaterialDialog.Builder(mContext).title(R.string.enter_string)
-                            .content(R.string.content_test)
+                    new MaterialDialog.Builder(mContext).title(R.string.download_shared_jam)
+                            .content(R.string.enter_jam_id)
                             .inputType(InputType.TYPE_CLASS_TEXT)
                             .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
                                 @Override
@@ -1391,7 +1391,7 @@ public class MainActivity extends AppCompatActivity{
         dialog.show();
     }
 
-    void askAndInsert(){ // that's what she said.
+    void askAndInsert(){
         final DatabaseReference mDatabase;
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
