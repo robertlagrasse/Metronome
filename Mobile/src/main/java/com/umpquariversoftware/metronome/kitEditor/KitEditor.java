@@ -264,6 +264,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                 });
 
         mDatabase.child("kits").child("users").child(userID).child(signature)
+//        mDatabase.child("kits").child("master").child(signature)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -328,6 +329,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                         mDatabase.child("kits")
                                 .child("users")
                                 .child(userID)
+//                                .child("master") // Allows me to write to master directory. (Change FB permissions first)
                                 .child(fbk.getSignature())
                                 .setValue(fbk);
                     }

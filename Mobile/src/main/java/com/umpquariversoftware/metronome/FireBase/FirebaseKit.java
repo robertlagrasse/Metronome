@@ -5,33 +5,33 @@ package com.umpquariversoftware.metronome.FireBase;
  */
 
 public class FirebaseKit {
-    private String Name;
-
-    // Components will refer to the Hex ID's associated with the Components table in the
-    // Local Database.
+    private String name;
     private String signature;
+
 
     public FirebaseKit() {
     }
 
     public FirebaseKit(String name, String signature) {
-        this.Name = name;
+        this.name = name;
         this.signature = signature;
     }
 
-    public String getName() {
-        return Name;
-    }
-
-    public void setName(String Name) {
-        this.signature = Name;
-    }
-
     public String getSignature() {
+
         return signature;
     }
 
     public void setSignature(String signature) {
         this.signature = signature;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
+

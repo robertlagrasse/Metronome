@@ -1146,6 +1146,7 @@ public class MainActivity extends AppCompatActivity{
                     }
                 });
 
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.child("kits").child("users").child(userID)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
@@ -1155,7 +1156,6 @@ public class MainActivity extends AppCompatActivity{
                             FirebaseKit fbk = child.getValue(FirebaseKit.class);
                             if(fbk!=null){
                                 mUserKits.add(fbk);
-
                             }
                         }
                         mKits.clear();

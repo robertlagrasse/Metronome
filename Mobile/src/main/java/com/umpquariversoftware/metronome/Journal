@@ -1,10 +1,6 @@
 Parking lot for thoughts and notes.
 
-Wear support
-
-Send Jam to Firebase isn't working properly. The duplicate check doesn't find Jams that are
-already there. Fix that. Edit: The search sees stuff in the cloud, just not the local stuff.
-Maybe that doesn't need fixing. Think about this a bit.
+Jam recycler View - needed cleanup. Just shows Jam name now.
 
 
 
