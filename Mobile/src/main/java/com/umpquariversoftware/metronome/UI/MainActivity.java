@@ -1395,8 +1395,8 @@ public class MainActivity extends AppCompatActivity{
         final DatabaseReference mDatabase;
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        new MaterialDialog.Builder(mContext).title(R.string.enter_pattern_name)
-                .content(R.string.content_test)
+        new MaterialDialog.Builder(mContext).title(R.string.save_jam_to_cloud)
+                .content(R.string.give_jam_a_name)
                 .inputType(InputType.TYPE_CLASS_TEXT)
                 .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
                     @Override

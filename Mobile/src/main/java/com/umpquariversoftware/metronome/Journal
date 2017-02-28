@@ -2,9 +2,11 @@ Parking lot for thoughts and notes.
 
 Wear support
 
-Watch App - simple vibration on the beat. 1, 2, 3, 4 beat patterns, with a longer|stronger vibration
-on beat 1. Layout up/down controls tempo. Left/right controls pattern. Center displays and acts
-as stop/start.
+Send Jam to Firebase isn't working properly. The duplicate check doesn't find Jams that are
+already there. Fix that. Edit: The search sees stuff in the cloud, just not the local stuff.
+Maybe that doesn't need fixing. Think about this a bit.
 
-Time to knock some stuff out!
+
+
+
 

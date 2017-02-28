@@ -27,4 +27,6 @@
     <string name="choose_in_app">Jam</string>
     <string name="download_shared_jam">Download a Shared Jam</string>
     <string name="enter_jam_id">Enter the Jam ID</string>
+    <string name="save_jam_to_cloud">Save Jam to Cloud</string>
+    <string name="give_jam_a_name">Enter a name for your jam:</string>
 </resources>
