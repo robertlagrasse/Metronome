@@ -42,6 +42,7 @@ import com.umpquariversoftware.metronome.elements.Pattern;
 
 import java.util.ArrayList;
 
+import static com.umpquariversoftware.metronome.R.id.patternBeatNew;
 import static com.umpquariversoftware.metronome.R.id.patternName;
 import static com.umpquariversoftware.metronome.database.dbContract.buildPatternBySignatureURI;
 import static com.umpquariversoftware.metronome.database.dbContract.buildPatternUri;
@@ -143,21 +144,37 @@ public class PatternEditor extends AppCompatActivity {
         title.setText(getResources().getString(R.string.pattern_editor));
 
         ImageView helpButton = (ImageView) findViewById(R.id.helpButton);
+        helpButton.setFocusable(true);
+        helpButton.setContentDescription(getResources().getString(R.string.help));
         helpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(mContext, "Replace with walk through", Toast.LENGTH_LONG).show();
+                Toast.makeText(mContext, getResources().getString(R.string.placeholder), Toast.LENGTH_LONG).show();
             }
         });
     }
 
-
     private void setupButtons() {
         FloatingActionButton patternBeatLast = (FloatingActionButton) findViewById(R.id.patternBeatLast);
+        patternBeatLast.setFocusable(true);
+        patternBeatLast.setContentDescription(getResources().getString(R.string.previous_beat));
+
         FloatingActionButton patternBeatNext = (FloatingActionButton) findViewById(R.id.patternBeatNext);
+        patternBeatNext.setFocusable(true);
+        patternBeatNext.setContentDescription(getResources().getString(R.string.next_beat));
+
         FloatingActionButton patternBeatNew = (FloatingActionButton) findViewById(R.id.patternBeatNew);
+        patternBeatNew.setFocusable(true);
+        patternBeatNew.setContentDescription(getResources().getString(R.string.new_beat));
+
         FloatingActionButton patternBeatDelete = (FloatingActionButton) findViewById(R.id.patternBeatDelete);
+        patternBeatDelete.setFocusable(true);
+        patternBeatDelete.setContentDescription(getResources().getString(R.string.delete_beat));
+
         FloatingActionButton patternSave = (FloatingActionButton) findViewById(R.id.patternSave);
+        patternSave.setFocusable(true);
+        patternSave.setContentDescription(getResources().getString(R.string.save_pattern_to_cloud));
+
         TextView patternBeatDisplay = (TextView) findViewById(R.id.patternBeatDisplay);
 
         ImageView first = (ImageView) findViewById(R.id.first);
@@ -168,6 +185,24 @@ public class PatternEditor extends AppCompatActivity {
         ImageView sixth = (ImageView) findViewById(R.id.sixth);
         ImageView seventh = (ImageView) findViewById(R.id.seventh);
         ImageView eighth = (ImageView) findViewById(R.id.eighth);
+
+        first.setFocusable(true);
+        first.setContentDescription(getResources().getString(R.string.one));
+        second.setFocusable(true);
+        second.setContentDescription(getResources().getString(R.string.two));
+        third.setFocusable(true);
+        third.setContentDescription(getResources().getString(R.string.three));
+        fourth.setFocusable(true);
+        fourth.setContentDescription(getResources().getString(R.string.four));
+        fifth.setFocusable(true);
+        fifth.setContentDescription(getResources().getString(R.string.five));
+        sixth.setFocusable(true);
+        sixth.setContentDescription(getResources().getString(R.string.six));
+        seventh.setFocusable(true);
+        seventh.setContentDescription(getResources().getString(R.string.seven));
+        eighth.setFocusable(true);
+        eighth.setContentDescription(getResources().getString(R.string.eight));
+
 
         if (pattern.getLength() == 1) {
             patternBeatLast.setVisibility(View.INVISIBLE);
@@ -440,6 +475,8 @@ public class PatternEditor extends AppCompatActivity {
                 dialog.cancel();
             }
         });
+        okButton.setFocusable(true);
+        okButton.setContentDescription(getResources().getString(R.string.alertOK));
         dialog.show();
     }
 

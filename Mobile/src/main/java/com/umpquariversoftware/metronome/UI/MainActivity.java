@@ -98,12 +98,10 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     static Context mContext;
     String userID = "this_user";
-    String WIDGET_RECEIVER_INTENT = "com.umpquariversoftware.metronome.WIDGET";
     final int TEMPO_OFFSET = 30; // Seekbar starts at 0. Offset calibrates to minimum tempo.
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-
 
     ArrayList<FirebasePattern> mPatterns = new ArrayList<>();
     ArrayList<FirebasePattern> mMasterPatterns = new ArrayList<>();
@@ -115,12 +113,10 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<FirebaseKit> mMasterKits = new ArrayList<>();
     ArrayList<FirebaseKit> mLocalKits = new ArrayList<>();
 
-
     ArrayList<FirebaseJam> mJams = new ArrayList<>();
     ArrayList<FirebaseJam> mUserJams = new ArrayList<>();
     ArrayList<FirebaseJam> mMasterJams = new ArrayList<>();
     ArrayList<FirebaseJam> mLocalJams = new ArrayList<>();
-
 
     PatternListAdapter mPatternListAdapter;
     KitListAdapter mKitListAdapter;
@@ -133,35 +129,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 69;
 
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        ConnectivityManager cm =
-                (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        networkIsConnected = activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting();
-
-        mPatternListAdapter.notifyDataSetChanged();
-        mKitListAdapter.notifyDataSetChanged();
-        mJamListAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mAuthListener != null) {
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,7 +166,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-
         mContext = this;
 
         ConnectivityManager cm =
@@ -207,7 +173,6 @@ public class MainActivity extends AppCompatActivity {
 
         registerReceiver(new MainActivity.networkStatusChangeReceiver(),
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         networkIsConnected = activeNetwork != null &&
@@ -231,7 +196,6 @@ public class MainActivity extends AppCompatActivity {
          ***/
 
         createLocalResources();
-
         setupToolbar();
         tempoChooser();
         patternChooser();
@@ -251,15 +215,6 @@ public class MainActivity extends AppCompatActivity {
                 .addTestDevice("74D61A4429900485751F374428FB6C95")
                 .build();
         mAdView.loadAd(adRequest);
-
-        /**
-         * Widgetry
-         *
-         * Receiver catches button clicks from the Widget
-         * Sends request to the service as if the button were clicked from main app
-         * Service updates widget to reflect current status.
-         * */
-
     }
 
     /**
@@ -760,8 +715,16 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         ImageView searchForSharedJamButton = (ImageView) findViewById(R.id.searchForSharedJamButton);
+        searchForSharedJamButton.setContentDescription(getResources().getString(R.string.search_for_shared_jam));
+        searchForSharedJamButton.setFocusable(true);
+
         ImageView shareJamButton = (ImageView) findViewById(R.id.shareJamButton);
+        shareJamButton.setContentDescription(getResources().getString(R.string.share_your_jam));
+        shareJamButton.setFocusable(true);
+
         ImageView saveJamToCloud = (ImageView) findViewById(R.id.saveJamToCloud);
+        saveJamToCloud.setContentDescription(getResources().getString(R.string.save_jam_to_cloud));
+        saveJamToCloud.setFocusable(true);
 
         if (networkIsConnected && userIsLoggedIn) {
             searchForSharedJamButton.setVisibility(View.VISIBLE);
@@ -810,7 +773,12 @@ public class MainActivity extends AppCompatActivity {
         final int tempo = mJam.getTempo();
         SeekBar tempoBar = (SeekBar) findViewById(R.id.tempoBar);
         final TextView tempoDisplay = (TextView) findViewById(R.id.tempoDisplay);
+        tempoDisplay.setFocusable(true);
+
         tempoBar.setProgress(tempo - TEMPO_OFFSET);
+        tempoBar.setContentDescription(getResources().getString(R.string.slide_to_set_tempo));
+        tempoBar.setFocusable(true);
+
         tempoDisplay.setText(String.valueOf(tempo));
         tempoBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -837,6 +805,9 @@ public class MainActivity extends AppCompatActivity {
         patternRecyclerView.setHasFixedSize(true);
         LinearLayoutManager patternLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         patternRecyclerView.setLayoutManager(patternLinearLayoutManager);
+
+        patternRecyclerView.setContentDescription(getResources().getString(R.string.swipe_left_or_right_to_change_pattern));
+        patternRecyclerView.setFocusable(true);
 
         mPatternListAdapter = new PatternListAdapter(mPatterns, mContext);
         patternRecyclerView.setAdapter(mPatternListAdapter);
@@ -873,8 +844,8 @@ public class MainActivity extends AppCompatActivity {
         LinearLayoutManager kitLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         kitRecyclerView.setLayoutManager(kitLinearLayoutManager);
 
-        final SnapHelper snapHelper = new LinearSnapHelper();
-        snapHelper.attachToRecyclerView(kitRecyclerView);
+        kitRecyclerView.setContentDescription(getResources().getString(R.string.swipe_left_or_right_to_change_kit));
+        kitRecyclerView.setFocusable(true);
 
         mKitListAdapter = new KitListAdapter(mKits, mContext);
         kitRecyclerView.setAdapter(mKitListAdapter);
@@ -900,7 +871,6 @@ public class MainActivity extends AppCompatActivity {
                     Kit kit = new Kit(name, signature, mContext);
                     mJam.setKit(kit);
                     sendBeatBroadcast(false);
-
                 }
             }
         });
@@ -912,6 +882,8 @@ public class MainActivity extends AppCompatActivity {
         jamRecyclerView.setHasFixedSize(true);
         final LinearLayoutManager jamLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         jamRecyclerView.setLayoutManager(jamLinearLayoutManager);
+        jamRecyclerView.setContentDescription(getResources().getString(R.string.swipe_left_or_right_to_change_jam));
+        jamRecyclerView.setFocusable(true);
 
         mJamListAdapter = new JamListAdapter(mJams, mContext);
         jamRecyclerView.setAdapter(mJamListAdapter);
@@ -995,6 +967,8 @@ public class MainActivity extends AppCompatActivity {
                 sendBeatBroadcast(true);
             }
         });
+        startstop.setFocusable(true);
+        startstop.setContentDescription(getResources().getString(R.string.start_or_stop));
     }
 
     void grabData() {
@@ -1466,6 +1440,36 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             sendBeatBroadcast(true);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        ConnectivityManager cm =
+                (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        networkIsConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        mPatternListAdapter.notifyDataSetChanged();
+        mKitListAdapter.notifyDataSetChanged();
+        mJamListAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
     }
 
 }

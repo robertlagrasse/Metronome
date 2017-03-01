@@ -78,11 +78,6 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
         mContext = this;
         userID = getIntent().getStringExtra("userID");
 
-        /**
-         * Point the cursor at the first item in the component database
-         * Use that row to build a component.
-         * */
-
         Cursor cursor = getContentResolver().query(dbContract.buildComponentByDbIDUri(1),
                 null,
                 null,
@@ -90,21 +85,14 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                 null);
         Component component = new Component(cursor);
 
-        /**
-         * Build a kit, and fill all 8 slots with the same component
-         * */
         mKit = new Kit();
         for (int x = 0; x < 8; ++x) {
             mKit.addComponent(component);
         }
-
-        /**
-         * Build SnappyRecyclerView for each component
-         * */
-
+        setupToolbar();
         setupComponentChooser();
         setupFab();
-        setupToolbar();
+
 
         /**
          * Get that money!
@@ -130,10 +118,12 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
         title.setText(getResources().getString(R.string.kit_editor));
 
         ImageView helpButton = (ImageView) findViewById(R.id.helpButton);
+        helpButton.setFocusable(true);
+        helpButton.setContentDescription(getResources().getString(R.string.help));
         helpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(mContext, "Replace with walk through", Toast.LENGTH_LONG).show();
+                Toast.makeText(mContext, getResources().getString(R.string.placeholder), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -141,13 +131,14 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
     public void setupFab() {
         FloatingActionButton fab;
         fab = (FloatingActionButton) findViewById(R.id.kitEditorButton);
+        fab.setContentDescription(getResources().getString(R.string.save_kit_to_cloud));
+        fab.setFocusable(true);
+
         fab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 check(mKit.getSignature());
             }
         });
-
-
     }
 
     public void playSound(Component component) {
@@ -158,7 +149,6 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
             }
         });
         soundPool.load(mContext, component.getResource(), 1);
-
     }
 
     public void setupComponentChooser() {
@@ -183,7 +173,9 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
             LinearLayoutManager llm = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
             srv.setLayoutManager(llm);
             srv.setAdapter(mComponentCursorAdapter);
-
+            String description = getResources().getString(R.string.swipe_left_or_right_to_change_component).concat(String.valueOf(x));
+            srv.setContentDescription(description);
+            srv.setFocusable(true);
             snappyRecyclerViews.add(x, srv);
         }
 
@@ -348,6 +340,8 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                 dialog.cancel();
             }
         });
+        okButton.setFocusable(true);
+        okButton.setContentDescription(getResources().getString(R.string.alertOK));
         dialog.show();
     }
 
