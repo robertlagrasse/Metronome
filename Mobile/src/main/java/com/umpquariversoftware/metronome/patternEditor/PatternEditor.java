@@ -9,8 +9,10 @@ import android.database.Cursor;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Vibrator;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
@@ -20,6 +22,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -48,6 +52,7 @@ public class PatternEditor extends AppCompatActivity {
     Beat beat = new Beat();
     Context mContext;
     String userID = "";
+    private Toolbar toolbar;
 
     Boolean mMasterListSearchResultsBack = false;
     Boolean mUserListSearchResultsBack = false;
@@ -75,10 +80,25 @@ public class PatternEditor extends AppCompatActivity {
          * */
 
         setupButtons();
+        setupToolbar();
+
+        /**
+         * Get that money!
+         * */
+
+        // MobileAds.initialize(getApplicationContext(), "ca-app-pub-8040545141030965~5491821531");
+
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("74D61A4429900485751F374428FB6C95")
+                .build();
+        mAdView.loadAd(adRequest);
 
 
     }
-    private void graphPattern(){
+
+    private void graphPattern() {
         GraphView graph = (GraphView) findViewById(R.id.patternEditorGraph);
         graph.removeAllSeries();
 
@@ -96,10 +116,10 @@ public class PatternEditor extends AppCompatActivity {
 
         ArrayList<String> horizontals = new ArrayList<>();
 
-        for(int i=0;i<pattern.getLength();++i){
-            horizontals.add(String.valueOf(i+1));
+        for (int i = 0; i < pattern.getLength(); ++i) {
+            horizontals.add(String.valueOf(i + 1));
         }
-        if(pattern.getLength() == 1){
+        if (pattern.getLength() == 1) {
             horizontals.add("");
         }
 
@@ -114,12 +134,30 @@ public class PatternEditor extends AppCompatActivity {
         graph.addSeries(series);
     }
 
-    private void setupButtons(){
-        ImageView patternBeatLast = (ImageView) findViewById(R.id.patternBeatLast);
-        ImageView patternBeatNext = (ImageView) findViewById(R.id.patternBeatNext);
-        ImageView patternBeatNew = (ImageView) findViewById(R.id.patternBeatNew);
-        ImageView patternBeatDelete = (ImageView) findViewById(R.id.patternBeatDelete);
-        ImageView patternSave = (ImageView) findViewById(R.id.patternSave);
+    public void setupToolbar() {
+
+        toolbar = (Toolbar) findViewById(R.id.editor_toolbar);
+        setSupportActionBar(toolbar);
+
+        TextView title = (TextView) findViewById(R.id.activityDisplay);
+        title.setText(getResources().getString(R.string.pattern_editor));
+
+        ImageView helpButton = (ImageView) findViewById(R.id.helpButton);
+        helpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(mContext, "Replace with walk through", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+
+    private void setupButtons() {
+        FloatingActionButton patternBeatLast = (FloatingActionButton) findViewById(R.id.patternBeatLast);
+        FloatingActionButton patternBeatNext = (FloatingActionButton) findViewById(R.id.patternBeatNext);
+        FloatingActionButton patternBeatNew = (FloatingActionButton) findViewById(R.id.patternBeatNew);
+        FloatingActionButton patternBeatDelete = (FloatingActionButton) findViewById(R.id.patternBeatDelete);
+        FloatingActionButton patternSave = (FloatingActionButton) findViewById(R.id.patternSave);
         TextView patternBeatDisplay = (TextView) findViewById(R.id.patternBeatDisplay);
 
         ImageView first = (ImageView) findViewById(R.id.first);
@@ -131,7 +169,7 @@ public class PatternEditor extends AppCompatActivity {
         ImageView seventh = (ImageView) findViewById(R.id.seventh);
         ImageView eighth = (ImageView) findViewById(R.id.eighth);
 
-        if(pattern.getLength() == 1){
+        if (pattern.getLength() == 1) {
             patternBeatLast.setVisibility(View.INVISIBLE);
             patternBeatNext.setVisibility(View.INVISIBLE);
             patternBeatDelete.setVisibility(View.INVISIBLE);
@@ -141,13 +179,13 @@ public class PatternEditor extends AppCompatActivity {
             patternBeatDelete.setVisibility(View.VISIBLE);
         }
 
-        if(currentBeat == 1){
+        if (currentBeat == 1) {
             patternBeatLast.setVisibility(View.INVISIBLE);
         } else {
             patternBeatLast.setVisibility(View.VISIBLE);
         }
 
-        if(currentBeat == pattern.getLength()){
+        if (currentBeat == pattern.getLength()) {
             patternBeatNext.setVisibility(View.INVISIBLE);
         } else {
             patternBeatNext.setVisibility(View.VISIBLE);
@@ -155,48 +193,47 @@ public class PatternEditor extends AppCompatActivity {
 
         patternBeatDisplay.setText(String.valueOf(currentBeat));
 
-        beat = pattern.getBeat(currentBeat-1);
-        if(beat.getFirst()){
+        beat = pattern.getBeat(currentBeat - 1);
+        if (beat.getFirst()) {
             first.setImageResource(R.drawable.numeric_1_box);
-        }else {
+        } else {
             first.setImageResource(R.drawable.numeric_1_box_outline);
         }
-        if(beat.getSecond()){
+        if (beat.getSecond()) {
             second.setImageResource(R.drawable.numeric_2_box);
-        }else {
+        } else {
             second.setImageResource(R.drawable.numeric_2_box_outline);
         }
-        if(beat.getThird()){
+        if (beat.getThird()) {
             third.setImageResource(R.drawable.numeric_3_box);
-        }else {
+        } else {
             third.setImageResource(R.drawable.numeric_3_box_outline);
         }
-        if(beat.getFourth()){
+        if (beat.getFourth()) {
             fourth.setImageResource(R.drawable.numeric_4_box);
-        }else {
+        } else {
             fourth.setImageResource(R.drawable.numeric_4_box_outline);
         }
-        if(beat.getFifth()){
+        if (beat.getFifth()) {
             fifth.setImageResource(R.drawable.numeric_5_box);
-        }else {
+        } else {
             fifth.setImageResource(R.drawable.numeric_5_box_outline);
         }
-        if(beat.getSixth()){
+        if (beat.getSixth()) {
             sixth.setImageResource(R.drawable.numeric_6_box);
-        }else {
+        } else {
             sixth.setImageResource(R.drawable.numeric_6_box_outline);
         }
-        if(beat.getSeventh()){
+        if (beat.getSeventh()) {
             seventh.setImageResource(R.drawable.numeric_7_box);
-        }else {
+        } else {
             seventh.setImageResource(R.drawable.numeric_7_box_outline);
         }
-        if(beat.getEighth()){
+        if (beat.getEighth()) {
             eighth.setImageResource(R.drawable.numeric_8_box);
-        }else {
+        } else {
             eighth.setImageResource(R.drawable.numeric_8_box_outline);
         }
-
 
 
         patternBeatLast.setOnClickListener(new View.OnClickListener() {
@@ -219,7 +256,7 @@ public class PatternEditor extends AppCompatActivity {
         first.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pattern.getBeat(currentBeat-1).setFIRST(!pattern.getBeat(currentBeat-1).getFirst());
+                pattern.getBeat(currentBeat - 1).setFIRST(!pattern.getBeat(currentBeat - 1).getFirst());
                 setupButtons();
                 graphPattern();
             }
@@ -228,7 +265,7 @@ public class PatternEditor extends AppCompatActivity {
         second.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pattern.getBeat(currentBeat-1).setSECOND(!pattern.getBeat(currentBeat-1).getSecond());
+                pattern.getBeat(currentBeat - 1).setSECOND(!pattern.getBeat(currentBeat - 1).getSecond());
                 setupButtons();
                 graphPattern();
             }
@@ -237,7 +274,7 @@ public class PatternEditor extends AppCompatActivity {
         third.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pattern.getBeat(currentBeat-1).setTHIRD(!pattern.getBeat(currentBeat-1).getThird());
+                pattern.getBeat(currentBeat - 1).setTHIRD(!pattern.getBeat(currentBeat - 1).getThird());
                 setupButtons();
                 graphPattern();
             }
@@ -246,7 +283,7 @@ public class PatternEditor extends AppCompatActivity {
         fourth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pattern.getBeat(currentBeat-1).setFOURTH(!pattern.getBeat(currentBeat-1).getFourth());
+                pattern.getBeat(currentBeat - 1).setFOURTH(!pattern.getBeat(currentBeat - 1).getFourth());
                 setupButtons();
                 graphPattern();
             }
@@ -255,7 +292,7 @@ public class PatternEditor extends AppCompatActivity {
         fifth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pattern.getBeat(currentBeat-1).setFIFTH(!pattern.getBeat(currentBeat-1).getFifth());
+                pattern.getBeat(currentBeat - 1).setFIFTH(!pattern.getBeat(currentBeat - 1).getFifth());
                 setupButtons();
                 graphPattern();
             }
@@ -264,7 +301,7 @@ public class PatternEditor extends AppCompatActivity {
         sixth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pattern.getBeat(currentBeat-1).setSIXTH(!pattern.getBeat(currentBeat-1).getSixth());
+                pattern.getBeat(currentBeat - 1).setSIXTH(!pattern.getBeat(currentBeat - 1).getSixth());
                 setupButtons();
                 graphPattern();
             }
@@ -273,7 +310,7 @@ public class PatternEditor extends AppCompatActivity {
         seventh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pattern.getBeat(currentBeat-1).setSEVENTH(!pattern.getBeat(currentBeat-1).getSeventh());
+                pattern.getBeat(currentBeat - 1).setSEVENTH(!pattern.getBeat(currentBeat - 1).getSeventh());
                 setupButtons();
                 graphPattern();
             }
@@ -282,7 +319,7 @@ public class PatternEditor extends AppCompatActivity {
         eighth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pattern.getBeat(currentBeat-1).setEIGHTH(!pattern.getBeat(currentBeat-1).getEighth());
+                pattern.getBeat(currentBeat - 1).setEIGHTH(!pattern.getBeat(currentBeat - 1).getEighth());
                 setupButtons();
                 graphPattern();
             }
@@ -302,8 +339,8 @@ public class PatternEditor extends AppCompatActivity {
         patternBeatDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pattern.removeBeat(currentBeat-1);
-                if(pattern.getLength()<currentBeat){
+                pattern.removeBeat(currentBeat - 1);
+                if (pattern.getLength() < currentBeat) {
                     currentBeat = pattern.getLength();
                 }
                 setupButtons();
@@ -320,7 +357,7 @@ public class PatternEditor extends AppCompatActivity {
 
     }
 
-    void check(String signature){
+    void check(String signature) {
         DatabaseReference mDatabase;
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mMasterListSearchResultsBack = false;
@@ -329,48 +366,48 @@ public class PatternEditor extends AppCompatActivity {
         mUserListPattern = null;
 
         mDatabase.child("patterns").child("master").child(signature)
-            .addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    FirebasePattern masterListPattern  = dataSnapshot.getValue(FirebasePattern.class);
-                    if (masterListPattern != null) {
-                        mMasterListPattern = masterListPattern;
-                    } else {
-                        mMasterListPattern = null;
-                    }
-                    mMasterListSearchResultsBack = true;
-                    if(mUserListSearchResultsBack){
-                        if(mMasterListPattern!=null){
-                            alert(getString(R.string.pattern_exists), mMasterListPattern.getName());
-                        } else if(mUserListPattern!=null){
-                            alert(getString(R.string.pattern_exists), mUserListPattern.getName());
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        FirebasePattern masterListPattern = dataSnapshot.getValue(FirebasePattern.class);
+                        if (masterListPattern != null) {
+                            mMasterListPattern = masterListPattern;
                         } else {
-                            askAndInsert();
+                            mMasterListPattern = null;
+                        }
+                        mMasterListSearchResultsBack = true;
+                        if (mUserListSearchResultsBack) {
+                            if (mMasterListPattern != null) {
+                                alert(getString(R.string.pattern_exists), mMasterListPattern.getName());
+                            } else if (mUserListPattern != null) {
+                                alert(getString(R.string.pattern_exists), mUserListPattern.getName());
+                            } else {
+                                askAndInsert();
+                            }
                         }
                     }
-                }
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-                }
-        });
+                    }
+                });
 
         mDatabase.child("patterns").child("users").child(userID).child(signature)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        FirebasePattern userListPattern  = dataSnapshot.getValue(FirebasePattern.class);
+                        FirebasePattern userListPattern = dataSnapshot.getValue(FirebasePattern.class);
                         if (userListPattern != null) {
                             mUserListPattern = userListPattern;
                         } else {
                             mUserListPattern = null;
                         }
                         mUserListSearchResultsBack = true;
-                        if(mMasterListSearchResultsBack){
-                            if(mMasterListPattern!=null){
+                        if (mMasterListSearchResultsBack) {
+                            if (mMasterListPattern != null) {
                                 alert(getString(R.string.pattern_exists), mMasterListPattern.getName());
-                            } else if(mUserListPattern!=null){
+                            } else if (mUserListPattern != null) {
                                 alert(getString(R.string.pattern_exists), mUserListPattern.getName());
                             } else {
                                 askAndInsert();
@@ -385,7 +422,7 @@ public class PatternEditor extends AppCompatActivity {
                 });
     }
 
-    void alert(String text1, String text2){
+    void alert(String text1, String text2) {
         final Dialog dialog = new Dialog(mContext);
 
         dialog.setContentView(R.layout.alert_dialog);
@@ -408,7 +445,7 @@ public class PatternEditor extends AppCompatActivity {
         dialog.show();
     }
 
-    void askAndInsert(){ // that's what she said.
+    void askAndInsert() { // that's what she said.
         final DatabaseReference mDatabase;
         mDatabase = FirebaseDatabase.getInstance().getReference();
 

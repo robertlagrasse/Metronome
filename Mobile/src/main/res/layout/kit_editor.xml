@@ -2,8 +2,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:background="@color/colorPrimary"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <include layout="@layout/editor_toolbar"
+        android:id="@+id/editor_toolbar">
+
+    </include>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -13,7 +18,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_cloud_upload"
-            app:backgroundTint="@color/colorPrimary"
+            android:layout_margin="16dp"
+            app:backgroundTint="@color/colorAccent"
             android:layout_gravity="bottom|end"/>
 
     <android.support.v4.widget.NestedScrollView
@@ -116,11 +122,9 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Eat At Joe's!"
-            android:layout_gravity="center"/>
+        <include layout="@layout/billboard">
+
+        </include>
     </FrameLayout>
 </LinearLayout>
 

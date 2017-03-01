@@ -77,7 +77,6 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             app:fabSize="normal"
-            app:backgroundTint="@color/colorPrimary"
             app:srcCompat="@android:drawable/ic_media_play"
             android:id="@+id/startStopButton"
             android:layout_gravity="bottom|end"

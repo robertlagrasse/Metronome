@@ -2,17 +2,13 @@ package com.umpquariversoftware.metronome.UI;
 
 
 import android.app.Dialog;
-import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -39,15 +35,9 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -57,8 +47,6 @@ import com.umpquariversoftware.metronome.FireBase.FirebaseJam;
 import com.umpquariversoftware.metronome.FireBase.FirebaseKit;
 import com.umpquariversoftware.metronome.FireBase.FirebasePattern;
 import com.umpquariversoftware.metronome.R;
-import com.umpquariversoftware.metronome.database.dbContract;
-import com.umpquariversoftware.metronome.elements.Component;
 import com.umpquariversoftware.metronome.elements.Jam;
 import com.umpquariversoftware.metronome.elements.Kit;
 import com.umpquariversoftware.metronome.elements.Pattern;
@@ -70,38 +58,38 @@ import java.util.Arrays;
 
 import static com.umpquariversoftware.metronome.database.dbContract.*;
 
-/** OVERVIEW
- *
+/**
+ * OVERVIEW
+ * <p>
  * The user interface for metronome allows the user to build their own Jam.
  * A Jam consists of three parts - all user selectable on the main screen
- *
+ * <p>
  * Tempo (Set by seekbar)
  * Kit (Selected via recyclerview)
  * Pattern (Selected via recyclerview)
- *
+ * <p>
  * Kits consist of 8 components. A component is a sound.
  * A pattern is a sequence of beats. A beat is an array of 8 boolean values. These boolean values
  * will correlate with the components in each kit.
- *
+ * <p>
  * For every tick of the timer, the app will cycle through the pattern. The beat in the pattern
  * will determine which components sound on that tick.
- *
+ * <p>
  * I chose the data structures here very specifically. Beats consist of 8 binary values, which
  * correspond to the 8 components in a kit. Any beat can be represented as a two digit hex value.
  * These values can the chained together to create patterns of arbitrary length, with the complete
  * information for any beat only taking up a single byte in the database. This facilitates both
  * efficient DB storage, and easy sharing between users.
- *
+ * <p>
  * Component values have associated 2 Digit Hexidecimal values in the database HEXID
  * All components will be supplied with the software. No user supplied sounds will be allowed.
  * Essentially, this allows me to employ the same identification and sharing technique.
- *
+ * <p>
  * Users can pass all of the information necessary to share their Jam in the space of a tweet.
- *
  */
 
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
     String TAG = "MainActivity";
     Jam mJam = new Jam();
     Boolean beatServiceRunning = false;
@@ -109,7 +97,7 @@ public class MainActivity extends AppCompatActivity{
     static Boolean userIsLoggedIn;
     private Toolbar toolbar;
     static Context mContext;
-    String userID="this_user";
+    String userID = "this_user";
     String WIDGET_RECEIVER_INTENT = "com.umpquariversoftware.metronome.WIDGET";
     final int TEMPO_OFFSET = 30; // Seekbar starts at 0. Offset calibrates to minimum tempo.
 
@@ -134,9 +122,9 @@ public class MainActivity extends AppCompatActivity{
     ArrayList<FirebaseJam> mLocalJams = new ArrayList<>();
 
 
-    patternListAdapter mPatternListAdapter;
-    kitListAdapter mKitListAdapter;
-    jamListAdapter mJamListAdapter;
+    PatternListAdapter mPatternListAdapter;
+    KitListAdapter mKitListAdapter;
+    JamListAdapter mJamListAdapter;
 
     Boolean mMasterListSearchResultsBack = false;
     Boolean mUserListSearchResultsBack = false;
@@ -150,7 +138,7 @@ public class MainActivity extends AppCompatActivity{
         super.onResume();
 
         ConnectivityManager cm =
-                (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+                (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         networkIsConnected = activeNetwork != null &&
@@ -215,7 +203,7 @@ public class MainActivity extends AppCompatActivity{
         mContext = this;
 
         ConnectivityManager cm =
-                (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+                (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         registerReceiver(new MainActivity.networkStatusChangeReceiver(),
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
@@ -226,12 +214,12 @@ public class MainActivity extends AppCompatActivity{
                 activeNetwork.isConnectedOrConnecting();
 
         SharedPreferences prefs = getSharedPreferences(getPackageName(), MODE_PRIVATE);
-        if(prefs.getBoolean("firstrun", true)){
+        if (prefs.getBoolean("firstrun", true)) {
             createComponentsTable();
             prefs.edit().putBoolean("firstrun", false).commit();
         }
 
-        if (savedInstanceState == null){
+        if (savedInstanceState == null) {
             launchBeatService();
             beatServiceRunning = true;
         }
@@ -255,7 +243,7 @@ public class MainActivity extends AppCompatActivity{
          * Get that money!
          * */
 
-        // MobileAds.initialize(getApplicationContext(), "ca-app-pub-8040545141030965~5491821531");
+//         MobileAds.initialize(getApplicationContext(), "ca-app-pub-8040545141030965~5491821531");
 
         AdView mAdView = (AdView) findViewById(R.id.adView);
 
@@ -276,9 +264,9 @@ public class MainActivity extends AppCompatActivity{
 
     /**
      * Core Functionality
-     * **/
+     **/
 
-    private void createComponentsTable(){
+    private void createComponentsTable() {
         ContentValues contentValues;
         ArrayList<ContentValues> components = new ArrayList<>();
 
@@ -737,21 +725,21 @@ public class MainActivity extends AppCompatActivity{
         contentValues.put(ComponentTable.HEXID, "4A");
         components.add(contentValues);
 
-        for(int x=0;x<components.size();x++){
+        for (int x = 0; x < components.size(); x++) {
             getContentResolver().insert(buildComponentUri(), components.get(x));
         }
 
     }
 
-    private void launchBeatService(){
+    private void launchBeatService() {
         Intent i = new Intent(this, BeatService.class);
         i.putExtra("jamID", 2L);
         startService(i);
     }
 
-    void createLocalResources(){
-        mLocalPattern.add(new FirebasePattern("1 Beat (Local)","01"));
-        mLocalPattern.add(new FirebasePattern("2 Beat (Local)","0102"));
+    void createLocalResources() {
+        mLocalPattern.add(new FirebasePattern("1 Beat (Local)", "01"));
+        mLocalPattern.add(new FirebasePattern("2 Beat (Local)", "0102"));
         mLocalPattern.add(new FirebasePattern("3 Beat (Local)", "010102"));
         mLocalPattern.add(new FirebasePattern("4 Beat (Local)", "01010102"));
 
@@ -763,19 +751,19 @@ public class MainActivity extends AppCompatActivity{
         mLocalJams.add(new FirebaseJam("4 Beat Jam (Local)", 90, "030405060708090A", "01010102"));
     }
 
-    public void setupToolbar(){
+    public void setupToolbar() {
         /**
          * Setup the toolbar and its buttons
          * */
 
-        toolbar= (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         ImageView searchForSharedJamButton = (ImageView) findViewById(R.id.searchForSharedJamButton);
         ImageView shareJamButton = (ImageView) findViewById(R.id.shareJamButton);
         ImageView saveJamToCloud = (ImageView) findViewById(R.id.saveJamToCloud);
 
-        if(networkIsConnected && userIsLoggedIn){
+        if (networkIsConnected && userIsLoggedIn) {
             searchForSharedJamButton.setVisibility(View.VISIBLE);
             searchForSharedJamButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -786,7 +774,7 @@ public class MainActivity extends AppCompatActivity{
                             .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
                                 @Override
                                 public void onInput(MaterialDialog dialog, CharSequence input) {
-                                    if(input.length()>0){
+                                    if (input.length() > 0) {
                                         addSharedJamFromFirebase(input.toString());
                                     }
                                 }
@@ -818,18 +806,18 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
-    public void tempoChooser(){
+    public void tempoChooser() {
         final int tempo = mJam.getTempo();
         SeekBar tempoBar = (SeekBar) findViewById(R.id.tempoBar);
         final TextView tempoDisplay = (TextView) findViewById(R.id.tempoDisplay);
-        tempoBar.setProgress(tempo-TEMPO_OFFSET);
+        tempoBar.setProgress(tempo - TEMPO_OFFSET);
         tempoDisplay.setText(String.valueOf(tempo));
         tempoBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 // Modify the tempo of the current Jam as we slide
-                mJam.setTempo(i+30);
-                tempoDisplay.setText(String.valueOf(i+TEMPO_OFFSET));
+                mJam.setTempo(i + 30);
+                tempoDisplay.setText(String.valueOf(i + TEMPO_OFFSET));
             }
 
             @Override
@@ -843,14 +831,14 @@ public class MainActivity extends AppCompatActivity{
         });
     }
 
-    void patternChooser(){
+    void patternChooser() {
 
         final SnappyRecyclerView patternRecyclerView = (SnappyRecyclerView) findViewById(R.id.patternRecyclerView);
         patternRecyclerView.setHasFixedSize(true);
         LinearLayoutManager patternLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         patternRecyclerView.setLayoutManager(patternLinearLayoutManager);
 
-        mPatternListAdapter = new patternListAdapter(mPatterns, mContext);
+        mPatternListAdapter = new PatternListAdapter(mPatterns, mContext);
         patternRecyclerView.setAdapter(mPatternListAdapter);
 
         patternRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
@@ -866,7 +854,7 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if(patternRecyclerView.getFirstVisibleItemPosition() >=0){
+                if (patternRecyclerView.getFirstVisibleItemPosition() >= 0) {
                     int position = patternRecyclerView.getFirstVisibleItemPosition();
                     String name = mPatterns.get(position).getName();
                     String signature = mPatterns.get(position).getSignature();
@@ -879,7 +867,7 @@ public class MainActivity extends AppCompatActivity{
         });
     }
 
-    void kitChooser(){
+    void kitChooser() {
         final SnappyRecyclerView kitRecyclerView = (SnappyRecyclerView) findViewById(R.id.kitRecyclerView);
         kitRecyclerView.setHasFixedSize(true);
         LinearLayoutManager kitLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
@@ -888,7 +876,7 @@ public class MainActivity extends AppCompatActivity{
         final SnapHelper snapHelper = new LinearSnapHelper();
         snapHelper.attachToRecyclerView(kitRecyclerView);
 
-        mKitListAdapter = new kitListAdapter(mKits, mContext);
+        mKitListAdapter = new KitListAdapter(mKits, mContext);
         kitRecyclerView.setAdapter(mKitListAdapter);
 
         kitRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
@@ -904,7 +892,7 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if(kitRecyclerView.getFirstVisibleItemPosition() >=0){
+                if (kitRecyclerView.getFirstVisibleItemPosition() >= 0) {
                     int position = kitRecyclerView.getFirstVisibleItemPosition();
                     String name = mKits.get(position).getName();
                     String signature = mKits.get(position).getSignature();
@@ -919,13 +907,13 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
-    void jamChooser(){
+    void jamChooser() {
         final SnappyRecyclerView jamRecyclerView = (SnappyRecyclerView) findViewById(R.id.jamRecyclerView);
         jamRecyclerView.setHasFixedSize(true);
         final LinearLayoutManager jamLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         jamRecyclerView.setLayoutManager(jamLinearLayoutManager);
 
-        mJamListAdapter = new jamListAdapter(mJams, mContext);
+        mJamListAdapter = new JamListAdapter(mJams, mContext);
         jamRecyclerView.setAdapter(mJamListAdapter);
 
         jamRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
@@ -941,7 +929,7 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if(jamRecyclerView.getFirstVisibleItemPosition() >=0){
+                if (jamRecyclerView.getFirstVisibleItemPosition() >= 0) {
                     int position = jamRecyclerView.getFirstVisibleItemPosition();
                     Kit kit = new Kit("temp", mJams.get(position).getKit(), mContext);
                     Pattern pattern = new Pattern("name", mJams.get(position).getPattern(), mContext);
@@ -952,7 +940,7 @@ public class MainActivity extends AppCompatActivity{
                     mJam.setTempo(tempo);
 
                     SeekBar tempoBar = (SeekBar) findViewById(R.id.tempoBar);
-                    tempoBar.setProgress(mJam.getTempo()-TEMPO_OFFSET);
+                    tempoBar.setProgress(mJam.getTempo() - TEMPO_OFFSET);
                     /**
                      * Figure out if the pattern associated with the Jam is
                      * a pattern in our list already. Get the index of that
@@ -961,34 +949,34 @@ public class MainActivity extends AppCompatActivity{
                      * Rinse and repeat for the kit
                      **/
                     int patternIndex = -1;
-                    for(int x = 0; x<mPatterns.size(); ++x){
-                        if(pattern.getPatternHexSignature().equals(mPatterns.get(x).getSignature())){
+                    for (int x = 0; x < mPatterns.size(); ++x) {
+                        if (pattern.getPatternHexSignature().equals(mPatterns.get(x).getSignature())) {
                             patternIndex = x;
                         }
                     }
 
-                    if(patternIndex==-1){
+                    if (patternIndex == -1) {
                         FirebasePattern fbp = new FirebasePattern(mJams.get(position).getSignature(),
                                 pattern.getPatternHexSignature());
                         mPatterns.add(fbp);
-                        patternIndex=mPatterns.size()-1;
+                        patternIndex = mPatterns.size() - 1;
                     }
 
                     SnappyRecyclerView patternRecyclerView = (SnappyRecyclerView) findViewById(R.id.patternRecyclerView);
                     patternRecyclerView.scrollToPosition(patternIndex);
 
                     int kitIndex = -1;
-                    for(int x = 0; x<mKits.size(); ++x){
-                        if(kit.getSignature().equals(mKits.get(x).getSignature())){
+                    for (int x = 0; x < mKits.size(); ++x) {
+                        if (kit.getSignature().equals(mKits.get(x).getSignature())) {
                             kitIndex = x;
                         }
                     }
 
-                    if(kitIndex==-1){
+                    if (kitIndex == -1) {
                         FirebaseKit fbk = new FirebaseKit(mJams.get(position).getSignature(),
                                 kit.getSignature());
                         mKits.add(fbk);
-                        kitIndex=mKits.size()-1;
+                        kitIndex = mKits.size() - 1;
                     }
                     SnappyRecyclerView kitRecyclerView = (SnappyRecyclerView) findViewById(R.id.kitRecyclerView);
                     kitRecyclerView.scrollToPosition(kitIndex);
@@ -999,7 +987,7 @@ public class MainActivity extends AppCompatActivity{
         });
     }
 
-    public void actionButton(){
+    public void actionButton() {
         FloatingActionButton startstop;
         startstop = (FloatingActionButton) findViewById(R.id.startStopButton);
         startstop.setOnClickListener(new View.OnClickListener() {
@@ -1009,7 +997,7 @@ public class MainActivity extends AppCompatActivity{
         });
     }
 
-    void grabData(){
+    void grabData() {
         /**
          * Initialize the ArrayLists
          * */
@@ -1038,7 +1026,7 @@ public class MainActivity extends AppCompatActivity{
         sendBeatBroadcast(false);
 
         SeekBar tempoBar = (SeekBar) findViewById(R.id.tempoBar);
-        tempoBar.setProgress(tempo-TEMPO_OFFSET);
+        tempoBar.setProgress(tempo - TEMPO_OFFSET);
 
         mJamListAdapter.notifyDataSetChanged();
         mPatternListAdapter.notifyDataSetChanged();
@@ -1058,7 +1046,7 @@ public class MainActivity extends AppCompatActivity{
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         mMasterJams.clear();
-                        for (DataSnapshot child: dataSnapshot.getChildren()) {
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
                             FirebaseJam fbj = child.getValue(FirebaseJam.class);
                             if (fbj != null) {
                                 mMasterJams.add(fbj);
@@ -1088,9 +1076,9 @@ public class MainActivity extends AppCompatActivity{
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         mUserJams.clear();
-                        for(DataSnapshot child: dataSnapshot.getChildren()){
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
                             FirebaseJam fbj = child.getValue(FirebaseJam.class);
-                            if (fbj!=null){
+                            if (fbj != null) {
                                 mUserJams.add(fbj);
                             }
                         }
@@ -1123,7 +1111,7 @@ public class MainActivity extends AppCompatActivity{
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         mMasterKits.clear();
-                        for (DataSnapshot child: dataSnapshot.getChildren()) {
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
                             FirebaseKit fbk = child.getValue(FirebaseKit.class);
                             if (fbk != null) {
                                 mMasterKits.add(fbk);
@@ -1152,9 +1140,9 @@ public class MainActivity extends AppCompatActivity{
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         mUserKits.clear();
-                        for(DataSnapshot child: dataSnapshot.getChildren()){
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
                             FirebaseKit fbk = child.getValue(FirebaseKit.class);
-                            if(fbk!=null){
+                            if (fbk != null) {
                                 mUserKits.add(fbk);
                             }
                         }
@@ -1181,7 +1169,7 @@ public class MainActivity extends AppCompatActivity{
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         mMasterPatterns.clear();
-                        for (DataSnapshot child: dataSnapshot.getChildren()) {
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
                             FirebasePattern fbp = child.getValue(FirebasePattern.class);
                             if (fbp != null) {
                                 mMasterPatterns.add(fbp);
@@ -1210,7 +1198,7 @@ public class MainActivity extends AppCompatActivity{
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         mUserPatterns.clear();
-                        for (DataSnapshot child: dataSnapshot.getChildren()) {
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
                             FirebasePattern fbp = child.getValue(FirebasePattern.class);
                             if (fbp != null) {
                                 mUserPatterns.add(fbp);
@@ -1234,7 +1222,7 @@ public class MainActivity extends AppCompatActivity{
                 });
     }
 
-    public void sendBeatBroadcast(boolean fab){
+    public void sendBeatBroadcast(boolean fab) {
         Intent intent = new Intent();
         intent.setAction("com.umpquariversoftware.metronome.STARTSTOP");
 
@@ -1245,7 +1233,7 @@ public class MainActivity extends AppCompatActivity{
         intent.putExtra("pattern", mJam.getPattern().getPatternHexSignature());
 
         ArrayList<Integer> components = new ArrayList<>();
-        for(int x = 0; x<8; ++x){
+        for (int x = 0; x < 8; ++x) {
             components.add(mJam.getKit().getComponents().get(x).getResource());
         }
         intent.putIntegerArrayListExtra("components", components);
@@ -1255,9 +1243,9 @@ public class MainActivity extends AppCompatActivity{
 
     /**
      * Toolbar Functions
-     * */
+     */
 
-    public void shareJam(){
+    public void shareJam() {
         // Write to the shared jams folder everyone has access to
 
         FirebaseJam fbj = new FirebaseJam(mJam);
@@ -1267,13 +1255,13 @@ public class MainActivity extends AppCompatActivity{
 
         // Email the download signature to your friend
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                "mailto"," ", null));
+                "mailto", " ", null));
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "This is the ID to download");
         emailIntent.putExtra(Intent.EXTRA_TEXT, fbj.getSignature());
         startActivity(Intent.createChooser(emailIntent, "Send email..."));
     }
 
-    void sendJamToFirebase(){
+    void sendJamToFirebase() {
         /**
          * First, iterate through the mJam arrayList to see if the
          * jam signature shows up there.
@@ -1288,8 +1276,8 @@ public class MainActivity extends AppCompatActivity{
         mUserListSearchResultsBack = false;
 
         mMasterListJam = null;
-        for(int x=0; x<mMasterJams.size(); ++x){
-            if(mMasterJams.get(x).getSignature().equals(signature)){
+        for (int x = 0; x < mMasterJams.size(); ++x) {
+            if (mMasterJams.get(x).getSignature().equals(signature)) {
                 mMasterListJam = new FirebaseJam(mMasterJams.get(x).getTempo(),
                         mMasterJams.get(x).getKit(),
                         mMasterJams.get(x).getPattern());
@@ -1302,17 +1290,17 @@ public class MainActivity extends AppCompatActivity{
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        FirebaseJam userListJam  = dataSnapshot.getValue(FirebaseJam.class);
+                        FirebaseJam userListJam = dataSnapshot.getValue(FirebaseJam.class);
                         if (userListJam != null) {
                             mUserListJam = userListJam;
                         } else {
                             mUserListJam = null;
                         }
                         mUserListSearchResultsBack = true;
-                        if(mMasterListSearchResultsBack){
-                            if(mMasterListJam!=null){
+                        if (mMasterListSearchResultsBack) {
+                            if (mMasterListJam != null) {
                                 alert(getString(R.string.jam_exists), mMasterListJam.getName());
-                            } else if(mUserListJam!=null){
+                            } else if (mUserListJam != null) {
                                 alert(getString(R.string.jam_exists), mUserListJam.getName());
                             } else {
                                 askAndInsert();
@@ -1336,24 +1324,24 @@ public class MainActivity extends AppCompatActivity{
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case (R.id.menuPatternEditor):{
-                if(networkIsConnected && userIsLoggedIn){
+            case (R.id.menuPatternEditor): {
+                if (networkIsConnected && userIsLoggedIn) {
                     Intent i = new Intent(this, PatternEditor.class);
                     i.putExtra("userID", userID);
                     Log.e("MainActivity", "userID: " + userID);
                     startActivity(i);
-                }else{
+                } else {
                     Toast.makeText(mContext, R.string.network_required, Toast.LENGTH_LONG).show();
                 }
                 return true;
             }
-            case R.id.menuKitEditor:{
-                if(networkIsConnected && userIsLoggedIn){
+            case R.id.menuKitEditor: {
+                if (networkIsConnected && userIsLoggedIn) {
                     Intent i = new Intent(this, KitEditor.class);
                     i.putExtra("userID", userID);
                     Log.e("MainActivity", "userID: " + userID);
                     startActivity(i);
-                }else{
+                } else {
                     Toast.makeText(mContext, R.string.network_required, Toast.LENGTH_LONG).show();
                 }
                 return true;
@@ -1366,9 +1354,9 @@ public class MainActivity extends AppCompatActivity{
 
     /**
      * Utilities/Pushing data around
-     * */
+     */
 
-    void alert(String text1, String text2){
+    void alert(String text1, String text2) {
         final Dialog dialog = new Dialog(mContext);
 
         dialog.setContentView(R.layout.alert_dialog);
@@ -1391,7 +1379,7 @@ public class MainActivity extends AppCompatActivity{
         dialog.show();
     }
 
-    void askAndInsert(){
+    void askAndInsert() {
         final DatabaseReference mDatabase;
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -1413,7 +1401,7 @@ public class MainActivity extends AppCompatActivity{
                 .show();
     }
 
-    public void addSharedJamFromFirebase(String signature){
+    public void addSharedJamFromFirebase(String signature) {
         DatabaseReference mDatabase;
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -1424,11 +1412,11 @@ public class MainActivity extends AppCompatActivity{
                         FirebaseJam newFbj = dataSnapshot.getValue(FirebaseJam.class);
                         if (newFbj != null) {
                             int tempo = newFbj.getTempo();
-                            Pattern pattern = new Pattern(newFbj.getSignature(),newFbj.getPattern(),mContext);
-                            Kit kit = new Kit(newFbj.getSignature(),newFbj.getKit(),mContext);
+                            Pattern pattern = new Pattern(newFbj.getSignature(), newFbj.getPattern(), mContext);
+                            Kit kit = new Kit(newFbj.getSignature(), newFbj.getKit(), mContext);
 
                             Jam jam = new Jam();
-                            jam.setName("Downloaded Jam | " + newFbj.getSignature().substring(newFbj.getSignature().length()-6));
+                            jam.setName("Downloaded Jam | " + newFbj.getSignature().substring(newFbj.getSignature().length() - 6));
                             jam.setTempo(tempo);
                             jam.setPattern(pattern);
                             jam.setKit(kit);
@@ -1450,7 +1438,7 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
-    protected void onSaveInstanceState(Bundle outState){
+    protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("jamSignature", new FirebaseJam(mJam).getSignature());
     }
@@ -1463,7 +1451,7 @@ public class MainActivity extends AppCompatActivity{
         @Override
         public void onReceive(Context context, Intent intent) {
             ConnectivityManager cm =
-                    (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 
             NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
             networkIsConnected = activeNetwork != null &&

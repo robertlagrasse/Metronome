@@ -41,8 +41,8 @@ public class Kit {
         this.name = name;
 
         char[] sig = signature.toCharArray();
-        for(int x=0;x<signature.length();x+=2){
-            String pick = new StringBuilder().append(sig[x]).append(sig[x+1]).toString();
+        for (int x = 0; x < signature.length(); x += 2) {
+            String pick = new StringBuilder().append(sig[x]).append(sig[x + 1]).toString();
             Cursor cursor = context.getContentResolver().query(dbContract.buildComponentUri().buildUpon().appendPath(pick).build(),
                     null,
                     null,
@@ -70,7 +70,7 @@ public class Kit {
         return components;
     }
 
-    public boolean addComponent(Component component){
+    public boolean addComponent(Component component) {
         // Verify there's room to add a new member
         // add the member
         components.add(component);
@@ -78,21 +78,20 @@ public class Kit {
         return false;
     }
 
-    public boolean replaceComponent(int position, Component component){
+    public boolean replaceComponent(int position, Component component) {
         components.remove(position);
-        components.add(position,component);
+        components.add(position, component);
         return false;
     }
 
 
-    public String getSignature(){
+    public String getSignature() {
         StringBuilder stringBuilder = new StringBuilder();
-        for(int x=0;x<8;++x){
+        for (int x = 0; x < 8; ++x) {
             stringBuilder.append(String.valueOf(getComponents().get(x).getHexID()));
         }
         return stringBuilder.toString();
     }
-
 
 
 }

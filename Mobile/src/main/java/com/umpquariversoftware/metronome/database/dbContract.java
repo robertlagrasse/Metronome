@@ -19,51 +19,58 @@ public class dbContract {
     public static final Uri CONTENT_AUTHORITY = Uri.parse("content://com.umpquariversoftware.metronome");
 
 
-    public static Uri buildComponentUri(){
+    public static Uri buildComponentUri() {
         return CONTENT_AUTHORITY.buildUpon()
                 .appendPath(ComponentTable.TABLE_NAME)
                 .build();
     }
-    public static Uri buildKitUri(){
+
+    public static Uri buildKitUri() {
         return CONTENT_AUTHORITY.buildUpon()
                 .appendPath(KitTable.TABLE_NAME)
                 .build();
     }
-    public static Uri buildPatternUri(){
+
+    public static Uri buildPatternUri() {
         return CONTENT_AUTHORITY.buildUpon()
                 .appendPath(PatternTable.TABLE_NAME)
                 .build();
     }
-    public static Uri buildPatternBySignatureURI(String sequence){
+
+    public static Uri buildPatternBySignatureURI(String sequence) {
         return buildPatternUri().buildUpon()
                 .appendPath(PatternTable.SEQUENCE)
                 .appendPath(sequence)
                 .build();
     }
-    public static Uri buildJamUri(){
+
+    public static Uri buildJamUri() {
         return CONTENT_AUTHORITY.buildUpon()
                 .appendPath(JamTable.TABLE_NAME)
                 .build();
     }
-    public static Uri buildJamByAttributesUri(String tempo, String kit, String pattern){
+
+    public static Uri buildJamByAttributesUri(String tempo, String kit, String pattern) {
         return CONTENT_AUTHORITY.buildUpon().appendPath("attributes")
                 .appendPath(tempo)
                 .appendPath(kit)
                 .appendPath(pattern)
                 .build();
     }
-    public static Uri buildComponentByDbIDUri(int dbID){
+
+    public static Uri buildComponentByDbIDUri(int dbID) {
         return CONTENT_AUTHORITY.buildUpon().appendPath("component_by_db_id")
                 .appendPath(String.valueOf(dbID))
                 .build();
     }
-    public static Uri buildAllComponentsUri(){
+
+    public static Uri buildAllComponentsUri() {
         return CONTENT_AUTHORITY.buildUpon()
                 .appendPath("all_components")
                 .build();
     }
 
-    public static Uri buildKitBySignatureUri(String signature){
+    public static Uri buildKitBySignatureUri(String signature) {
         return CONTENT_AUTHORITY.buildUpon().appendPath("kit_by_signature")
                 .appendPath(signature)
                 .build();
@@ -73,7 +80,7 @@ public class dbContract {
     /**
      * This section defines the tables in the database, and each table's associated columns.
      */
-    private static final String     VARCHAR_255         = " VARCHAR(255), ";
+    private static final String VARCHAR_255 = " VARCHAR(255), ";
 
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "database";
@@ -86,14 +93,14 @@ public class dbContract {
         public static final String RESOURCE = "resource";
         public static final String HEXID = "hexid";
 
-        public static final String CREATE_TABLE               =
-                "CREATE TABLE "            +
-                        TABLE_NAME                 + "(" +
-                        ID                 + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+        public static final String CREATE_TABLE =
+                "CREATE TABLE " +
+                        TABLE_NAME + "(" +
+                        ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         NAME + VARCHAR_255 +
                         RESOURCE + VARCHAR_255 +
                         HEXID + VARCHAR_255 +
-                        "UNIQUE ("+ _ID +") ON CONFLICT IGNORE);";
+                        "UNIQUE (" + _ID + ") ON CONFLICT IGNORE);";
     }
 
     public static final class KitTable implements BaseColumns {
@@ -102,13 +109,13 @@ public class dbContract {
         public static final String NAME = "name";
         public static final String COMPONENTS = "components";
 
-        public static final String CREATE_TABLE               =
-                "CREATE TABLE "            +
-                        TABLE_NAME                 + "(" +
-                        ID                 + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+        public static final String CREATE_TABLE =
+                "CREATE TABLE " +
+                        TABLE_NAME + "(" +
+                        ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         NAME + VARCHAR_255 +
                         COMPONENTS + VARCHAR_255 +
-                        "UNIQUE ("+ _ID +") ON CONFLICT IGNORE);";
+                        "UNIQUE (" + _ID + ") ON CONFLICT IGNORE);";
     }
 
     public static final class PatternTable implements BaseColumns {
@@ -117,13 +124,13 @@ public class dbContract {
         public static final String NAME = "name";
         public static final String SEQUENCE = "sequence";
 
-        public static final String CREATE_TABLE               =
-                "CREATE TABLE "            +
-                        TABLE_NAME                 + "(" +
-                        ID                 + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+        public static final String CREATE_TABLE =
+                "CREATE TABLE " +
+                        TABLE_NAME + "(" +
+                        ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         NAME + VARCHAR_255 +
                         SEQUENCE + VARCHAR_255 +
-                        "UNIQUE ("+ _ID +") ON CONFLICT IGNORE);";
+                        "UNIQUE (" + _ID + ") ON CONFLICT IGNORE);";
     }
 
     public static final class JamTable implements BaseColumns {
@@ -134,14 +141,14 @@ public class dbContract {
         public static final String PATTERN_ID = "pattern_id";
         public static final String TEMPO = "tempo";
 
-        public static final String CREATE_TABLE               =
-                "CREATE TABLE "            +
-                        TABLE_NAME                 + "(" +
-                        ID                 + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+        public static final String CREATE_TABLE =
+                "CREATE TABLE " +
+                        TABLE_NAME + "(" +
+                        ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         NAME + VARCHAR_255 +
                         KIT_ID + VARCHAR_255 +
                         PATTERN_ID + VARCHAR_255 +
                         TEMPO + VARCHAR_255 +
-                        "UNIQUE ("+ _ID +") ON CONFLICT REPLACE);";
+                        "UNIQUE (" + _ID + ") ON CONFLICT REPLACE);";
     }
 }

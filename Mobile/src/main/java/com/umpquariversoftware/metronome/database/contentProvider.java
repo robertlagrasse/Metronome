@@ -28,47 +28,47 @@ public class contentProvider extends ContentProvider {
     public contentProvider() {
     }
 
-    private int uriSwitcher(Uri uri){
-        switch(uri.getPathSegments().get(0)){
-            case dbContract.ComponentTable.TABLE_NAME:{
+    private int uriSwitcher(Uri uri) {
+        switch (uri.getPathSegments().get(0)) {
+            case dbContract.ComponentTable.TABLE_NAME: {
                 return COMPONENT;
             }
-            case dbContract.KitTable.TABLE_NAME:{
-                if(uri.getLastPathSegment().equals(dbContract.KitTable.TABLE_NAME)){
+            case dbContract.KitTable.TABLE_NAME: {
+                if (uri.getLastPathSegment().equals(dbContract.KitTable.TABLE_NAME)) {
                     return ALL_KITS;
                 } else {
                     return KIT_BY_ID;
                 }
             }
-            case dbContract.PatternTable.TABLE_NAME:{
-                if(uri.getLastPathSegment().equals(dbContract.PatternTable.TABLE_NAME)){
+            case dbContract.PatternTable.TABLE_NAME: {
+                if (uri.getLastPathSegment().equals(dbContract.PatternTable.TABLE_NAME)) {
                     return ALL_PATTERNS;
-                } else if(uri.getPathSegments().get(1).equals(dbContract.PatternTable.SEQUENCE)){
+                } else if (uri.getPathSegments().get(1).equals(dbContract.PatternTable.SEQUENCE)) {
                     return PATTERN_BY_SEQUENCE;
                 } else {
                     return PATTERN_BY_ID;
                 }
             }
-            case dbContract.JamTable.TABLE_NAME:{
-                if(uri.getLastPathSegment().equals(dbContract.JamTable.TABLE_NAME)){
+            case dbContract.JamTable.TABLE_NAME: {
+                if (uri.getLastPathSegment().equals(dbContract.JamTable.TABLE_NAME)) {
                     return ALL_JAMS;
                 } else {
                     return JAM_BY_ID;
                 }
             }
-            case "attributes":{
+            case "attributes": {
                 return JAM_BY_ATTRIBUTES;
             }
 
-            case "component_by_db_id":{
+            case "component_by_db_id": {
                 return COMPONENT_BY_DB_ID;
             }
 
-            case "all_components":{
+            case "all_components": {
                 return ALL_COMPONENTS;
             }
 
-            case "kit_by_signature":{
+            case "kit_by_signature": {
                 return KIT_BY_SIGNATURE;
             }
 
@@ -80,18 +80,18 @@ public class contentProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = databaseManager.getWritableDatabase();
         long _id = 0;
-        Log.e("contentProvider","delete() calling uriSwitcher() with uri: " + uri.toString());
-        switch (uriSwitcher(uri)){
-            case COMPONENT:{
+        Log.e("contentProvider", "delete() calling uriSwitcher() with uri: " + uri.toString());
+        switch (uriSwitcher(uri)) {
+            case COMPONENT: {
                 _id = db.delete(dbContract.ComponentTable.TABLE_NAME, selection, selectionArgs);
             }
-            case ALL_KITS:{
+            case ALL_KITS: {
                 _id = db.delete(dbContract.KitTable.TABLE_NAME, selection, selectionArgs);
             }
-            case ALL_PATTERNS:{
+            case ALL_PATTERNS: {
                 _id = db.delete(dbContract.PatternTable.TABLE_NAME, selection, selectionArgs);
             }
-            case ALL_JAMS:{
+            case ALL_JAMS: {
                 _id = db.delete(dbContract.JamTable.TABLE_NAME, selection, selectionArgs);
             }
         }
@@ -100,7 +100,7 @@ public class contentProvider extends ContentProvider {
 
     @Override
     public String getType(Uri uri) {
-        Log.e("contentProvider","getType() called with uri: " + uri.toString());
+        Log.e("contentProvider", "getType() called with uri: " + uri.toString());
         return null;
     }
 
@@ -109,20 +109,20 @@ public class contentProvider extends ContentProvider {
         final SQLiteDatabase db = databaseManager.getWritableDatabase();
         long _id = 0;
 
-        switch (uriSwitcher(uri)){
-            case COMPONENT:{
+        switch (uriSwitcher(uri)) {
+            case COMPONENT: {
                 _id = db.insert(dbContract.ComponentTable.TABLE_NAME, null, values);
                 break;
             }
-            case ALL_KITS:{
+            case ALL_KITS: {
                 _id = db.insert(dbContract.KitTable.TABLE_NAME, null, values);
                 break;
             }
-            case ALL_PATTERNS:{
+            case ALL_PATTERNS: {
                 _id = db.insert(dbContract.PatternTable.TABLE_NAME, null, values);
                 break;
             }
-            case ALL_JAMS:{
+            case ALL_JAMS: {
                 _id = db.insert(dbContract.JamTable.TABLE_NAME, null, values);
                 break;
             }
@@ -132,7 +132,7 @@ public class contentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        Log.e("contentProvider","onCreate() called");
+        Log.e("contentProvider", "onCreate() called");
         databaseManager = new DatabaseManager(getContext());
         return false;
     }
@@ -143,8 +143,8 @@ public class contentProvider extends ContentProvider {
 
         Cursor retCursor = null;
 
-        switch(uriSwitcher(uri)){
-            case COMPONENT:{
+        switch (uriSwitcher(uri)) {
+            case COMPONENT: {
                 retCursor = databaseManager.getReadableDatabase().query(
                         dbContract.ComponentTable.TABLE_NAME,
                         projection,
@@ -156,7 +156,7 @@ public class contentProvider extends ContentProvider {
                 );
                 break;
             }
-            case COMPONENT_BY_DB_ID:{
+            case COMPONENT_BY_DB_ID: {
                 retCursor = databaseManager.getReadableDatabase().query(
                         dbContract.ComponentTable.TABLE_NAME,
                         projection,
@@ -168,7 +168,7 @@ public class contentProvider extends ContentProvider {
                 );
                 break;
             }
-            case ALL_COMPONENTS:{
+            case ALL_COMPONENTS: {
                 retCursor = databaseManager.getReadableDatabase().query(
                         dbContract.ComponentTable.TABLE_NAME,
                         projection,
@@ -193,7 +193,7 @@ public class contentProvider extends ContentProvider {
                 break;
             }
 
-            case KIT_BY_ID:{
+            case KIT_BY_ID: {
                 retCursor = databaseManager.getReadableDatabase().query(
                         dbContract.KitTable.TABLE_NAME,
                         projection,
@@ -206,7 +206,7 @@ public class contentProvider extends ContentProvider {
                 break;
             }
 
-            case KIT_BY_SIGNATURE:{
+            case KIT_BY_SIGNATURE: {
                 retCursor = databaseManager.getReadableDatabase().query(
                         dbContract.KitTable.TABLE_NAME,
                         projection,
@@ -232,7 +232,7 @@ public class contentProvider extends ContentProvider {
                 break;
             }
 
-            case PATTERN_BY_SEQUENCE:{
+            case PATTERN_BY_SEQUENCE: {
                 retCursor = databaseManager.getReadableDatabase().query(
                         dbContract.PatternTable.TABLE_NAME,
                         projection,
@@ -244,7 +244,7 @@ public class contentProvider extends ContentProvider {
                 );
                 break;
             }
-            case PATTERN_BY_ID:{
+            case PATTERN_BY_ID: {
                 retCursor = databaseManager.getReadableDatabase().query(
                         dbContract.PatternTable.TABLE_NAME,
                         projection,
@@ -256,7 +256,7 @@ public class contentProvider extends ContentProvider {
                 );
                 break;
             }
-            case ALL_JAMS:{
+            case ALL_JAMS: {
                 retCursor = databaseManager.getReadableDatabase().query(
                         dbContract.JamTable.TABLE_NAME,
                         projection,
@@ -268,7 +268,7 @@ public class contentProvider extends ContentProvider {
                 );
                 break;
             }
-            case JAM_BY_ID:{
+            case JAM_BY_ID: {
                 retCursor = databaseManager.getReadableDatabase().query(
                         dbContract.JamTable.TABLE_NAME,
                         projection,
@@ -304,17 +304,17 @@ public class contentProvider extends ContentProvider {
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
 
-        switch (uriSwitcher(uri)){
-            case COMPONENT:{
+        switch (uriSwitcher(uri)) {
+            case COMPONENT: {
                 // update component table
             }
-            case ALL_KITS:{
+            case ALL_KITS: {
                 // update kit table
             }
-            case ALL_PATTERNS:{
+            case ALL_PATTERNS: {
                 // update pattern table
             }
-            case ALL_JAMS:{
+            case ALL_JAMS: {
                 // update jam table
             }
         }

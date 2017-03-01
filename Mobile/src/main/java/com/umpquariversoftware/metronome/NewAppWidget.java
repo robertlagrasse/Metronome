@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * Implementation of App Widget functionality.
  */
 public class NewAppWidget extends AppWidgetProvider {
-static    String WIDGET_RECEIVER_INTENT = "com.umpquariversoftware.metronome.STARTSTOP";
+    static String WIDGET_RECEIVER_INTENT = "com.umpquariversoftware.metronome.STARTSTOP";
 
 
     // This acts like a list adapter/viewholder
@@ -56,7 +56,7 @@ static    String WIDGET_RECEIVER_INTENT = "com.umpquariversoftware.metronome.STA
                 R.layout.new_app_widget);
         views.setTextViewText(R.id.widgetText, intent.getStringExtra("jamName"));
         AppWidgetManager.getInstance(context).updateAppWidget(
-                new ComponentName(context, NewAppWidget.class),views);
+                new ComponentName(context, NewAppWidget.class), views);
 
     }
 
@@ -68,7 +68,7 @@ static    String WIDGET_RECEIVER_INTENT = "com.umpquariversoftware.metronome.STA
         views.setImageViewResource(R.id.widgetButton, R.drawable.chevron_right);
 
         AppWidgetManager.getInstance(context).updateAppWidget(
-                new ComponentName(context, NewAppWidget.class),views);
+                new ComponentName(context, NewAppWidget.class), views);
 
     }
 

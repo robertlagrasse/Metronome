@@ -10,11 +10,11 @@ public class Jam {
     public Jam() {
     }
 
-    public void setKit(Kit kit){
+    public void setKit(Kit kit) {
         this.kit = kit;
     }
 
-    public void setPattern(Pattern pattern){
+    public void setPattern(Pattern pattern) {
         this.pattern = pattern;
     }
 

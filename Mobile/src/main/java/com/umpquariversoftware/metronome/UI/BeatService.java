@@ -45,7 +45,7 @@ public class BeatService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        mJamID = intent.getLongExtra("jamID",0);
+        mJamID = intent.getLongExtra("jamID", 0);
         mJam = new Jam();
         mJam.setTempo(60);
         mJam.setKit(new Kit("temp", "0102030405060708", mContext));
@@ -66,15 +66,15 @@ public class BeatService extends IntentService {
         super.onDestroy();
     }
 
-    private static void flip(){
-        if(isRunning){
+    private static void flip() {
+        if (isRunning) {
             stopTimer();
         } else {
             startTimer();
         }
     }
 
-    private static void startTimer(){
+    private static void startTimer() {
         isRunning = true;
         int PRIORITY = 1;
 
@@ -108,7 +108,7 @@ public class BeatService extends IntentService {
         final ArrayList<Integer> soundIDs = new ArrayList<Integer>();
         // Iterate through the kit
 
-        for(int x=0;x<8;++x){
+        for (int x = 0; x < 8; ++x) {
             soundIDs.add(soundPool.load(mContext,
                     mJam.getKit().getComponents().get(x).getResource(),
                     PRIORITY));
@@ -121,6 +121,7 @@ public class BeatService extends IntentService {
         TimerTask tt = null;
         tt = new TimerTask() {
             int position = 0;
+
             @Override
             public void run() {
                 {
@@ -138,10 +139,10 @@ public class BeatService extends IntentService {
                      * */
 
 
-                    for(int x=0;x<8;++x){
-                        if(mJam.getPattern().getBeat(position).getPosition(x)){
+                    for (int x = 0; x < 8; ++x) {
+                        if (mJam.getPattern().getBeat(position).getPosition(x)) {
                             // Play the soundpool resource in position X
-                            soundPool.play(soundIDs.get(x),1,1,1,0,1);
+                            soundPool.play(soundIDs.get(x), 1, 1, 1, 0, 1);
                         }
                     }
                     position++;
@@ -151,14 +152,14 @@ public class BeatService extends IntentService {
 
         mTimer = null;
         mTimer = new Timer();
-        mTimer.scheduleAtFixedRate(tt,0,mJam.getInterval());
+        mTimer.scheduleAtFixedRate(tt, 0, mJam.getInterval());
     }
 
-    private static void stopTimer(){
+    private static void stopTimer() {
         mTimer.cancel();
         mTimer.purge();
-        mTimer=null;
-        isRunning=false;
+        mTimer = null;
+        isRunning = false;
     }
 
     public static class startStopReceiver extends BroadcastReceiver {
@@ -168,15 +169,15 @@ public class BeatService extends IntentService {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.e("BeatService","startStopReceiver/onReceive()");
+            Log.e("BeatService", "startStopReceiver/onReceive()");
             Boolean widget = intent.getBooleanExtra("widget", false);
 
-            if(!widget) {
+            if (!widget) {
 
-                Log.e("BeatService", "startStopReceiver onReceive() intent.getStringExtra(\"jamName\") "+ intent.getStringExtra("jamName"));
+                Log.e("BeatService", "startStopReceiver onReceive() intent.getStringExtra(\"jamName\") " + intent.getStringExtra("jamName"));
 
                 String name = intent.getStringExtra("jamName");
-                if (name == null){
+                if (name == null) {
                     name = "No name sent";
                 }
                 Pattern pattern = new Pattern("temp", intent.getStringExtra("pattern"), null);
@@ -199,18 +200,18 @@ public class BeatService extends IntentService {
                 mJam = jam;
             }
 
-            if (mJam == null || mJam.getKit() == null || mJam.getPattern() == null){
-                Log.e("startStopReceiver","Service not running.");
+            if (mJam == null || mJam.getKit() == null || mJam.getPattern() == null) {
+                Log.e("startStopReceiver", "Service not running.");
             } else {
 
-                    Log.e("BeatService", "onReceive Broadcasting APPWIDGET_UPDATE");
-                    String ACTION_DATA_UPDATED =
-                            "android.appwidget.action.APPWIDGET_UPDATE";
+                Log.e("BeatService", "onReceive Broadcasting APPWIDGET_UPDATE");
+                String ACTION_DATA_UPDATED =
+                        "android.appwidget.action.APPWIDGET_UPDATE";
 
-                    Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED)
-                            .setPackage(context.getPackageName());
-                    dataUpdatedIntent.putExtra("jamName", mJam.getName());
-                    context.sendBroadcast(dataUpdatedIntent);
+                Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED)
+                        .setPackage(context.getPackageName());
+                dataUpdatedIntent.putExtra("jamName", mJam.getName());
+                context.sendBroadcast(dataUpdatedIntent);
 
                 Boolean fab = intent.getBooleanExtra("fab", false);
 

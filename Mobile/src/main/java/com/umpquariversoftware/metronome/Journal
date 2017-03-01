@@ -1,7 +1,9 @@
-Parking lot for thoughts and notes.
+Udacity Review Issues:
 
-Jam recycler View - needed cleanup. Just shows Jam name now.
-
+DONE - 1 Code Readability and Naming Conventions. Issues with naming conventions and spacing/readability
+2 Accessability Support. Include D-Pad and Content Descriptions
+3 All strings go in strings.xml. There are a few stragglers. Eliminate them.
+4 signing certification and installRelease task
 
 
 

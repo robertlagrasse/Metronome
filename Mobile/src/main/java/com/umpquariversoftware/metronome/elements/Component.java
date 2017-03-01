@@ -28,14 +28,14 @@ public class Component {
     }
 
 
-    public Component(Cursor cursor){
+    public Component(Cursor cursor) {
         cursor.moveToFirst();
         this.name = cursor.getString(cursor.getColumnIndex(dbContract.ComponentTable.NAME));
         this.resource = Integer.parseInt(cursor.getString(cursor.getColumnIndex(dbContract.ComponentTable.RESOURCE)));
         this.hexID = cursor.getString(cursor.getColumnIndex(dbContract.ComponentTable.HEXID));
     }
 
-    public Component(int resource){
+    public Component(int resource) {
         this.resource = resource;
     }
 

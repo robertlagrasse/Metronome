@@ -16,6 +16,12 @@
         <item name="android:layout_marginRight">6dp</item>
         <item name="android:layout_marginTop">2dp</item>
         <item name="android:layout_marginBottom">2dp</item>
+    </style>
+
+    <style name="remoteFabStyle">
+        <item name="android:gravity">center</item>
+        <item name="android:layout_margin">8dp</item>
+
 
     </style>
 

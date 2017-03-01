@@ -13,7 +13,7 @@ import android.util.Log;
 public class DatabaseManager extends SQLiteOpenHelper {
     private static final String TAG = "DatabaseManager";
 
-    DatabaseManager (Context context) {
+    DatabaseManager(Context context) {
         //super(context, name, factory, version); // original super.
         super(context, dbContract.DATABASE_NAME, null, dbContract.DATABASE_VERSION);
     }

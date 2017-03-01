@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:rowCount="3"
+    android:columnCount="2">
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/patternSave"
+        android:layout_column="1"
+        android:layout_row="2"
+        android:src="@drawable/ic_cloud_upload"
+        style="@style/remoteFabStyle"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/patternBeatLast"
+        android:layout_column="0"
+        android:layout_row="0"
+        app:srcCompat="@drawable/ic_chevron_left"
+        style="@style/remoteFabStyle"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/patternBeatNew"
+        android:layout_column="0"
+        android:layout_row="1"
+        app:srcCompat="@drawable/ic_plus"
+        style="@style/remoteFabStyle"/>
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/patternBeatNext"
+        android:layout_column="1"
+        android:layout_row="0"
+        app:srcCompat="@drawable/ic_chevron_right"
+        style="@style/remoteFabStyle"/>
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/patternBeatDelete"
+        android:layout_column="1"
+        android:layout_row="1"
+        app:srcCompat="@drawable/ic_minus"
+        style="@style/remoteFabStyle"/>
+
+
+
+
+</GridLayout>

@@ -56,10 +56,10 @@ public class FirebaseJam {
         this.kit = jam.getKit().getSignature();
         this.pattern = jam.getPattern().getPatternHexSignature();
         this.signature = md5(String.valueOf(tempo)
-                                .concat("|")
-                                .concat(kit)
-                                .concat("|")
-                                .concat(pattern));
+                .concat("|")
+                .concat(kit)
+                .concat("|")
+                .concat(pattern));
     }
 
     public String getName() {

@@ -2,7 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
+    android:background="@color/colorPrimary"
     android:layout_height="match_parent">
+    <include layout="@layout/editor_toolbar"
+        android:id="@+id/editor_toolbar">
+
+    </include>
 
     <android.support.v7.widget.CardView
         android:id="@+id/patternEditorCardView"
@@ -30,6 +35,7 @@
         </LinearLayout>
     </android.support.v7.widget.CardView>
 
+<!--
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -41,10 +47,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical">
-            <com.umpquariversoftware.metronome.UI.SnappyRecyclerView
-                android:layout_width="match_parent"
-                android:layout_height="?listPreferredItemHeightLarge">
-            </com.umpquariversoftware.metronome.UI.SnappyRecyclerView>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -185,5 +188,45 @@
 
 
     </LinearLayout>
+-->
+    <android.support.v7.widget.CardView
+        android:id="@+id/controllerCardView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="6"
+        style="@style/cardviewStyle">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+                <include layout="@layout/beat_picker"/>
+            </FrameLayout>
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+                <include layout="@layout/remote_control"/>
+            </FrameLayout>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <include layout="@layout/billboard">
+
+        </include>
+    </FrameLayout>
 
 </LinearLayout>

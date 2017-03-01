@@ -14,13 +14,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -44,12 +49,13 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
     final int COMPONENT_LOADER_ID = 4;
     int mComponentCount = 1;
     Kit mKit;
-    componentCursorAdapter mComponentCursorAdapter;
+    ComponentCursorAdapter mComponentCursorAdapter;
     Cursor mComponentCursor;
     Context mContext;
     Boolean mMasterListSearchResultsBack = false;
     Boolean mUserListSearchResultsBack = false;
     String userID = "";
+    private Toolbar toolbar;
 
     FirebaseKit mMasterListKit, mUserListKit;
 
@@ -89,7 +95,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
          * Build a kit, and fill all 8 slots with the same component
          * */
         mKit = new Kit();
-        for(int x=0;x<8;++x){
+        for (int x = 0; x < 8; ++x) {
             mKit.addComponent(component);
         }
 
@@ -99,9 +105,41 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
 
         setupComponentChooser();
         setupFab();
+        setupToolbar();
+
+        /**
+         * Get that money!
+         * */
+
+        // MobileAds.initialize(getApplicationContext(), "ca-app-pub-8040545141030965~5491821531");
+
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("74D61A4429900485751F374428FB6C95")
+                .build();
+        mAdView.loadAd(adRequest);
+
     }
 
-    public void setupFab(){
+    public void setupToolbar() {
+
+        toolbar = (Toolbar) findViewById(R.id.editor_toolbar);
+        setSupportActionBar(toolbar);
+
+        TextView title = (TextView) findViewById(R.id.activityDisplay);
+        title.setText(getResources().getString(R.string.kit_editor));
+
+        ImageView helpButton = (ImageView) findViewById(R.id.helpButton);
+        helpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(mContext, "Replace with walk through", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    public void setupFab() {
         FloatingActionButton fab;
         fab = (FloatingActionButton) findViewById(R.id.kitEditorButton);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -113,21 +151,21 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
 
     }
 
-    public void playSound(Component component){
+    public void playSound(Component component) {
         soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
             @Override
             public void onLoadComplete(SoundPool soundPool, int i, int i1) {
-                soundPool.play(i,1,1,1,0,1);
+                soundPool.play(i, 1, 1, 1, 0, 1);
             }
         });
         soundPool.load(mContext, component.getResource(), 1);
 
     }
 
-    public void setupComponentChooser(){
+    public void setupComponentChooser() {
         getLoaderManager().initLoader(COMPONENT_LOADER_ID, null, this);
 
-        mComponentCursorAdapter = new componentCursorAdapter(this, null);
+        mComponentCursorAdapter = new ComponentCursorAdapter(this, null);
 
         ArrayList<View> components = new ArrayList<>();
         components.add(0, findViewById(R.id.recyclerViewComponent1));
@@ -140,17 +178,17 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
         components.add(7, findViewById(R.id.recyclerViewComponent8));
 
         final ArrayList<SnappyRecyclerView> snappyRecyclerViews = new ArrayList<>();
-        for (int x = 0; x<8; ++x) {
+        for (int x = 0; x < 8; ++x) {
             final SnappyRecyclerView srv = (SnappyRecyclerView) components.get(x);
             srv.setHasFixedSize(true);
             LinearLayoutManager llm = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
             srv.setLayoutManager(llm);
             srv.setAdapter(mComponentCursorAdapter);
 
-            snappyRecyclerViews.add(x,srv);
+            snappyRecyclerViews.add(x, srv);
         }
 
-        for (int x = 0; x<8 ; ++x) {
+        for (int x = 0; x < 8; ++x) {
             snappyRecyclerViews.get(x).addOnItemTouchListener(new RecyclerViewItemClickListener(this,
                     new RecyclerViewItemClickListener.OnItemClickListener() {
                         @Override
@@ -169,16 +207,16 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                     }));
         }
 
-        for (int x = 0; x<8 ; ++x) {
+        for (int x = 0; x < 8; ++x) {
             final int finalX = x;
             snappyRecyclerViews.get(x).addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                     super.onScrollStateChanged(recyclerView, newState);
-                    if(snappyRecyclerViews.get(finalX).getFirstVisibleItemPosition() >=0){
+                    if (snappyRecyclerViews.get(finalX).getFirstVisibleItemPosition() >= 0) {
                         // get information from db
                         Cursor retCursor = getContentResolver()
-                                .query(buildComponentByDbIDUri(snappyRecyclerViews.get(finalX).getFirstVisibleItemPosition()+1),
+                                .query(buildComponentByDbIDUri(snappyRecyclerViews.get(finalX).getFirstVisibleItemPosition() + 1),
                                         null,
                                         null,
                                         null,
@@ -186,13 +224,13 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                         retCursor.moveToFirst();
                         // put that component in the Kit component(0)
                         Component component = new Component(retCursor);
-                        mKit.replaceComponent(finalX,component);
+                        mKit.replaceComponent(finalX, component);
                     }
                 }
             });
         }
 
-        for (int x = 0; x<8; ++x){
+        for (int x = 0; x < 8; ++x) {
             snappyRecyclerViews.get(x).scrollToPosition(mComponentCount);
         }
 
@@ -213,7 +251,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        switch(loader.getId()) {
+        switch (loader.getId()) {
             case COMPONENT_LOADER_ID:
                 mComponentCursorAdapter.swapCursor(data);
                 mComponentCursor = data;
@@ -227,7 +265,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
 
     }
 
-    void check(String signature){
+    void check(String signature) {
         DatabaseReference mDatabase;
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mMasterListSearchResultsBack = false;
@@ -239,17 +277,17 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        FirebaseKit masterListKit  = dataSnapshot.getValue(FirebaseKit.class);
+                        FirebaseKit masterListKit = dataSnapshot.getValue(FirebaseKit.class);
                         if (masterListKit != null) {
                             mMasterListKit = masterListKit;
                         } else {
                             mMasterListKit = null;
                         }
                         mMasterListSearchResultsBack = true;
-                        if(mUserListSearchResultsBack){
-                            if(mMasterListKit!=null){
+                        if (mUserListSearchResultsBack) {
+                            if (mMasterListKit != null) {
                                 alert(getString(R.string.kit_exists), mMasterListKit.getName());
-                            } else if(mUserListKit!=null){
+                            } else if (mUserListKit != null) {
                                 alert(getString(R.string.kit_exists), mUserListKit.getName());
                             } else {
                                 askAndInsert();
@@ -268,17 +306,17 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        FirebaseKit userListKit  = dataSnapshot.getValue(FirebaseKit.class);
+                        FirebaseKit userListKit = dataSnapshot.getValue(FirebaseKit.class);
                         if (userListKit != null) {
                             mUserListKit = userListKit;
                         } else {
                             mUserListKit = null;
                         }
                         mUserListSearchResultsBack = true;
-                        if(mMasterListSearchResultsBack){
-                            if(mMasterListKit!=null){
+                        if (mMasterListSearchResultsBack) {
+                            if (mMasterListKit != null) {
                                 alert(getString(R.string.kit_exists), mMasterListKit.getName());
-                            } else if(mUserListKit!=null){
+                            } else if (mUserListKit != null) {
                                 alert(getString(R.string.kit_exists), mUserListKit.getName());
                             } else {
                                 askAndInsert();
@@ -293,7 +331,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                 });
     }
 
-    void alert(String text1, String text2){
+    void alert(String text1, String text2) {
         final Dialog dialog = new Dialog(mContext);
 
         dialog.setContentView(R.layout.alert_dialog);
@@ -315,7 +353,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
         dialog.show();
     }
 
-    void askAndInsert(){ // that's what she said.
+    void askAndInsert() {
         final DatabaseReference mDatabase;
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
