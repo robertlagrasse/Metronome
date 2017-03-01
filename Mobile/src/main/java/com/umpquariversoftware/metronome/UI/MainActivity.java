@@ -738,17 +738,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void createLocalResources() {
-        mLocalPattern.add(new FirebasePattern("1 Beat (Local)", "01"));
-        mLocalPattern.add(new FirebasePattern("2 Beat (Local)", "0102"));
-        mLocalPattern.add(new FirebasePattern("3 Beat (Local)", "010102"));
-        mLocalPattern.add(new FirebasePattern("4 Beat (Local)", "01010102"));
+        mLocalPattern.add(new FirebasePattern(getResources().getString(R.string.one_beat_pattern_local), "01"));
+        mLocalPattern.add(new FirebasePattern(getResources().getString(R.string.two_beat_pattern_local), "0102"));
+        mLocalPattern.add(new FirebasePattern(getResources().getString(R.string.three_beat_pattern_local), "010102"));
+        mLocalPattern.add(new FirebasePattern(getResources().getString(R.string.four_beat_pattern_local), "01010102"));
 
         mLocalKits.add(new FirebaseKit("Standard Kit (Local)", "030405060708090A"));
 
-        mLocalJams.add(new FirebaseJam("1 Beat Jam (Local)", 90, "030405060708090A", "01"));
-        mLocalJams.add(new FirebaseJam("2 Beat Jam (Local)", 90, "030405060708090A", "0102"));
-        mLocalJams.add(new FirebaseJam("3 Beat Jam (Local)", 90, "030405060708090A", "010102"));
-        mLocalJams.add(new FirebaseJam("4 Beat Jam (Local)", 90, "030405060708090A", "01010102"));
+        mLocalJams.add(new FirebaseJam(getResources().getString(R.string.one_beat_jam_local), 90, "030405060708090A", "01"));
+        mLocalJams.add(new FirebaseJam(getResources().getString(R.string.two_beat_jam_local), 90, "030405060708090A", "0102"));
+        mLocalJams.add(new FirebaseJam(getResources().getString(R.string.three_beat_jam_local), 90, "030405060708090A", "010102"));
+        mLocalJams.add(new FirebaseJam(getResources().getString(R.string.four_beat_jam_local), 90, "030405060708090A", "01010102"));
     }
 
     public void setupToolbar() {
@@ -1015,8 +1015,8 @@ public class MainActivity extends AppCompatActivity {
         mPatterns.addAll(mLocalPattern);
         mJams.addAll(mLocalJams);
 
-        Kit kit = new Kit("name", mJams.get(0).getKit(), mContext);
-        Pattern pattern = new Pattern("name", mJams.get(0).getPattern(), mContext);
+        Kit kit = new Kit(getResources().getString(R.string.name), mJams.get(0).getKit(), mContext);
+        Pattern pattern = new Pattern(getResources().getString(R.string.name), mJams.get(0).getPattern(), mContext);
         int tempo = mJams.get(0).getTempo();
         String name = mJams.get(0).getName();
         mJam.setKit(kit);
@@ -1328,7 +1328,6 @@ public class MainActivity extends AppCompatActivity {
                 if (networkIsConnected && userIsLoggedIn) {
                     Intent i = new Intent(this, PatternEditor.class);
                     i.putExtra("userID", userID);
-                    Log.e("MainActivity", "userID: " + userID);
                     startActivity(i);
                 } else {
                     Toast.makeText(mContext, R.string.network_required, Toast.LENGTH_LONG).show();
@@ -1339,7 +1338,6 @@ public class MainActivity extends AppCompatActivity {
                 if (networkIsConnected && userIsLoggedIn) {
                     Intent i = new Intent(this, KitEditor.class);
                     i.putExtra("userID", userID);
-                    Log.e("MainActivity", "userID: " + userID);
                     startActivity(i);
                 } else {
                     Toast.makeText(mContext, R.string.network_required, Toast.LENGTH_LONG).show();
@@ -1360,7 +1358,6 @@ public class MainActivity extends AppCompatActivity {
         final Dialog dialog = new Dialog(mContext);
 
         dialog.setContentView(R.layout.alert_dialog);
-        dialog.setTitle("EXISTS!");
 
         TextView alertText = (TextView) dialog.findViewById(R.id.alertText);
         alertText.setText(text1);
@@ -1416,7 +1413,7 @@ public class MainActivity extends AppCompatActivity {
                             Kit kit = new Kit(newFbj.getSignature(), newFbj.getKit(), mContext);
 
                             Jam jam = new Jam();
-                            jam.setName("Downloaded Jam | " + newFbj.getSignature().substring(newFbj.getSignature().length() - 6));
+                            jam.setName(getResources().getString(R.string.downloaded_jam) + " " + newFbj.getSignature().substring(newFbj.getSignature().length() - 6));
                             jam.setTempo(tempo);
                             jam.setPattern(pattern);
                             jam.setKit(kit);

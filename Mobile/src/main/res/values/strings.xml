@@ -29,4 +29,14 @@
     <string name="enter_jam_id">Enter the Jam ID</string>
     <string name="save_jam_to_cloud">Save Jam to Cloud</string>
     <string name="give_jam_a_name">Enter a name for your jam:</string>
+    <string name="one_beat_pattern_local">1 Beat (Local)</string>
+    <string name="two_beat_pattern_local">2 Beat (Local)</string>
+    <string name="three_beat_pattern_local">3 Beat (Local)</string>
+    <string name="four_beat_pattern_local">4 Beat (Local)</string>
+    <string name="one_beat_jam_local">1 Beat Jam (Local)</string>
+    <string name="two_beat_jam_local">2 Beat Jam (Local)</string>
+    <string name="three_beat_jam_local">3 Beat Jam (Local)</string>
+    <string name="four_beat_jam_local">4 Beat Jam (Local)</string>
+    <string name="name">name</string>
+    <string name="downloaded_jam">Downloaded Jam :</string>
 </resources>

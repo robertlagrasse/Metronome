@@ -426,14 +426,12 @@ public class PatternEditor extends AppCompatActivity {
         final Dialog dialog = new Dialog(mContext);
 
         dialog.setContentView(R.layout.alert_dialog);
-        dialog.setTitle("EXISTS!");
 
         TextView alertText = (TextView) dialog.findViewById(R.id.alertText);
         alertText.setText(text1);
 
         TextView alertText2 = (TextView) dialog.findViewById(R.id.alertText2);
         alertText2.setText(text2);
-
 
         Button okButton = (Button) dialog.findViewById(R.id.alertOK);
         okButton.setOnClickListener(new View.OnClickListener() {

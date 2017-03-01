@@ -78,7 +78,6 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
         mContext = this;
         userID = getIntent().getStringExtra("userID");
 
-        Log.e("KitEditor", "userID: " + userID);
         /**
          * Point the cursor at the first item in the component database
          * Use that row to build a component.
@@ -335,7 +334,6 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
         final Dialog dialog = new Dialog(mContext);
 
         dialog.setContentView(R.layout.alert_dialog);
-        dialog.setTitle("EXISTS!");
 
         TextView alertText = (TextView) dialog.findViewById(R.id.alertText);
         alertText.setText(text1);
