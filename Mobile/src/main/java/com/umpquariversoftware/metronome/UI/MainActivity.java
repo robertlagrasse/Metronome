@@ -88,11 +88,8 @@ import static com.umpquariversoftware.metronome.database.dbContract.*;
 
 public class MainActivity extends AppCompatActivity {
     private Jam mJam = new Jam();
-    @SuppressWarnings("unused")
-    private Boolean beatServiceRunning = false;
     private static Boolean networkIsConnected;
     private static Boolean userIsLoggedIn;
-    private Toolbar toolbar;
     private Context mContext;
     private String userID = "this_user";
     private final int TEMPO_OFFSET = 30; // Seekbar starts at 0. Offset calibrates to minimum tempo.
@@ -144,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             launchBeatService();
-            beatServiceRunning = true;
+            Boolean beatServiceRunning = true;
         }
 
         mContext = this;
@@ -674,7 +671,7 @@ public class MainActivity extends AppCompatActivity {
          * or the network is offline.
          * */
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         ImageView searchForSharedJamButton = (ImageView) findViewById(R.id.searchForSharedJamButton);
