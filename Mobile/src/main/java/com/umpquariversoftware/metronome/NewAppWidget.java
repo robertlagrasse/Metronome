@@ -15,12 +15,12 @@ import java.util.ArrayList;
  * Implementation of App Widget functionality.
  */
 public class NewAppWidget extends AppWidgetProvider {
-    static String WIDGET_RECEIVER_INTENT = "com.umpquariversoftware.metronome.STARTSTOP";
+    private static String WIDGET_RECEIVER_INTENT = "com.umpquariversoftware.metronome.STARTSTOP";
 
 
     // This acts like a list adapter/viewholder
-    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
-                                int appWidgetId) {
+    private static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
+                                        int appWidgetId) {
 
         Log.e("NewAppWidget", "called updateAppWidget()");
         CharSequence widgetText = context.getString(R.string.appwidget_text);
@@ -77,7 +77,7 @@ public class NewAppWidget extends AppWidgetProvider {
         // Enter relevant functionality for when the last widget is disabled
     }
 
-    protected static PendingIntent getPendingSelfIntent(Context context, Boolean fab) {
+    private static PendingIntent getPendingSelfIntent(Context context, Boolean fab) {
         Intent intent = new Intent(WIDGET_RECEIVER_INTENT);
         intent.putExtra("widget", true);
         intent.putExtra("fab", fab);

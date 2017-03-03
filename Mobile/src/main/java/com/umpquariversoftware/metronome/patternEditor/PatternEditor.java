@@ -61,15 +61,16 @@ import static com.umpquariversoftware.metronome.database.dbContract.buildPattern
  * **/
 
 public class PatternEditor extends AppCompatActivity {
-    int currentBeat = 1;
-    Pattern pattern = new Pattern("New Pattern", "01", null);
-    Beat beat = new Beat();
-    Context mContext;
-    String userID = "";
-    Toolbar toolbar;
-    Boolean mMasterListSearchResultsBack = false;
-    Boolean mUserListSearchResultsBack = false;
-    FirebasePattern mUserListPattern, mMasterListPattern;
+    private int currentBeat = 1;
+    private Pattern pattern = new Pattern("New Pattern", "01", null);
+    private Beat beat = new Beat();
+    private Context mContext;
+    private String userID = "";
+    private Toolbar toolbar;
+    private Boolean mMasterListSearchResultsBack = false;
+    private Boolean mUserListSearchResultsBack = false;
+    private FirebasePattern mUserListPattern;
+    private FirebasePattern mMasterListPattern;
 
 
     @Override
@@ -131,7 +132,7 @@ public class PatternEditor extends AppCompatActivity {
         graph.addSeries(series);
     }
 
-    public void setupToolbar() {
+    private void setupToolbar() {
         /**
          * Build buttons and onClick listeners
          * */
@@ -420,7 +421,7 @@ public class PatternEditor extends AppCompatActivity {
         mAdView.loadAd(adRequest);
     }
 
-    void check(String signature) {
+    private void check(String signature) {
         /**
          * Search for the pattern in the user and master tables.
          * If found, alert
@@ -490,7 +491,7 @@ public class PatternEditor extends AppCompatActivity {
                 });
     }
 
-    void alert(String text1, String text2) {
+    private void alert(String text1, String text2) {
         final Dialog dialog = new Dialog(mContext);
         dialog.setContentView(R.layout.alert_dialog);
 
@@ -513,7 +514,7 @@ public class PatternEditor extends AppCompatActivity {
         dialog.show();
     }
 
-    void askAndInsert() {
+    private void askAndInsert() {
         /**
          * Prompt for Pattern name, insert to patterns/users/userID/{hex signature}
          * **/
