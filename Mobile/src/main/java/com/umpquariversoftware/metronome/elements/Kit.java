@@ -41,7 +41,7 @@ public class Kit {
 
         char[] sig = signature.toCharArray();
         for (int x = 0; x < signature.length(); x += 2) {
-            String pick = new StringBuilder().append(sig[x]).append(sig[x + 1]).toString();
+            String pick = String.valueOf(sig[x]) + sig[x + 1];
             Cursor cursor = context.getContentResolver().query(dbContract.buildComponentUri().buildUpon().appendPath(pick).build(),
                     null,
                     null,

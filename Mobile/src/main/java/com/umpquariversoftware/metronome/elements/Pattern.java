@@ -28,7 +28,7 @@ public class Pattern {
 
         char[] sig = signature.toCharArray();
         for (int x = 0; x < signature.length(); x += 2) {
-            String pick = new StringBuilder().append(sig[x]).append(sig[x + 1]).toString();
+            String pick = String.valueOf(sig[x]) + sig[x + 1];
             Beat beat = new Beat(pick);
             beats.add(beat);
         }
@@ -67,7 +67,7 @@ public class Pattern {
          * Breaks the pattern down, representing each beat as a 2 digit hex value.
          * **/
 
-        String pattern = new String();
+        String pattern = "";
 
         for (int x = 0; x < getLength(); ++x) {
             int total = 0;

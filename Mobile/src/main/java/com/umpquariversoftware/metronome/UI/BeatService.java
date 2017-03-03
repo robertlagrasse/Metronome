@@ -98,7 +98,7 @@ public class BeatService extends IntentService {
          *
          * */
 
-        final ArrayList<Integer> soundIDs = new ArrayList<Integer>();
+        final ArrayList<Integer> soundIDs = new ArrayList<>();
         // Iterate through the kit
 
         for (int x = 0; x < 8; ++x) {
