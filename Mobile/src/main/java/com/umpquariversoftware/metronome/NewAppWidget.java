@@ -77,7 +77,7 @@ public class NewAppWidget extends AppWidgetProvider {
         // Enter relevant functionality for when the last widget is disabled
     }
 
-    private static PendingIntent getPendingSelfIntent(Context context, Boolean fab) {
+    private static PendingIntent getPendingSelfIntent(Context context, @SuppressWarnings("SameParameterValue") Boolean fab) {
         Intent intent = new Intent(WIDGET_RECEIVER_INTENT);
         intent.putExtra("widget", true);
         intent.putExtra("fab", fab);

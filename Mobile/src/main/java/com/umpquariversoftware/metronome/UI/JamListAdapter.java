@@ -43,11 +43,6 @@ public class JamListAdapter extends RecyclerView.Adapter<JamListAdapter.ViewHold
         return firebaseJams.size();
     }
 
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-    }
-
     public static class ViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
         public final TextView name;

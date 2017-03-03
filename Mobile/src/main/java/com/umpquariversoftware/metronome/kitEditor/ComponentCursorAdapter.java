@@ -18,7 +18,7 @@ import com.umpquariversoftware.metronome.database.dbContract;
 
 public class ComponentCursorAdapter extends CursorRecyclerViewAdapter<ComponentCursorAdapter.ViewHolder> {
 
-    public ComponentCursorAdapter(Context context, Cursor cursor) {
+    public ComponentCursorAdapter(Context context, @SuppressWarnings("SameParameterValue") Cursor cursor) {
         super(context, cursor);
     }
 

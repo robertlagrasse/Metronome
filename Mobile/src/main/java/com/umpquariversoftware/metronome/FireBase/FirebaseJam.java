@@ -32,7 +32,7 @@ public class FirebaseJam {
                 .concat(pattern));
     }
 
-    public FirebaseJam(String name, int tempo, String kit, String pattern) {
+    public FirebaseJam(String name, @SuppressWarnings("SameParameterValue") int tempo, @SuppressWarnings("SameParameterValue") String kit, String pattern) {
         this.name = name;
         this.tempo = tempo;
         this.kit = kit;

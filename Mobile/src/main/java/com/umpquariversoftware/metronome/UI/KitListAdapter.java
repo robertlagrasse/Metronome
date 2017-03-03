@@ -57,11 +57,6 @@ public class KitListAdapter extends RecyclerView.Adapter<KitListAdapter.ViewHold
         return firebaseKits.size();
     }
 
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-    }
-
     public static class ViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
         public final TextView component1;

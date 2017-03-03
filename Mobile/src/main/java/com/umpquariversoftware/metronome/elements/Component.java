@@ -20,10 +20,6 @@ public class Component {
         return hexID;
     }
 
-    public void setHexID(String hexID) {
-        this.hexID = hexID;
-    }
-
     public Component() {
         // Empty Constructor
     }
@@ -35,6 +31,7 @@ public class Component {
         this.hexID = cursor.getString(cursor.getColumnIndex(dbContract.ComponentTable.HEXID));
     }
 
+    @SuppressWarnings("unused")
     public Component(int resource) {
         this.resource = resource;
     }
@@ -43,6 +40,7 @@ public class Component {
         return name;
     }
 
+    @SuppressWarnings("unused")
     public void setName(String name) {
         this.name = name;
     }
