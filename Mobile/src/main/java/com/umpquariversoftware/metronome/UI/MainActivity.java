@@ -1443,9 +1443,6 @@ public class MainActivity extends AppCompatActivity {
                 (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         mNSCR = new MainActivity.networkStatusChangeReceiver();
-        registerReceiver(mNSCR,
-                new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         networkIsConnected = activeNetwork != null &&
                 activeNetwork.isConnectedOrConnecting();
@@ -1545,6 +1542,8 @@ public class MainActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
+        registerReceiver(mNSCR,
+                new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
 }

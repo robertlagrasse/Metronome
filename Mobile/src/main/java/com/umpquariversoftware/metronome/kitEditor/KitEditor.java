@@ -65,7 +65,6 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
     private Boolean mMasterListSearchResultsBack = false;
     private Boolean mUserListSearchResultsBack = false;
     private String userID = "";
-    private Toolbar toolbar;
 
     private FirebaseKit mMasterListKit;
     private FirebaseKit mUserListKit;
@@ -122,7 +121,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
          * Buttons and onClick listeners
          * */
 
-        toolbar = (Toolbar) findViewById(R.id.editor_toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.editor_toolbar);
         setSupportActionBar(toolbar);
 
         TextView title = (TextView) findViewById(R.id.activityDisplay);
