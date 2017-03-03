@@ -70,9 +70,8 @@ public class Kit {
         return components;
     }
 
-    public boolean addComponent(Component component) {
+    public void addComponent(Component component) {
         components.add(component);
-        return false;
     }
 
     public boolean replaceComponent(int position, Component component) {
