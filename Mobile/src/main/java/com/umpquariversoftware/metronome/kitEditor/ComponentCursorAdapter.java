@@ -37,7 +37,7 @@ public class ComponentCursorAdapter extends CursorRecyclerViewAdapter<ComponentC
 
     public static class ViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
-        public TextView componentName;
+        public final TextView componentName;
 
         public ViewHolder(View itemView) {
             super(itemView);

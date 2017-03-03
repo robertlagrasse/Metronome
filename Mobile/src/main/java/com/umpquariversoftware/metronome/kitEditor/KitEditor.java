@@ -69,12 +69,12 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
     private FirebaseKit mMasterListKit;
     private FirebaseKit mUserListKit;
 
-    private AudioAttributes audioAttrib = new AudioAttributes.Builder()
+    private final AudioAttributes audioAttrib = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_MEDIA)
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
             .build();
 
-    private SoundPool soundPool = new SoundPool.Builder()
+    private final SoundPool soundPool = new SoundPool.Builder()
             .setAudioAttributes(audioAttrib)
             .setMaxStreams(8)
             .build();

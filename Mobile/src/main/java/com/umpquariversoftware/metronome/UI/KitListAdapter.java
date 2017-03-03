@@ -18,8 +18,8 @@ import java.util.ArrayList;
  */
 
 public class KitListAdapter extends RecyclerView.Adapter<KitListAdapter.ViewHolder> {
-    private Context mContext;
-    private ArrayList<FirebaseKit> firebaseKits;
+    private final Context mContext;
+    private final ArrayList<FirebaseKit> firebaseKits;
 
     public KitListAdapter(ArrayList<FirebaseKit> firebaseKits, Context mContext) {
         super();
@@ -64,15 +64,15 @@ public class KitListAdapter extends RecyclerView.Adapter<KitListAdapter.ViewHold
 
     public static class ViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
-        public TextView component1;
-        public TextView component2;
-        public TextView component3;
-        public TextView component4;
-        public TextView component5;
-        public TextView component6;
-        public TextView component7;
-        public TextView component8;
-        public TextView kitName;
+        public final TextView component1;
+        public final TextView component2;
+        public final TextView component3;
+        public final TextView component4;
+        public final TextView component5;
+        public final TextView component6;
+        public final TextView component7;
+        public final TextView component8;
+        public final TextView kitName;
 
         public ViewHolder(View itemView) {
             super(itemView);

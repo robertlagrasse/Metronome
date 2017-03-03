@@ -15,7 +15,7 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
     private Cursor mCursor;
     private boolean dataIsValid;
     private int rowIdColumn;
-    private DataSetObserver mDataSetObserver;
+    private final DataSetObserver mDataSetObserver;
 
     protected CursorRecyclerViewAdapter(Context context, Cursor cursor) {
         mCursor = cursor;

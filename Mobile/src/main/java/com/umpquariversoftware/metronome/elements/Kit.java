@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class Kit {
 
     private String name;
-    private ArrayList<Component> components;
+    private final ArrayList<Component> components;
     private int databaseID;
 
     public int getDatabaseID() {

@@ -31,6 +31,8 @@ public class dbContract {
                 .build();
     }
 
+    // Weakening access breaks things. LINT is wrong.
+    @SuppressWarnings("WeakerAccess")
     public static Uri buildPatternUri() {
         return CONTENT_AUTHORITY.buildUpon()
                 .appendPath(PatternTable.TABLE_NAME)

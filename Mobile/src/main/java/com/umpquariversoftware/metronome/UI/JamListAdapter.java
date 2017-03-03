@@ -17,7 +17,7 @@ import com.umpquariversoftware.metronome.R;
 import java.util.ArrayList;
 
 public class JamListAdapter extends RecyclerView.Adapter<JamListAdapter.ViewHolder> {
-    private ArrayList<FirebaseJam> firebaseJams;
+    private final ArrayList<FirebaseJam> firebaseJams;
 
     public JamListAdapter(ArrayList<FirebaseJam> firebasejams) {
         super();
@@ -50,7 +50,7 @@ public class JamListAdapter extends RecyclerView.Adapter<JamListAdapter.ViewHold
 
     public static class ViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
-        public TextView name;
+        public final TextView name;
 
         public ViewHolder(View itemView) {
             super(itemView);

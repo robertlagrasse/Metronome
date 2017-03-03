@@ -12,16 +12,16 @@ import java.util.Arrays;
 
 public class Beat {
 
-    private static int FIRST = 0;
-    private static int SECOND = 1;
-    private static int THIRD = 2;
-    private static int FOURTH = 3;
-    private static int FIFTH = 4;
-    private static int SIXTH = 5;
-    private static int SEVENTH = 6;
-    private static int EIGHTH = 7;
+    private static final int FIRST = 0;
+    private static final int SECOND = 1;
+    private static final int THIRD = 2;
+    private static final int FOURTH = 3;
+    private static final int FIFTH = 4;
+    private static final int SIXTH = 5;
+    private static final int SEVENTH = 6;
+    private static final int EIGHTH = 7;
 
-    private Boolean[] beat = new Boolean[8];
+    private final Boolean[] beat = new Boolean[8];
 
     /**
      * Constructor turns all instruments off, except getFirst
