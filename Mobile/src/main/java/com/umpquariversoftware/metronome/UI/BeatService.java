@@ -48,7 +48,6 @@ public class BeatService extends IntentService {
     private static Context mContext;
     private static Jam mJam;
     private static Timer mTimer = new Timer();
-    private static long mJamID = 0;
 
     public BeatService() {
         super("BeatService");
@@ -56,7 +55,7 @@ public class BeatService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        mJamID = intent.getLongExtra("jamID", 0);
+        long mJamID = intent.getLongExtra("jamID", 0);
         mJam = new Jam();
         mJam.setTempo(60);
         mJam.setKit(new Kit("temp", "0102030405060708", mContext));
