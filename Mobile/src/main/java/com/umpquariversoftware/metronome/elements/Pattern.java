@@ -4,13 +4,8 @@ package com.umpquariversoftware.metronome.elements;
  * A pattern is a list of beats of arbitrary length.
  */
 
-import android.content.Context;
-import android.database.Cursor;
-import android.util.Log;
-
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.PointsGraphSeries;
-import com.umpquariversoftware.metronome.database.dbContract;
 
 import java.util.ArrayList;
 
@@ -25,7 +20,7 @@ public class Pattern {
         this.beats.clear();
     }
 
-    public Pattern(String name, String signature, Context context) {
+    public Pattern(String name, String signature) {
         beats = new ArrayList<>();
         beats.clear();
 

@@ -803,7 +803,7 @@ public class MainActivity extends AppCompatActivity {
                     String name = mPatterns.get(position).getName();
                     String signature = mPatterns.get(position).getSignature();
 
-                    Pattern pattern = new Pattern(name, signature, mContext);
+                    Pattern pattern = new Pattern(name, signature);
                     mJam.setPattern(pattern);
                     sendBeatBroadcast(false);
                 }
@@ -890,7 +890,7 @@ public class MainActivity extends AppCompatActivity {
                 if (jamRecyclerView.getFirstVisibleItemPosition() >= 0) {
                     int position = jamRecyclerView.getFirstVisibleItemPosition();
                     Kit kit = new Kit("temp", mJams.get(position).getKit(), mContext);
-                    Pattern pattern = new Pattern("name", mJams.get(position).getPattern(), mContext);
+                    Pattern pattern = new Pattern("name", mJams.get(position).getPattern());
                     int tempo = mJams.get(position).getTempo();
                     mJam.setName(mJams.get(position).getName());
                     mJam.setKit(kit);
@@ -994,7 +994,7 @@ public class MainActivity extends AppCompatActivity {
         mJams.addAll(mLocalJams);
 
         Kit kit = new Kit(getResources().getString(R.string.name), mJams.get(0).getKit(), mContext);
-        Pattern pattern = new Pattern(getResources().getString(R.string.name), mJams.get(0).getPattern(), mContext);
+        Pattern pattern = new Pattern(getResources().getString(R.string.name), mJams.get(0).getPattern());
         int tempo = mJams.get(0).getTempo();
         String name = mJams.get(0).getName();
         mJam.setKit(kit);
@@ -1403,7 +1403,7 @@ public class MainActivity extends AppCompatActivity {
                         FirebaseJam newFbj = dataSnapshot.getValue(FirebaseJam.class);
                         if (newFbj != null) {
                             int tempo = newFbj.getTempo();
-                            Pattern pattern = new Pattern(newFbj.getSignature(), newFbj.getPattern(), mContext);
+                            Pattern pattern = new Pattern(newFbj.getSignature(), newFbj.getPattern());
                             Kit kit = new Kit(newFbj.getSignature(), newFbj.getKit(), mContext);
 
                             Jam jam = new Jam();

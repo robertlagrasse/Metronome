@@ -1,7 +1,6 @@
 package com.umpquariversoftware.metronome.elements;
 
 import android.database.Cursor;
-import android.util.Log;
 
 import com.umpquariversoftware.metronome.database.dbContract;
 

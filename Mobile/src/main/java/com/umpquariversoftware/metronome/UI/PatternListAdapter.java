@@ -44,7 +44,7 @@ public class PatternListAdapter extends RecyclerView.Adapter<PatternListAdapter.
         String name = firebasePatterns.get(position).getName();
         String signature = firebasePatterns.get(position).getSignature();
 
-        Pattern tempPattern = new Pattern(name, signature, mContext);
+        Pattern tempPattern = new Pattern(name, signature);
         PointsGraphSeries<DataPoint> series = new PointsGraphSeries<>();
         //noinspection unchecked
         series = tempPattern.getPatternDataPoints();
@@ -88,6 +88,7 @@ public class PatternListAdapter extends RecyclerView.Adapter<PatternListAdapter.
 
     public static class ViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
+        @SuppressWarnings("unused")
         final CardView patternCardView;
         final GraphView patternGraphView;
         final TextView patternName;

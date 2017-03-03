@@ -21,7 +21,7 @@ public class RecyclerViewItemClickListener implements RecyclerView.OnItemTouchLi
     private final OnItemClickListener listener;
 
     public interface OnItemClickListener {
-        void onItemClick(View v, int position);
+        void onItemClick(@SuppressWarnings("UnusedParameters") View v, int position);
     }
 
     public RecyclerViewItemClickListener(Context context, OnItemClickListener listener) {

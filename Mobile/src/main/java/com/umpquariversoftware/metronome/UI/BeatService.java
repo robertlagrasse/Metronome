@@ -4,32 +4,19 @@ import android.app.IntentService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.Cursor;
 import android.media.AudioAttributes;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.media.SoundPool;
-import android.os.Build;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.umpquariversoftware.metronome.R;
-import com.umpquariversoftware.metronome.database.dbContract;
-import com.umpquariversoftware.metronome.elements.Beat;
 import com.umpquariversoftware.metronome.elements.Component;
 import com.umpquariversoftware.metronome.elements.Jam;
 import com.umpquariversoftware.metronome.elements.Kit;
 import com.umpquariversoftware.metronome.elements.Pattern;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import static com.umpquariversoftware.metronome.database.dbContract.buildJamUri;
-import static com.umpquariversoftware.metronome.database.dbContract.buildKitUri;
-import static com.umpquariversoftware.metronome.database.dbContract.buildPatternUri;
 
 public class BeatService extends IntentService {
     /**
@@ -59,7 +46,7 @@ public class BeatService extends IntentService {
         mJam = new Jam();
         mJam.setTempo(60);
         mJam.setKit(new Kit("temp", "0102030405060708", mContext));
-        mJam.setPattern(new Pattern("temp", "01", mContext));
+        mJam.setPattern(new Pattern("temp", "01"));
     }
 
     @Override
@@ -184,7 +171,7 @@ public class BeatService extends IntentService {
                 if (name == null) {
                     name = mContext.getResources().getString(R.string.no_name);
                 }
-                Pattern pattern = new Pattern("temp", intent.getStringExtra("pattern"), null);
+                Pattern pattern = new Pattern("temp", intent.getStringExtra("pattern"));
                 int tempo = intent.getIntExtra("tempo", 60);
                 Kit kit = new Kit();
 

@@ -3,11 +3,8 @@ package com.umpquariversoftware.metronome.database;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-import com.umpquariversoftware.metronome.elements.Component;
-import com.umpquariversoftware.metronome.elements.Pattern;
-
 /**
- * Created by robert on 1/26/17.
+ * Standard dbContract
  */
 
 public class dbContract {

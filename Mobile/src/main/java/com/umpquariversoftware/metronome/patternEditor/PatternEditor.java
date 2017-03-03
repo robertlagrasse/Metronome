@@ -1,20 +1,13 @@
 package com.umpquariversoftware.metronome.patternEditor;
 
 import android.app.Dialog;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.database.Cursor;
-import android.media.Image;
-import android.net.Uri;
-import android.os.Vibrator;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -33,19 +26,12 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.PointsGraphSeries;
-import com.umpquariversoftware.metronome.FireBase.FirebaseJam;
 import com.umpquariversoftware.metronome.FireBase.FirebasePattern;
 import com.umpquariversoftware.metronome.R;
-import com.umpquariversoftware.metronome.database.dbContract;
 import com.umpquariversoftware.metronome.elements.Beat;
 import com.umpquariversoftware.metronome.elements.Pattern;
 
 import java.util.ArrayList;
-
-import static com.umpquariversoftware.metronome.R.id.patternBeatNew;
-import static com.umpquariversoftware.metronome.R.id.patternName;
-import static com.umpquariversoftware.metronome.database.dbContract.buildPatternBySignatureURI;
-import static com.umpquariversoftware.metronome.database.dbContract.buildPatternUri;
 
 /**
  * PatternEditor is an activity that allows the user to define their own pattern.
@@ -62,7 +48,7 @@ import static com.umpquariversoftware.metronome.database.dbContract.buildPattern
 
 public class PatternEditor extends AppCompatActivity {
     private int currentBeat = 1;
-    private final Pattern pattern = new Pattern("New Pattern", "01", null);
+    private final Pattern pattern = new Pattern("New Pattern", "01");
     private Beat beat = new Beat();
     private Context mContext;
     private String userID = "";

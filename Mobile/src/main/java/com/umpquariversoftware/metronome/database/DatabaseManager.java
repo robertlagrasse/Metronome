@@ -3,11 +3,9 @@ package com.umpquariversoftware.metronome.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.net.Uri;
-import android.util.Log;
 
 /**
- * Created by robert on 1/26/17.
+ * Standard DatabaseManager
  */
 
 class DatabaseManager extends SQLiteOpenHelper {

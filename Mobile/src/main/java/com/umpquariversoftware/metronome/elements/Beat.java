@@ -1,7 +1,5 @@
 package com.umpquariversoftware.metronome.elements;
 
-import android.util.Log;
-
 import java.util.Arrays;
 
 /**

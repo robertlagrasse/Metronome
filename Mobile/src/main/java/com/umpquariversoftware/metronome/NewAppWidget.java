@@ -9,8 +9,6 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import java.util.ArrayList;
-
 /**
  * Implementation of App Widget functionality.
  */

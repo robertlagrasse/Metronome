@@ -2,12 +2,9 @@ package com.umpquariversoftware.metronome.elements;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 
 import com.umpquariversoftware.metronome.database.dbContract;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 /**
