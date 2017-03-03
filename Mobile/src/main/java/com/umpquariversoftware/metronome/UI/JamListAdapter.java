@@ -28,8 +28,7 @@ public class JamListAdapter extends RecyclerView.Adapter<JamListAdapter.ViewHold
     public JamListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.control_panel, parent, false);
-        JamListAdapter.ViewHolder vh = new JamListAdapter.ViewHolder(itemView);
-        return vh;
+        return new ViewHolder(itemView);
     }
 
     @Override

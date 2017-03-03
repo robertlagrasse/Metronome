@@ -99,6 +99,7 @@ public class PatternEditor extends AppCompatActivity {
         graph.removeAllSeries();
 
         PointsGraphSeries<DataPoint> series = new PointsGraphSeries<>();
+        //noinspection unchecked,unchecked
         series = pattern.getPatternDataPoints();
 
         graph.getViewport().setXAxisBoundsManual(true);

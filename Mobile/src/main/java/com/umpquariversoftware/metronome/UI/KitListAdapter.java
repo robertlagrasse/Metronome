@@ -31,8 +31,7 @@ public class KitListAdapter extends RecyclerView.Adapter<KitListAdapter.ViewHold
     public KitListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.kit_chooser, parent, false);
-        KitListAdapter.ViewHolder vh = new KitListAdapter.ViewHolder(itemView);
-        return vh;
+        return new ViewHolder(itemView);
     }
 
     @Override

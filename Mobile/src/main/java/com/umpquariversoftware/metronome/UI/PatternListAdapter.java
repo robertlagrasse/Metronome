@@ -36,8 +36,7 @@ public class PatternListAdapter extends RecyclerView.Adapter<PatternListAdapter.
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.pattern_chooser, parent, false);
-        ViewHolder vh = new ViewHolder(itemView);
-        return vh;
+        return new ViewHolder(itemView);
     }
 
     @Override
@@ -47,6 +46,7 @@ public class PatternListAdapter extends RecyclerView.Adapter<PatternListAdapter.
 
         Pattern tempPattern = new Pattern(name, signature, mContext);
         PointsGraphSeries<DataPoint> series = new PointsGraphSeries<>();
+        //noinspection unchecked
         series = tempPattern.getPatternDataPoints();
 
         viewHolder.patternGraphView.getViewport().setXAxisBoundsManual(true);
