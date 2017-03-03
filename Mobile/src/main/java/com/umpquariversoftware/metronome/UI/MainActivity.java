@@ -88,42 +88,43 @@ import static com.umpquariversoftware.metronome.database.dbContract.*;
 
 public class MainActivity extends AppCompatActivity {
     String TAG = "MainActivity";
-    Jam mJam = new Jam();
-    Boolean beatServiceRunning = false;
-    static Boolean networkIsConnected;
-    static Boolean userIsLoggedIn;
-    Toolbar toolbar;
-    Context mContext;
-    String userID = "this_user";
-    final int TEMPO_OFFSET = 30; // Seekbar starts at 0. Offset calibrates to minimum tempo.
+    private Jam mJam = new Jam();
+    private Boolean beatServiceRunning = false;
+    private static Boolean networkIsConnected;
+    private static Boolean userIsLoggedIn;
+    private Toolbar toolbar;
+    private Context mContext;
+    private String userID = "this_user";
+    private final int TEMPO_OFFSET = 30; // Seekbar starts at 0. Offset calibrates to minimum tempo.
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
-    ArrayList<FirebasePattern> mPatterns = new ArrayList<>();
-    ArrayList<FirebasePattern> mMasterPatterns = new ArrayList<>();
-    ArrayList<FirebasePattern> mUserPatterns = new ArrayList<>();
-    ArrayList<FirebasePattern> mLocalPattern = new ArrayList<>();
+    private ArrayList<FirebasePattern> mPatterns = new ArrayList<>();
+    private ArrayList<FirebasePattern> mMasterPatterns = new ArrayList<>();
+    private ArrayList<FirebasePattern> mUserPatterns = new ArrayList<>();
+    private ArrayList<FirebasePattern> mLocalPattern = new ArrayList<>();
 
-    ArrayList<FirebaseKit> mKits = new ArrayList<>();
-    ArrayList<FirebaseKit> mUserKits = new ArrayList<>();
-    ArrayList<FirebaseKit> mMasterKits = new ArrayList<>();
-    ArrayList<FirebaseKit> mLocalKits = new ArrayList<>();
+    private ArrayList<FirebaseKit> mKits = new ArrayList<>();
+    private ArrayList<FirebaseKit> mUserKits = new ArrayList<>();
+    private ArrayList<FirebaseKit> mMasterKits = new ArrayList<>();
+    private ArrayList<FirebaseKit> mLocalKits = new ArrayList<>();
 
-    ArrayList<FirebaseJam> mJams = new ArrayList<>();
-    ArrayList<FirebaseJam> mUserJams = new ArrayList<>();
-    ArrayList<FirebaseJam> mMasterJams = new ArrayList<>();
-    ArrayList<FirebaseJam> mLocalJams = new ArrayList<>();
+    private ArrayList<FirebaseJam> mJams = new ArrayList<>();
+    private ArrayList<FirebaseJam> mUserJams = new ArrayList<>();
+    private ArrayList<FirebaseJam> mMasterJams = new ArrayList<>();
+    private ArrayList<FirebaseJam> mLocalJams = new ArrayList<>();
 
-    PatternListAdapter mPatternListAdapter;
-    KitListAdapter mKitListAdapter;
-    JamListAdapter mJamListAdapter;
+    private PatternListAdapter mPatternListAdapter;
+    private KitListAdapter mKitListAdapter;
+    private JamListAdapter mJamListAdapter;
 
-    Boolean mMasterListSearchResultsBack = false;
-    Boolean mUserListSearchResultsBack = false;
-    FirebaseJam mUserListJam, mMasterListJam;
+    private Boolean mMasterListSearchResultsBack = false;
+    private Boolean mUserListSearchResultsBack = false;
+    private FirebaseJam mUserListJam;
+    private FirebaseJam mMasterListJam;
 
-    networkStatusChangeReceiver mNSCR;
+    private networkStatusChangeReceiver mNSCR;
 
     private static final int RC_SIGN_IN = 69;
 
@@ -647,7 +648,7 @@ public class MainActivity extends AppCompatActivity {
         startService(i);
     }
 
-    void createLocalResources() {
+    private void createLocalResources() {
         /**
          * Creates 4 patterns, 1 kit, and 4 Jams which are accessible to the user offline
          * */
@@ -665,7 +666,7 @@ public class MainActivity extends AppCompatActivity {
         mLocalJams.add(new FirebaseJam(getResources().getString(R.string.four_beat_jam_local), 90, "030405060708090A", "01010102"));
     }
 
-    public void setupToolbar() {
+    private void setupToolbar() {
         /**
          * Setup the toolbar and associated onClick listeners.
          * Online features disappear if the user isn't logged in
@@ -730,7 +731,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void tempoChooser() {
+    private void tempoChooser() {
         /**
          * Setup the tempo slider for user input.
          * TEMPO_OFFSET adjusts range. Set this to the minimum tempo
@@ -764,7 +765,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    void patternChooser() {
+    private void patternChooser() {
 
         /**
          * Setup recyclerView that allows user to select pattern.
@@ -809,7 +810,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    void kitChooser() {
+    private void kitChooser() {
         /**
          * setup recyclerView to allow user to change kit.
          * onScrollListener responds and reports position when changed. No click required.
@@ -854,7 +855,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    void jamChooser() {
+    private void jamChooser() {
 
         /**
          * setup recyclerView that allows user to select Jam.
@@ -943,7 +944,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void actionButton() {
+    private void actionButton() {
         /**
          * Setup Floating Action Button to start/stop metronome.
          * **/
@@ -958,7 +959,7 @@ public class MainActivity extends AppCompatActivity {
         startstop.setContentDescription(getResources().getString(R.string.start_or_stop));
     }
 
-    public void getThatMoney(){
+    private void getThatMoney(){
         /**
          * Setup AdMobs
          * **/
@@ -972,7 +973,7 @@ public class MainActivity extends AppCompatActivity {
         mAdView.loadAd(adRequest);
     }
 
-    void grabData() {
+    private void grabData() {
         /**
          * Assemble arrayLists of Local Data, Master Data, and User Data for
          * Patterns, Kits, and Jams. Master and User data comes from Firebase.
@@ -1198,7 +1199,7 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    public void sendBeatBroadcast(boolean fab) {
+    private void sendBeatBroadcast(boolean fab) {
         /**
          * Send a message to the BeatService with new parameters.
          * Boolean tells the service if the start/stop has been pushed,
@@ -1227,7 +1228,7 @@ public class MainActivity extends AppCompatActivity {
      * Toolbar Functions
      */
 
-    public void shareJam() {
+    private void shareJam() {
         /**
          * Fires off a basic share intent with the hex signature of the current Jam.
          * Receiving party can search for this jam and replicate it on their end.
@@ -1246,7 +1247,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(Intent.createChooser(emailIntent, "Send email..."));
     }
 
-    void sendJamToFirebase() {
+    private void sendJamToFirebase() {
         /**
          * Send the current Jam to the users's firebase account.
          * First checks to make sure the Jam isn't already there.
@@ -1337,7 +1338,7 @@ public class MainActivity extends AppCompatActivity {
      * Utilities/Pushing data around
      */
 
-    void alert(String text1, String text2) {
+    private void alert(String text1, String text2) {
         /**
          * Basic Alert Dialog
          * */
@@ -1362,7 +1363,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    void askAndInsert() {
+    private void askAndInsert() {
         /**
          * Queries for a name and saves jam to firebase using that name.
          * */
@@ -1387,7 +1388,7 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
-    public void addSharedJamFromFirebase(String signature) {
+    private void addSharedJamFromFirebase(String signature) {
         /**
          * Writes a Jam to the shared firebase folder.
          * */
@@ -1432,7 +1433,7 @@ public class MainActivity extends AppCompatActivity {
         outState.putString("jamSignature", new FirebaseJam(mJam).getSignature());
     }
 
-    public void setupNetworkMonitor(){
+    private void setupNetworkMonitor(){
         /**
          * Watches network state. Changes member level Boolean networkIsConnected if anything
          * changes.
@@ -1450,7 +1451,7 @@ public class MainActivity extends AppCompatActivity {
                 activeNetwork.isConnectedOrConnecting();
     }
 
-    public void authenticateUser(){
+    private void authenticateUser(){
 
         /**
          * Authenticates user, and watches for changes.
