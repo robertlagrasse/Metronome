@@ -1,7 +1,7 @@
 package com.umpquariversoftware.metronome.elements;
 
 /**
- * Created by robert on 1/26/17.
+ * A pattern is a list of beats of arbitrary length.
  */
 
 import android.content.Context;
@@ -17,15 +17,6 @@ import java.util.ArrayList;
 public class Pattern {
     private String name;
     private ArrayList<Beat> beats;
-    private int databaseID;
-
-    public int getDatabaseID() {
-        return databaseID;
-    }
-
-    public void setDatabaseID(int databaseID) {
-        this.databaseID = databaseID;
-    }
 
     public Pattern() {
         this.name = "New Pattern";
@@ -62,7 +53,6 @@ public class Pattern {
 
     public Beat getBeat(int number) {
         return beats.get(number);
-
     }
 
     public int getLength() {
@@ -74,6 +64,9 @@ public class Pattern {
     }
 
     public String getPatternHexSignature() {
+        /**
+         * Breaks the pattern down, representing each beat as a 2 digit hex value.
+         * **/
 
         String pattern = new String();
 
@@ -109,6 +102,9 @@ public class Pattern {
     }
 
     public PointsGraphSeries getPatternDataPoints() {
+        /**
+         * Provides a series of datapoints suitable for graphing.
+         * */
 
         PointsGraphSeries<DataPoint> series = new PointsGraphSeries<>();
 
@@ -146,7 +142,6 @@ public class Pattern {
     }
 
     public void removeBeat(int position) {
-
         this.beats.remove(position);
     }
 

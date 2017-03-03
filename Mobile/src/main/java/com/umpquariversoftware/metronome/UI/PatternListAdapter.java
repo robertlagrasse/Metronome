@@ -19,13 +19,12 @@ import com.umpquariversoftware.metronome.elements.Pattern;
 import java.util.ArrayList;
 
 /**
- * Created by robert on 2/21/17.
+ * Basic arraylist adapter
  */
 
 public class PatternListAdapter extends RecyclerView.Adapter<PatternListAdapter.ViewHolder> {
     private Context mContext;
     private ArrayList<FirebasePattern> firebasePatterns;
-
 
     public PatternListAdapter(ArrayList<FirebasePattern> firebasePatterns, Context mContext) {
         super();
@@ -43,7 +42,6 @@ public class PatternListAdapter extends RecyclerView.Adapter<PatternListAdapter.
 
     @Override
     public void onBindViewHolder(PatternListAdapter.ViewHolder viewHolder, int position) {
-
         String name = firebasePatterns.get(position).getName();
         String signature = firebasePatterns.get(position).getSignature();
 

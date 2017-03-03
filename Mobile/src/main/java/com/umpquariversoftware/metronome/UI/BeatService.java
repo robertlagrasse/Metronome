@@ -14,6 +14,7 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.umpquariversoftware.metronome.R;
 import com.umpquariversoftware.metronome.database.dbContract;
 import com.umpquariversoftware.metronome.elements.Beat;
 import com.umpquariversoftware.metronome.elements.Component;
@@ -31,13 +32,23 @@ import static com.umpquariversoftware.metronome.database.dbContract.buildKitUri;
 import static com.umpquariversoftware.metronome.database.dbContract.buildPatternUri;
 
 public class BeatService extends IntentService {
+    /**
+     * The beat service runs the timer that makes the beats happen.
+     * This persists the timer beyond the normal activity lifecycle,
+     * and keeps things a little more stable as the user hops in and
+     * out of the UI. This is typical behavior for someone using a
+     * metronome application - fire up the metronome, then flip to
+     * another app to look at the music they're going to play.
+     *
+     * Activites that want to interact with the timer do so thorough a
+     * broadcast receiver.
+     * */
 
     private static Boolean isRunning = false;
     private static Context mContext;
     private static Jam mJam;
     static Timer mTimer = new Timer();
     private static long mJamID = 0;
-
 
     public BeatService() {
         super("BeatService");
@@ -50,13 +61,11 @@ public class BeatService extends IntentService {
         mJam.setTempo(60);
         mJam.setKit(new Kit("temp", "0102030405060708", mContext));
         mJam.setPattern(new Pattern("temp", "01", mContext));
-
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-
         isRunning = false;
         mContext = getApplicationContext();
     }
@@ -75,6 +84,9 @@ public class BeatService extends IntentService {
     }
 
     private static void startTimer() {
+        /**
+         * This is where the magic happens.
+         * **/
         isRunning = true;
         int PRIORITY = 1;
 
@@ -118,14 +130,12 @@ public class BeatService extends IntentService {
          * Setup the timer
          * */
 
-        TimerTask tt = null;
-        tt = new TimerTask() {
+        TimerTask tt = new TimerTask() {
             int position = 0;
 
             @Override
             public void run() {
                 {
-
                     if (position == mJam.getPattern().getLength()) {
                         position = 0;
                     }
@@ -137,7 +147,6 @@ public class BeatService extends IntentService {
                      * If the beat is true, the corresponding soundID
                      * from the array list is played.
                      * */
-
 
                     for (int x = 0; x < 8; ++x) {
                         if (mJam.getPattern().getBeat(position).getPosition(x)) {
@@ -163,22 +172,23 @@ public class BeatService extends IntentService {
     }
 
     public static class startStopReceiver extends BroadcastReceiver {
+        /**
+         * Receive jam information via intent extras.
+         * Modify mJam.
+         * Decide what to do with the timer based on whether or not this was a fab call.
+         * */
 
         public startStopReceiver() {
         }
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.e("BeatService", "startStopReceiver/onReceive()");
             Boolean widget = intent.getBooleanExtra("widget", false);
 
             if (!widget) {
-
-                Log.e("BeatService", "startStopReceiver onReceive() intent.getStringExtra(\"jamName\") " + intent.getStringExtra("jamName"));
-
                 String name = intent.getStringExtra("jamName");
                 if (name == null) {
-                    name = "No name sent";
+                    name = mContext.getResources().getString(R.string.no_name);
                 }
                 Pattern pattern = new Pattern("temp", intent.getStringExtra("pattern"), null);
                 int tempo = intent.getIntExtra("tempo", 60);
@@ -203,8 +213,6 @@ public class BeatService extends IntentService {
             if (mJam == null || mJam.getKit() == null || mJam.getPattern() == null) {
                 Log.e("startStopReceiver", "Service not running.");
             } else {
-
-                Log.e("BeatService", "onReceive Broadcasting APPWIDGET_UPDATE");
                 String ACTION_DATA_UPDATED =
                         "android.appwidget.action.APPWIDGET_UPDATE";
 
@@ -214,7 +222,6 @@ public class BeatService extends IntentService {
                 context.sendBroadcast(dataUpdatedIntent);
 
                 Boolean fab = intent.getBooleanExtra("fab", false);
-
                 if (fab) {
                     flip();
                 } else {
@@ -225,5 +232,4 @@ public class BeatService extends IntentService {
             }
         }
     }
-
 }

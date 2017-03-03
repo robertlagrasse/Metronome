@@ -1,5 +1,9 @@
 package com.umpquariversoftware.metronome.elements;
 
+/**
+ * A Jam is what the user ultimately creates. It's a combination of a kit, pattern, and tempo.
+ * **/
+
 public class Jam {
     Kit kit;
     Pattern pattern;

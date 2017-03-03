@@ -14,19 +14,17 @@ import com.umpquariversoftware.metronome.elements.Kit;
 import java.util.ArrayList;
 
 /**
- * Created by robert on 2/21/17.
+ * Basic ArrayList Adapter
  */
 
 public class KitListAdapter extends RecyclerView.Adapter<KitListAdapter.ViewHolder> {
     private Context mContext;
     private ArrayList<FirebaseKit> firebaseKits;
 
-
     public KitListAdapter(ArrayList<FirebaseKit> firebaseKits, Context mContext) {
         super();
         this.mContext = mContext;
         this.firebaseKits = firebaseKits;
-
     }
 
     @Override
@@ -39,7 +37,6 @@ public class KitListAdapter extends RecyclerView.Adapter<KitListAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(KitListAdapter.ViewHolder viewHolder, int position) {
-
         String name = firebaseKits.get(position).getName();
         String signature = firebaseKits.get(position).getSignature();
 
@@ -78,7 +75,6 @@ public class KitListAdapter extends RecyclerView.Adapter<KitListAdapter.ViewHold
         public TextView component8;
         public TextView kitName;
 
-
         public ViewHolder(View itemView) {
             super(itemView);
             component1 = (TextView) itemView.findViewById(R.id.component1);
@@ -96,5 +92,4 @@ public class KitListAdapter extends RecyclerView.Adapter<KitListAdapter.ViewHold
         public void onClick(View view) {
         }
     }
-
 }

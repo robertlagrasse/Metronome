@@ -9,7 +9,9 @@ import android.util.AttributeSet;
 import android.view.View;
 
 /**
- * Created by robert on 2/1/17.
+ * Pulled this from stackoverflow.
+ * This extension of RecyclerView "snaps" to the first visible position and
+ * reports that back, which is pretty handy for my build.
  */
 
 // From: http://stackoverflow.com/a/37816976

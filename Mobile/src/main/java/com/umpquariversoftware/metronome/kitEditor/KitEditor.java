@@ -44,6 +44,16 @@ import java.util.ArrayList;
 import static com.umpquariversoftware.metronome.database.dbContract.buildAllComponentsUri;
 import static com.umpquariversoftware.metronome.database.dbContract.buildComponentByDbIDUri;
 
+/**
+ * KitEditor is an activity that allows the user to build their own kit.
+ * 8 RecyclerViews are built and populated from the components table
+ * Each of these recycerViews represents a specific component in the overall 8 piece kit.
+ * Scrolling to the item assigns it to the kit. Tapping the item plays the associated sound
+ *
+ * Kits saved in this activity go straight to firebase. The mainActivity pulls updates
+ * from Firebase.
+ * **/
+
 public class KitEditor extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     final int COMPONENT_LOADER_ID = 4;
@@ -78,6 +88,12 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
         mContext = this;
         userID = getIntent().getStringExtra("userID");
 
+        /**
+         * Pull the first row from the database, and build a kit with
+         * all 8 components built from the data in that row.
+         * This is our starting point
+         * **/
+
         Cursor cursor = getContentResolver().query(dbContract.buildComponentByDbIDUri(1),
                 null,
                 null,
@@ -89,27 +105,21 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
         for (int x = 0; x < 8; ++x) {
             mKit.addComponent(component);
         }
+
+        /**
+         * Setup the UI
+         * */
         setupToolbar();
         setupComponentChooser();
         setupFab();
-
-
-        /**
-         * Get that money!
-         * */
-
-        // MobileAds.initialize(getApplicationContext(), "ca-app-pub-8040545141030965~5491821531");
-
-        AdView mAdView = (AdView) findViewById(R.id.adView);
-
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("74D61A4429900485751F374428FB6C95")
-                .build();
-        mAdView.loadAd(adRequest);
+        getThatMoney();
 
     }
 
     public void setupToolbar() {
+        /**
+         * Buttons and onClick listeners
+         * */
 
         toolbar = (Toolbar) findViewById(R.id.editor_toolbar);
         setSupportActionBar(toolbar);
@@ -129,6 +139,9 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
     }
 
     public void setupFab() {
+        /**
+         * Setup Fab/click listener
+         * */
         FloatingActionButton fab;
         fab = (FloatingActionButton) findViewById(R.id.kitEditorButton);
         fab.setContentDescription(getResources().getString(R.string.save_kit_to_cloud));
@@ -141,19 +154,31 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
         });
     }
 
-    public void playSound(Component component) {
-        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
-            @Override
-            public void onLoadComplete(SoundPool soundPool, int i, int i1) {
-                soundPool.play(i, 1, 1, 1, 0, 1);
-            }
-        });
-        soundPool.load(mContext, component.getResource(), 1);
+    public void getThatMoney(){
+        /**
+         * Setup adMobs.
+         * */
+        // MobileAds.initialize(getApplicationContext(), "ca-app-pub-8040545141030965~5491821531");
+
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("74D61A4429900485751F374428FB6C95")
+                .build();
+        mAdView.loadAd(adRequest);
     }
 
     public void setupComponentChooser() {
-        getLoaderManager().initLoader(COMPONENT_LOADER_ID, null, this);
+        /**
+         * We're setting up 8 recyclerViews that all feed from through the same
+         * cursor adapter. The only difference between them is the position
+         * in the kit they represent.
+         *
+         * Rather than repeat code over and over again, I just built an arrayList
+         * and built 8 of the RV's in a for loop.
+         * */
 
+        getLoaderManager().initLoader(COMPONENT_LOADER_ID, null, this);
         mComponentCursorAdapter = new ComponentCursorAdapter(this, null);
 
         ArrayList<View> components = new ArrayList<>();
@@ -224,7 +249,19 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
         for (int x = 0; x < 8; ++x) {
             snappyRecyclerViews.get(x).scrollToPosition(mComponentCount);
         }
+    }
 
+    public void playSound(Component component) {
+        /**
+         * Extract the sound resource from the component, and play it once.
+         * */
+        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int i, int i1) {
+                soundPool.play(i, 1, 1, 1, 0, 1);
+            }
+        });
+        soundPool.load(mContext, component.getResource(), 1);
     }
 
     @Override
@@ -257,6 +294,10 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
     }
 
     void check(String signature) {
+        /**
+         * Looks in kits/master and kits/user to see if the kit is there.
+         * Alerts if already present. Sends to askAndInsert() if not found.
+         * **/
         DatabaseReference mDatabase;
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mMasterListSearchResultsBack = false;
@@ -293,7 +334,6 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                 });
 
         mDatabase.child("kits").child("users").child(userID).child(signature)
-//        mDatabase.child("kits").child("master").child(signature)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -323,6 +363,9 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
     }
 
     void alert(String text1, String text2) {
+        /**
+         * Simple alert dialog
+         * **/
         final Dialog dialog = new Dialog(mContext);
 
         dialog.setContentView(R.layout.alert_dialog);
@@ -346,6 +389,9 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
     }
 
     void askAndInsert() {
+        /**
+         * Request Kit name, and save current kit to Firebase kits/users/user
+         * */
         final DatabaseReference mDatabase;
         mDatabase = FirebaseDatabase.getInstance().getReference();
 

@@ -6,7 +6,7 @@ import android.database.DataSetObserver;
 import android.support.v7.widget.RecyclerView;
 
 /**
- * Created by robert on 1/30/17.
+ * Basic CursorRecyclerView adapter. ComponentCursorAdapter extends from this.
  */
 
 

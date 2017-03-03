@@ -6,7 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Created by robert on 2/20/17.
+ * Class to represent Jam in Firebase
  */
 
 public class FirebaseJam {
@@ -16,9 +16,6 @@ public class FirebaseJam {
     String pattern;
     String signature;
 
-    public String getSignature() {
-        return signature;
-    }
 
     public void setSignature(String signature) {
         this.signature = signature;
@@ -92,6 +89,10 @@ public class FirebaseJam {
 
     public void setPattern(String pattern) {
         this.pattern = pattern;
+    }
+
+    public String getSignature() {
+        return signature;
     }
 
     private static String md5(String s) {

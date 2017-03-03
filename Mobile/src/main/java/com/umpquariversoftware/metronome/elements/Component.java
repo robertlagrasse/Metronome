@@ -6,7 +6,8 @@ import android.util.Log;
 import com.umpquariversoftware.metronome.database.dbContract;
 
 /**
- * Created by robert on 1/26/17.
+ * A component links a hexID to a resource for easy reference. Components are combined to
+ * build kits.
  */
 
 public class Component {
@@ -26,7 +27,6 @@ public class Component {
     public Component() {
         // Empty Constructor
     }
-
 
     public Component(Cursor cursor) {
         cursor.moveToFirst();

@@ -1,7 +1,7 @@
 package com.umpquariversoftware.metronome.UI;
 
 /**
- * Created by robert on 2/21/17.
+ * Basic Arraylist adapter.
  */
 
 import android.content.Context;
@@ -35,14 +35,11 @@ public class JamListAdapter extends RecyclerView.Adapter<JamListAdapter.ViewHold
         return vh;
     }
 
-
     @Override
     public void onBindViewHolder(JamListAdapter.ViewHolder viewHolder, int position) {
         String name = firebaseJams.get(position).getName();
-//        String tempo = String.valueOf(firebaseJams.get(position).getTempo());
 
         viewHolder.name.setText(name);
-        // viewHolder.tempo.setText(tempo);
     }
 
     @Override
@@ -58,14 +55,10 @@ public class JamListAdapter extends RecyclerView.Adapter<JamListAdapter.ViewHold
     public static class ViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
         public TextView name;
-        // public TextView tempo;
-
 
         public ViewHolder(View itemView) {
             super(itemView);
             name = (TextView) itemView.findViewById(R.id.jamName);
-            // tempo = (TextView) itemView.findViewById(R.id.jamTempo);
-
         }
 
         @Override

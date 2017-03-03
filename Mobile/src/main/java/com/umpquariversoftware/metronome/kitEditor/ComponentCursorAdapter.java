@@ -13,7 +13,7 @@ import com.umpquariversoftware.metronome.UI.CursorRecyclerViewAdapter;
 import com.umpquariversoftware.metronome.database.dbContract;
 
 /**
- * Created by robert on 2/18/17.
+ * CursorAdapter to marry rows in the components table to the recylerView
  */
 
 public class ComponentCursorAdapter extends CursorRecyclerViewAdapter<ComponentCursorAdapter.ViewHolder> {
@@ -34,17 +34,13 @@ public class ComponentCursorAdapter extends CursorRecyclerViewAdapter<ComponentC
 
     @Override
     public void onBindViewHolder(ComponentCursorAdapter.ViewHolder viewHolder, Cursor cursor) {
-
         String componentName = cursor.getString(cursor.getColumnIndex(dbContract.ComponentTable.NAME));
         viewHolder.componentName.setText(componentName);
-
     }
-
 
     public static class ViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
         public TextView componentName;
-
 
         public ViewHolder(View itemView) {
             super(itemView);

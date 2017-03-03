@@ -1,13 +1,12 @@
 package com.umpquariversoftware.metronome.FireBase;
 
 /**
- * Created by robert on 2/21/17.
+ * Class to represent Kit in Firebase.
  */
 
 public class FirebaseKit {
     private String name;
     private String signature;
-
 
     public FirebaseKit() {
     }
@@ -18,7 +17,6 @@ public class FirebaseKit {
     }
 
     public String getSignature() {
-
         return signature;
     }
 

@@ -10,6 +10,10 @@ import android.net.Uri;
 import android.util.Log;
 
 public class contentProvider extends ContentProvider {
+    /**
+     * Garden Variety Content Provider front-ending the local DB
+     * **/
+
     DatabaseManager databaseManager;
 
     final int COMPONENT = 0;
@@ -80,7 +84,6 @@ public class contentProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = databaseManager.getWritableDatabase();
         long _id = 0;
-        Log.e("contentProvider", "delete() calling uriSwitcher() with uri: " + uri.toString());
         switch (uriSwitcher(uri)) {
             case COMPONENT: {
                 _id = db.delete(dbContract.ComponentTable.TABLE_NAME, selection, selectionArgs);
@@ -100,7 +103,6 @@ public class contentProvider extends ContentProvider {
 
     @Override
     public String getType(Uri uri) {
-        Log.e("contentProvider", "getType() called with uri: " + uri.toString());
         return null;
     }
 
@@ -132,7 +134,6 @@ public class contentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        Log.e("contentProvider", "onCreate() called");
         databaseManager = new DatabaseManager(getContext());
         return false;
     }

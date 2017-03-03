@@ -1,7 +1,7 @@
 package com.umpquariversoftware.metronome.FireBase;
 
 /**
- * Created by robert on 2/21/17.
+ * Class to represent Pattern in Firebase
  */
 
 public class FirebasePattern {
@@ -18,7 +18,6 @@ public class FirebasePattern {
     }
 
     public String getSignature() {
-
         return signature;
     }
 

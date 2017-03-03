@@ -5,7 +5,9 @@ import android.util.Log;
 import java.util.Arrays;
 
 /**
- * A beat determines whether or not each of the six instruments should sound.
+ * A beat determines whether or not each of the eight instruments should sound.
+ * 8 Booleans get treated like any other 8 bits, rolled up into a single hex value,
+ * and used to represent the beat in a compact way.
  */
 
 public class Beat {
@@ -46,8 +48,6 @@ public class Beat {
 
     @Override
     public String toString() {
-        // combine boolean values to create a 2 digit hex value. Return that.
-        // maybe just return a single character?
         return "Beat{}";
     }
 

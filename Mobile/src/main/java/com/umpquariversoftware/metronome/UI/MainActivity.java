@@ -17,12 +17,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SnapHelper;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -137,47 +134,6 @@ public class MainActivity extends AppCompatActivity {
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
 
-        mAuth = FirebaseAuth.getInstance();
-        userIsLoggedIn = false;
-
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    // User is signed in
-                    userIsLoggedIn = true;
-                    setupToolbar();
-                    userID = user.getUid();
-                    grabData();
-
-                } else {
-                    setupToolbar();
-                    userIsLoggedIn = false;
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                                            new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-                                    .build(),
-                            RC_SIGN_IN);
-                }
-                // ...
-            }
-        };
-
-        mContext = this;
-
-        ConnectivityManager cm =
-                (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        registerReceiver(new MainActivity.networkStatusChangeReceiver(),
-                new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        networkIsConnected = activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting();
-
         SharedPreferences prefs = getSharedPreferences(getPackageName(), MODE_PRIVATE);
         if (prefs.getBoolean("firstrun", true)) {
             createComponentsTable();
@@ -189,32 +145,18 @@ public class MainActivity extends AppCompatActivity {
             beatServiceRunning = true;
         }
 
-        /***
-         * Setup some local resources for use offline
-         * Setup the UI
-         * Grab online data
-         ***/
+        mContext = this;
 
         createLocalResources();
+        setupNetworkMonitor();
+        authenticateUser();
         setupToolbar();
         tempoChooser();
         patternChooser();
         kitChooser();
         jamChooser();
         actionButton();
-
-        /**
-         * Get that money!
-         * */
-
-//         MobileAds.initialize(getApplicationContext(), "ca-app-pub-8040545141030965~5491821531");
-
-        AdView mAdView = (AdView) findViewById(R.id.adView);
-
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("74D61A4429900485751F374428FB6C95")
-                .build();
-        mAdView.loadAd(adRequest);
+        getThatMoney();
     }
 
     /**
@@ -222,6 +164,16 @@ public class MainActivity extends AppCompatActivity {
      **/
 
     private void createComponentsTable() {
+        /**
+         * Metronome comes preloaded with 75 sound files. This method creates
+         * a table of those resources in the local database. The HexID
+         * associated with each resourece is used as that component's
+         * signature elsewhere.
+         *
+         * 75 Sets of contentValues, rolled up into a single array list, and
+         * sent to the local database via content provider.
+         * */
+
         ContentValues contentValues;
         ArrayList<ContentValues> components = new ArrayList<>();
 
@@ -687,12 +639,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void launchBeatService() {
+        /**
+         * Launches the BeatService, which manages the timer.
+         * */
         Intent i = new Intent(this, BeatService.class);
         i.putExtra("jamID", 2L);
         startService(i);
     }
 
     void createLocalResources() {
+        /**
+         * Creates 4 patterns, 1 kit, and 4 Jams which are accessible to the user offline
+         * */
+
         mLocalPattern.add(new FirebasePattern(getResources().getString(R.string.one_beat_pattern_local), "01"));
         mLocalPattern.add(new FirebasePattern(getResources().getString(R.string.two_beat_pattern_local), "0102"));
         mLocalPattern.add(new FirebasePattern(getResources().getString(R.string.three_beat_pattern_local), "010102"));
@@ -708,7 +667,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void setupToolbar() {
         /**
-         * Setup the toolbar and its buttons
+         * Setup the toolbar and associated onClick listeners.
+         * Online features disappear if the user isn't logged in
+         * or the network is offline.
          * */
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -770,6 +731,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void tempoChooser() {
+        /**
+         * Setup the tempo slider for user input.
+         * TEMPO_OFFSET adjusts range. Set this to the minimum tempo
+         * */
         final int tempo = mJam.getTempo();
         SeekBar tempoBar = (SeekBar) findViewById(R.id.tempoBar);
         final TextView tempoDisplay = (TextView) findViewById(R.id.tempoDisplay);
@@ -800,6 +765,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void patternChooser() {
+
+        /**
+         * Setup recyclerView that allows user to select pattern.
+         * Snappy recyclerView will reports the view visible on scroll and responds there
+         * User will not have to click to make changes take affect.
+         * */
 
         final SnappyRecyclerView patternRecyclerView = (SnappyRecyclerView) findViewById(R.id.patternRecyclerView);
         patternRecyclerView.setHasFixedSize(true);
@@ -839,6 +810,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void kitChooser() {
+        /**
+         * setup recyclerView to allow user to change kit.
+         * onScrollListener responds and reports position when changed. No click required.
+         * */
+
+
         final SnappyRecyclerView kitRecyclerView = (SnappyRecyclerView) findViewById(R.id.kitRecyclerView);
         kitRecyclerView.setHasFixedSize(true);
         LinearLayoutManager kitLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
@@ -878,6 +855,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void jamChooser() {
+
+        /**
+         * setup recyclerView that allows user to select Jam.
+         * Jam selected by user is parsed for Kit, Pattern, and Tempo information.
+         * Kit, Pattern, and Tempo controls are adjusted to reflect newly selected kit.
+         * */
+
         final SnappyRecyclerView jamRecyclerView = (SnappyRecyclerView) findViewById(R.id.jamRecyclerView);
         jamRecyclerView.setHasFixedSize(true);
         final LinearLayoutManager jamLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
@@ -960,6 +944,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void actionButton() {
+        /**
+         * Setup Floating Action Button to start/stop metronome.
+         * **/
         FloatingActionButton startstop;
         startstop = (FloatingActionButton) findViewById(R.id.startStopButton);
         startstop.setOnClickListener(new View.OnClickListener() {
@@ -971,9 +958,24 @@ public class MainActivity extends AppCompatActivity {
         startstop.setContentDescription(getResources().getString(R.string.start_or_stop));
     }
 
+    public void getThatMoney(){
+        /**
+         * Setup AdMobs
+         * **/
+        //         MobileAds.initialize(getApplicationContext(), "ca-app-pub-8040545141030965~5491821531");
+
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("74D61A4429900485751F374428FB6C95")
+                .build();
+        mAdView.loadAd(adRequest);
+    }
+
     void grabData() {
         /**
-         * Initialize the ArrayLists
+         * Assemble arrayLists of Local Data, Master Data, and User Data for
+         * Patterns, Kits, and Jams. Master and User data comes from Firebase.
          * */
         mPatterns.clear();
         mMasterPatterns.clear();
@@ -1197,6 +1199,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sendBeatBroadcast(boolean fab) {
+        /**
+         * Send a message to the BeatService with new parameters.
+         * Boolean tells the service if the start/stop has been pushed,
+         * or the parameters have just been changed.
+         * */
+
         Intent intent = new Intent();
         intent.setAction("com.umpquariversoftware.metronome.STARTSTOP");
 
@@ -1220,7 +1228,10 @@ public class MainActivity extends AppCompatActivity {
      */
 
     public void shareJam() {
-        // Write to the shared jams folder everyone has access to
+        /**
+         * Fires off a basic share intent with the hex signature of the current Jam.
+         * Receiving party can search for this jam and replicate it on their end.
+         * */
 
         FirebaseJam fbj = new FirebaseJam(mJam);
         DatabaseReference mDatabase;
@@ -1237,10 +1248,8 @@ public class MainActivity extends AppCompatActivity {
 
     void sendJamToFirebase() {
         /**
-         * First, iterate through the mJam arrayList to see if the
-         * jam signature shows up there.
-         *
-         * Next, query Firebase for the jam in both master and user table
+         * Send the current Jam to the users's firebase account.
+         * First checks to make sure the Jam isn't already there.
          * */
 
         String signature = new FirebaseJam(mJam).getSignature();
@@ -1329,6 +1338,9 @@ public class MainActivity extends AppCompatActivity {
      */
 
     void alert(String text1, String text2) {
+        /**
+         * Basic Alert Dialog
+         * */
         final Dialog dialog = new Dialog(mContext);
 
         dialog.setContentView(R.layout.alert_dialog);
@@ -1351,6 +1363,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void askAndInsert() {
+        /**
+         * Queries for a name and saves jam to firebase using that name.
+         * */
         final DatabaseReference mDatabase;
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -1373,6 +1388,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addSharedJamFromFirebase(String signature) {
+        /**
+         * Writes a Jam to the shared firebase folder.
+         * */
         DatabaseReference mDatabase;
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -1414,6 +1432,60 @@ public class MainActivity extends AppCompatActivity {
         outState.putString("jamSignature", new FirebaseJam(mJam).getSignature());
     }
 
+    public void setupNetworkMonitor(){
+        /**
+         * Watches network state. Changes member level Boolean networkIsConnected if anything
+         * changes.
+         * **/
+
+        ConnectivityManager cm =
+                (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        registerReceiver(new MainActivity.networkStatusChangeReceiver(),
+                new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        networkIsConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+    }
+
+    public void authenticateUser(){
+
+        /**
+         * Authenticates user, and watches for changes.
+         *
+         * **/
+
+        mAuth = FirebaseAuth.getInstance();
+        userIsLoggedIn = false;
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    userIsLoggedIn = true;
+                    setupToolbar();
+                    userID = user.getUid();
+                    grabData();
+
+                } else {
+                    setupToolbar();
+                    userIsLoggedIn = false;
+                    startActivityForResult(
+                            AuthUI.getInstance()
+                                    .createSignInIntentBuilder()
+                                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                                            new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                                    .build(),
+                            RC_SIGN_IN);
+                }
+                // ...
+            }
+        };
+    }
+
     public class networkStatusChangeReceiver extends BroadcastReceiver {
 
         public networkStatusChangeReceiver() {
@@ -1441,6 +1513,7 @@ public class MainActivity extends AppCompatActivity {
             sendBeatBroadcast(true);
         }
     }
+
 
     @Override
     public void onResume() {

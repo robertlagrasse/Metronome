@@ -11,7 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 /**
- * A band has a name and members (instruments)
+ * A Kit is a collection of 8 components.
  */
 
 public class Kit {
@@ -71,10 +71,7 @@ public class Kit {
     }
 
     public boolean addComponent(Component component) {
-        // Verify there's room to add a new member
-        // add the member
         components.add(component);
-
         return false;
     }
 
@@ -84,7 +81,6 @@ public class Kit {
         return false;
     }
 
-
     public String getSignature() {
         StringBuilder stringBuilder = new StringBuilder();
         for (int x = 0; x < 8; ++x) {
@@ -92,6 +88,4 @@ public class Kit {
         }
         return stringBuilder.toString();
     }
-
-
 }
