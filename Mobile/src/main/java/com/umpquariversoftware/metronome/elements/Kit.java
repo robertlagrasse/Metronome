@@ -52,9 +52,9 @@ public class Kit {
             String componentName = cursor.getString(cursor.getColumnIndex(dbContract.ComponentTable.NAME));
             int resource = Integer.parseInt(cursor.getString(cursor.getColumnIndex(dbContract.ComponentTable.RESOURCE)));
             String hexID = cursor.getString(cursor.getColumnIndex(dbContract.ComponentTable.HEXID));
-//            Log.e("kitBuilder", "" + componentName + " " + resource);
             Component component = new Component(cursor);
             components.add(component);
+            cursor.close();
         }
     }
 

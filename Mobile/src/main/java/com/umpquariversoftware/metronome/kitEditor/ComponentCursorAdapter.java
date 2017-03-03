@@ -17,11 +17,9 @@ import com.umpquariversoftware.metronome.database.dbContract;
  */
 
 public class ComponentCursorAdapter extends CursorRecyclerViewAdapter<ComponentCursorAdapter.ViewHolder> {
-    private static Context mContext;
 
     public ComponentCursorAdapter(Context context, Cursor cursor) {
         super(context, cursor);
-        mContext = context;
     }
 
     @Override

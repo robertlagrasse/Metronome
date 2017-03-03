@@ -125,8 +125,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 69;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences(getPackageName(), MODE_PRIVATE);
         if (prefs.getBoolean("firstrun", true)) {
             createComponentsTable();
-            prefs.edit().putBoolean("firstrun", false).commit();
+            prefs.edit().putBoolean("firstrun", false).apply();
         }
 
         if (savedInstanceState == null) {
@@ -1513,7 +1511,6 @@ public class MainActivity extends AppCompatActivity {
             sendBeatBroadcast(true);
         }
     }
-
 
     @Override
     public void onResume() {

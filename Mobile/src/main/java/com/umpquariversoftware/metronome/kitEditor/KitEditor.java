@@ -100,7 +100,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                 null,
                 null);
         Component component = new Component(cursor);
-
+        cursor.close();
         mKit = new Kit();
         for (int x = 0; x < 8; ++x) {
             mKit.addComponent(component);
@@ -218,6 +218,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                                             null);
                             retCursor.moveToFirst();
                             Component component = new Component(retCursor);
+                            retCursor.close();
                             playSound(component);
                         }
                     }));
@@ -240,6 +241,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                         retCursor.moveToFirst();
                         // put that component in the Kit component(0)
                         Component component = new Component(retCursor);
+                        retCursor.close();
                         mKit.replaceComponent(finalX, component);
                     }
                 }
