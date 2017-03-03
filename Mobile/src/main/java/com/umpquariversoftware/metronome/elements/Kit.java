@@ -74,10 +74,9 @@ public class Kit {
         components.add(component);
     }
 
-    public boolean replaceComponent(int position, Component component) {
+    public void replaceComponent(int position, Component component) {
         components.remove(position);
         components.add(position, component);
-        return false;
     }
 
     public String getSignature() {
