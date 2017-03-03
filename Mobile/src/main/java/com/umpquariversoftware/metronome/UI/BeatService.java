@@ -47,7 +47,7 @@ public class BeatService extends IntentService {
     private static Boolean isRunning = false;
     private static Context mContext;
     private static Jam mJam;
-    static Timer mTimer = new Timer();
+    private static Timer mTimer = new Timer();
     static long mJamID = 0;
 
     public BeatService() {
