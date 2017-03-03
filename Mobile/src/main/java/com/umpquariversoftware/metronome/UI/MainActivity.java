@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
     Boolean beatServiceRunning = false;
     static Boolean networkIsConnected;
     static Boolean userIsLoggedIn;
-    private Toolbar toolbar;
+    Toolbar toolbar;
     Context mContext;
     String userID = "this_user";
     final int TEMPO_OFFSET = 30; // Seekbar starts at 0. Offset calibrates to minimum tempo.

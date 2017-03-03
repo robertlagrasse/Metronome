@@ -65,7 +65,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
     Boolean mMasterListSearchResultsBack = false;
     Boolean mUserListSearchResultsBack = false;
     String userID = "";
-    private Toolbar toolbar;
+    Toolbar toolbar;
 
     FirebaseKit mMasterListKit, mUserListKit;
 

@@ -66,7 +66,7 @@ public class PatternEditor extends AppCompatActivity {
     Beat beat = new Beat();
     Context mContext;
     String userID = "";
-    private Toolbar toolbar;
+    Toolbar toolbar;
     Boolean mMasterListSearchResultsBack = false;
     Boolean mUserListSearchResultsBack = false;
     FirebasePattern mUserListPattern, mMasterListPattern;
