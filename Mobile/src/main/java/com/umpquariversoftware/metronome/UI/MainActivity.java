@@ -100,20 +100,20 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
-    private ArrayList<FirebasePattern> mPatterns = new ArrayList<>();
-    private ArrayList<FirebasePattern> mMasterPatterns = new ArrayList<>();
-    private ArrayList<FirebasePattern> mUserPatterns = new ArrayList<>();
-    private ArrayList<FirebasePattern> mLocalPattern = new ArrayList<>();
+    private final ArrayList<FirebasePattern> mPatterns = new ArrayList<>();
+    private final ArrayList<FirebasePattern> mMasterPatterns = new ArrayList<>();
+    private final ArrayList<FirebasePattern> mUserPatterns = new ArrayList<>();
+    private final ArrayList<FirebasePattern> mLocalPattern = new ArrayList<>();
 
-    private ArrayList<FirebaseKit> mKits = new ArrayList<>();
-    private ArrayList<FirebaseKit> mUserKits = new ArrayList<>();
-    private ArrayList<FirebaseKit> mMasterKits = new ArrayList<>();
-    private ArrayList<FirebaseKit> mLocalKits = new ArrayList<>();
+    private final ArrayList<FirebaseKit> mKits = new ArrayList<>();
+    private final ArrayList<FirebaseKit> mUserKits = new ArrayList<>();
+    private final ArrayList<FirebaseKit> mMasterKits = new ArrayList<>();
+    private final ArrayList<FirebaseKit> mLocalKits = new ArrayList<>();
 
-    private ArrayList<FirebaseJam> mJams = new ArrayList<>();
-    private ArrayList<FirebaseJam> mUserJams = new ArrayList<>();
-    private ArrayList<FirebaseJam> mMasterJams = new ArrayList<>();
-    private ArrayList<FirebaseJam> mLocalJams = new ArrayList<>();
+    private final ArrayList<FirebaseJam> mJams = new ArrayList<>();
+    private final ArrayList<FirebaseJam> mUserJams = new ArrayList<>();
+    private final ArrayList<FirebaseJam> mMasterJams = new ArrayList<>();
+    private final ArrayList<FirebaseJam> mLocalJams = new ArrayList<>();
 
     private PatternListAdapter mPatternListAdapter;
     private KitListAdapter mKitListAdapter;

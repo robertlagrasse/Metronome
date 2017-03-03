@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * Implementation of App Widget functionality.
  */
 public class NewAppWidget extends AppWidgetProvider {
-    private static String WIDGET_RECEIVER_INTENT = "com.umpquariversoftware.metronome.STARTSTOP";
+    private static final String WIDGET_RECEIVER_INTENT = "com.umpquariversoftware.metronome.STARTSTOP";
 
 
     // This acts like a list adapter/viewholder

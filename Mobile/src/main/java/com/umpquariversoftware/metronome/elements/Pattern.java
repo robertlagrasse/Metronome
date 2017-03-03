@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 public class Pattern {
     private String name;
-    private ArrayList<Beat> beats;
+    private final ArrayList<Beat> beats;
 
     public Pattern() {
         this.name = "New Pattern";

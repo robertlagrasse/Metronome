@@ -62,7 +62,7 @@ import static com.umpquariversoftware.metronome.database.dbContract.buildPattern
 
 public class PatternEditor extends AppCompatActivity {
     private int currentBeat = 1;
-    private Pattern pattern = new Pattern("New Pattern", "01", null);
+    private final Pattern pattern = new Pattern("New Pattern", "01", null);
     private Beat beat = new Beat();
     private Context mContext;
     private String userID = "";

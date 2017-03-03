@@ -23,8 +23,8 @@ import java.util.ArrayList;
  */
 
 public class PatternListAdapter extends RecyclerView.Adapter<PatternListAdapter.ViewHolder> {
-    private Context mContext;
-    private ArrayList<FirebasePattern> firebasePatterns;
+    private final Context mContext;
+    private final ArrayList<FirebasePattern> firebasePatterns;
 
     public PatternListAdapter(ArrayList<FirebasePattern> firebasePatterns, Context mContext) {
         super();
@@ -93,9 +93,9 @@ public class PatternListAdapter extends RecyclerView.Adapter<PatternListAdapter.
 
     public static class ViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
-        CardView patternCardView;
-        GraphView patternGraphView;
-        TextView patternName;
+        final CardView patternCardView;
+        final GraphView patternGraphView;
+        final TextView patternName;
 
         ViewHolder(View itemView) {
             super(itemView);

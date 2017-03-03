@@ -69,11 +69,6 @@ public class BeatService extends IntentService {
         mContext = getApplicationContext();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
     private static void flip() {
         if (isRunning) {
             stopTimer();
