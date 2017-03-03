@@ -56,25 +56,26 @@ import static com.umpquariversoftware.metronome.database.dbContract.buildCompone
 
 public class KitEditor extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    final int COMPONENT_LOADER_ID = 4;
-    int mComponentCount = 1;
-    Kit mKit;
-    ComponentCursorAdapter mComponentCursorAdapter;
-    Cursor mComponentCursor;
-    Context mContext;
-    Boolean mMasterListSearchResultsBack = false;
-    Boolean mUserListSearchResultsBack = false;
-    String userID = "";
-    Toolbar toolbar;
+    private final int COMPONENT_LOADER_ID = 4;
+    private int mComponentCount = 1;
+    private Kit mKit;
+    private ComponentCursorAdapter mComponentCursorAdapter;
+    private Cursor mComponentCursor;
+    private Context mContext;
+    private Boolean mMasterListSearchResultsBack = false;
+    private Boolean mUserListSearchResultsBack = false;
+    private String userID = "";
+    private Toolbar toolbar;
 
-    FirebaseKit mMasterListKit, mUserListKit;
+    private FirebaseKit mMasterListKit;
+    private FirebaseKit mUserListKit;
 
-    AudioAttributes audioAttrib = new AudioAttributes.Builder()
+    private AudioAttributes audioAttrib = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_MEDIA)
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
             .build();
 
-    SoundPool soundPool = new SoundPool.Builder()
+    private SoundPool soundPool = new SoundPool.Builder()
             .setAudioAttributes(audioAttrib)
             .setMaxStreams(8)
             .build();
@@ -116,7 +117,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
 
     }
 
-    public void setupToolbar() {
+    private void setupToolbar() {
         /**
          * Buttons and onClick listeners
          * */
@@ -138,7 +139,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
         });
     }
 
-    public void setupFab() {
+    private void setupFab() {
         /**
          * Setup Fab/click listener
          * */
@@ -154,7 +155,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
         });
     }
 
-    public void getThatMoney(){
+    private void getThatMoney(){
         /**
          * Setup adMobs.
          * */
@@ -168,7 +169,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
         mAdView.loadAd(adRequest);
     }
 
-    public void setupComponentChooser() {
+    private void setupComponentChooser() {
         /**
          * We're setting up 8 recyclerViews that all feed from through the same
          * cursor adapter. The only difference between them is the position
@@ -253,7 +254,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
         }
     }
 
-    public void playSound(Component component) {
+    private void playSound(Component component) {
         /**
          * Extract the sound resource from the component, and play it once.
          * */
@@ -295,7 +296,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
 
     }
 
-    void check(String signature) {
+    private void check(String signature) {
         /**
          * Looks in kits/master and kits/user to see if the kit is there.
          * Alerts if already present. Sends to askAndInsert() if not found.
@@ -364,7 +365,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                 });
     }
 
-    void alert(String text1, String text2) {
+    private void alert(String text1, String text2) {
         /**
          * Simple alert dialog
          * **/
@@ -390,7 +391,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
         dialog.show();
     }
 
-    void askAndInsert() {
+    private void askAndInsert() {
         /**
          * Request Kit name, and save current kit to Firebase kits/users/user
          * */

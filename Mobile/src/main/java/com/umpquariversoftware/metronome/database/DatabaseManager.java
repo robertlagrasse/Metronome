@@ -10,7 +10,7 @@ import android.util.Log;
  * Created by robert on 1/26/17.
  */
 
-public class DatabaseManager extends SQLiteOpenHelper {
+class DatabaseManager extends SQLiteOpenHelper {
     private static final String TAG = "DatabaseManager";
 
     DatabaseManager(Context context) {

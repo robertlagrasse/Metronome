@@ -5,11 +5,11 @@ package com.umpquariversoftware.metronome.elements;
  * **/
 
 public class Jam {
-    Kit kit;
-    Pattern pattern;
-    int tempo;
-    String name;
-    int dbID;
+    private Kit kit;
+    private Pattern pattern;
+    private int tempo;
+    private String name;
+    private int dbID;
 
     public Jam() {
     }

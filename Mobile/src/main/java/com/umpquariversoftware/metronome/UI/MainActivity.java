@@ -123,6 +123,8 @@ public class MainActivity extends AppCompatActivity {
     Boolean mUserListSearchResultsBack = false;
     FirebaseJam mUserListJam, mMasterListJam;
 
+    networkStatusChangeReceiver mNSCR;
+
     private static final int RC_SIGN_IN = 69;
 
     @Override
@@ -1439,7 +1441,8 @@ public class MainActivity extends AppCompatActivity {
         ConnectivityManager cm =
                 (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        registerReceiver(new MainActivity.networkStatusChangeReceiver(),
+        mNSCR = new MainActivity.networkStatusChangeReceiver();
+        registerReceiver(mNSCR,
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
@@ -1534,6 +1537,7 @@ public class MainActivity extends AppCompatActivity {
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
+        unregisterReceiver(mNSCR);
     }
 
     @Override

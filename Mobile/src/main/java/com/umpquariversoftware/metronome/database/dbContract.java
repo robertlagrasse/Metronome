@@ -15,7 +15,7 @@ public class dbContract {
      * This section defines all things Uri related for the contract provider.
      * Any call to the CP should used one of the build*Uri() methods to define the Uri.
      */
-    public static final Uri CONTENT_AUTHORITY =
+    private static final Uri CONTENT_AUTHORITY =
             Uri.parse("content://com.umpquariversoftware.metronome");
 
 

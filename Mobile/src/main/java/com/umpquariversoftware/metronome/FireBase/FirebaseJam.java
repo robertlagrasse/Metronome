@@ -10,11 +10,11 @@ import java.security.NoSuchAlgorithmException;
  */
 
 public class FirebaseJam {
-    int tempo;
-    String name;
-    String kit;
-    String pattern;
-    String signature;
+    private int tempo;
+    private String name;
+    private String kit;
+    private String pattern;
+    private String signature;
 
 
     public void setSignature(String signature) {
