@@ -38,11 +38,7 @@ public class Beat {
 
         Arrays.fill(this.beat, Boolean.FALSE);
         for (int i = 0; i < key.length; i++) {
-            if (key[i] == '1') {
-                this.beat[key.length - 1 - i] = true;
-            } else {
-                this.beat[key.length - 1 - i] = false;
-            }
+            this.beat[key.length - 1 - i] = key[i] == '1';
         }
     }
 
