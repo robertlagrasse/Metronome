@@ -20,10 +20,12 @@ public class Kit {
     private final ArrayList<Component> components;
     private int databaseID;
 
+    @SuppressWarnings("unused")
     public int getDatabaseID() {
         return databaseID;
     }
 
+    @SuppressWarnings("unused")
     public void setDatabaseID(int databaseID) {
         this.databaseID = databaseID;
     }
@@ -62,6 +64,7 @@ public class Kit {
         return name;
     }
 
+    @SuppressWarnings("unused")
     public void setName(String name) {
         this.name = name;
     }

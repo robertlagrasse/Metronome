@@ -87,8 +87,8 @@ import static com.umpquariversoftware.metronome.database.dbContract.*;
 
 
 public class MainActivity extends AppCompatActivity {
-    String TAG = "MainActivity";
     private Jam mJam = new Jam();
+    @SuppressWarnings("unused")
     private Boolean beatServiceRunning = false;
     private static Boolean networkIsConnected;
     private static Boolean userIsLoggedIn;
@@ -120,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
     private JamListAdapter mJamListAdapter;
 
     private Boolean mMasterListSearchResultsBack = false;
+    @SuppressWarnings("unused")
     private Boolean mUserListSearchResultsBack = false;
     private FirebaseJam mUserListJam;
     private FirebaseJam mMasterListJam;

@@ -18,6 +18,7 @@ public class Pattern {
     private String name;
     private final ArrayList<Beat> beats;
 
+    @SuppressWarnings("unused")
     public Pattern() {
         this.name = "New Pattern";
         this.beats = new ArrayList<>();
@@ -43,10 +44,12 @@ public class Pattern {
         return getPatternHexSignature();
     }
 
+    @SuppressWarnings("unused")
     public void addBeat(Beat beat) {
         this.beats.add(beat);
     }
 
+    @SuppressWarnings("unused")
     public String getName() {
         return name;
     }
@@ -59,6 +62,7 @@ public class Pattern {
         return this.beats.size();
     }
 
+    @SuppressWarnings("unused")
     public void setName(String name) {
         this.name = name;
     }

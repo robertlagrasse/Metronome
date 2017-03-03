@@ -25,6 +25,7 @@ public class dbContract {
                 .build();
     }
 
+    @SuppressWarnings("unused")
     public static Uri buildKitUri() {
         return CONTENT_AUTHORITY.buildUpon()
                 .appendPath(KitTable.TABLE_NAME)
@@ -39,6 +40,7 @@ public class dbContract {
                 .build();
     }
 
+    @SuppressWarnings("unused")
     public static Uri buildPatternBySignatureURI(String sequence) {
         return buildPatternUri().buildUpon()
                 .appendPath(PatternTable.SEQUENCE)
@@ -46,12 +48,14 @@ public class dbContract {
                 .build();
     }
 
+    @SuppressWarnings("unused")
     public static Uri buildJamUri() {
         return CONTENT_AUTHORITY.buildUpon()
                 .appendPath(JamTable.TABLE_NAME)
                 .build();
     }
 
+    @SuppressWarnings("unused")
     public static Uri buildJamByAttributesUri(String tempo, String kit, String pattern) {
         return CONTENT_AUTHORITY.buildUpon().appendPath("attributes")
                 .appendPath(tempo)
@@ -72,6 +76,7 @@ public class dbContract {
                 .build();
     }
 
+    @SuppressWarnings("unused")
     public static Uri buildKitBySignatureUri(String signature) {
         return CONTENT_AUTHORITY.buildUpon().appendPath("kit_by_signature")
                 .appendPath(signature)

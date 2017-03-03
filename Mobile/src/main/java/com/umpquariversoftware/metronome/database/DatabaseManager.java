@@ -11,7 +11,6 @@ import android.util.Log;
  */
 
 class DatabaseManager extends SQLiteOpenHelper {
-    private static final String TAG = "DatabaseManager";
 
     DatabaseManager(Context context) {
         //super(context, name, factory, version); // original super.

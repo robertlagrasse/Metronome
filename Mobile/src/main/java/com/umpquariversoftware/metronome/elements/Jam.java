@@ -50,10 +50,12 @@ public class Jam {
         return 60000 / this.tempo;
     }
 
+    @SuppressWarnings("unused")
     public int getDbID() {
         return dbID;
     }
 
+    @SuppressWarnings("unused")
     public void setDbID(int dbID) {
         this.dbID = dbID;
     }

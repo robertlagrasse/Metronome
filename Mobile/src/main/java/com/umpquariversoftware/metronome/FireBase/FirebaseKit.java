@@ -20,6 +20,7 @@ public class FirebaseKit {
         return signature;
     }
 
+    @SuppressWarnings("unused")
     public void setSignature(String signature) {
         this.signature = signature;
     }
@@ -28,6 +29,7 @@ public class FirebaseKit {
         return name;
     }
 
+    @SuppressWarnings("unused")
     public void setName(String name) {
         this.name = name;
     }

@@ -17,6 +17,7 @@ public class FirebaseJam {
     private String signature;
 
 
+    @SuppressWarnings("unused")
     public void setSignature(String signature) {
         this.signature = signature;
     }
@@ -71,6 +72,7 @@ public class FirebaseJam {
         return tempo;
     }
 
+    @SuppressWarnings("unused")
     public void setTempo(int tempo) {
         this.tempo = tempo;
     }
@@ -79,6 +81,7 @@ public class FirebaseJam {
         return kit;
     }
 
+    @SuppressWarnings("unused")
     public void setKit(String kit) {
         this.kit = kit;
     }
@@ -87,6 +90,7 @@ public class FirebaseJam {
         return pattern;
     }
 
+    @SuppressWarnings("unused")
     public void setPattern(String pattern) {
         this.pattern = pattern;
     }
