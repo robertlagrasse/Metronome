@@ -14,20 +14,20 @@ public class contentProvider extends ContentProvider {
      * Garden Variety Content Provider front-ending the local DB
      * **/
 
-    DatabaseManager databaseManager;
+    private DatabaseManager databaseManager;
 
-    final int COMPONENT = 0;
-    final int ALL_KITS = 1;
-    final int KIT_BY_ID = 2;
-    final int ALL_PATTERNS = 3;
-    final int PATTERN_BY_ID = 4;
-    final int PATTERN_BY_SEQUENCE = 5;
-    final int ALL_JAMS = 6;
-    final int JAM_BY_ID = 7;
-    final int JAM_BY_ATTRIBUTES = 8;
-    final int COMPONENT_BY_DB_ID = 9;
-    final int ALL_COMPONENTS = 10;
-    final int KIT_BY_SIGNATURE = 11;
+    private final int COMPONENT = 0;
+    private final int ALL_KITS = 1;
+    private final int KIT_BY_ID = 2;
+    private final int ALL_PATTERNS = 3;
+    private final int PATTERN_BY_ID = 4;
+    private final int PATTERN_BY_SEQUENCE = 5;
+    private final int ALL_JAMS = 6;
+    private final int JAM_BY_ID = 7;
+    private final int JAM_BY_ATTRIBUTES = 8;
+    private final int COMPONENT_BY_DB_ID = 9;
+    private final int ALL_COMPONENTS = 10;
+    private final int KIT_BY_SIGNATURE = 11;
 
     public contentProvider() {
     }

@@ -48,7 +48,7 @@ public class BeatService extends IntentService {
     private static Context mContext;
     private static Jam mJam;
     private static Timer mTimer = new Timer();
-    static long mJamID = 0;
+    private static long mJamID = 0;
 
     public BeatService() {
         super("BeatService");
