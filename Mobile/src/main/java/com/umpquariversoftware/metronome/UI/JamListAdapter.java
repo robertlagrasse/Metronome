@@ -17,13 +17,10 @@ import com.umpquariversoftware.metronome.R;
 import java.util.ArrayList;
 
 public class JamListAdapter extends RecyclerView.Adapter<JamListAdapter.ViewHolder> {
-    private Context mContext;
     private ArrayList<FirebaseJam> firebaseJams;
 
-
-    public JamListAdapter(ArrayList<FirebaseJam> firebasejams, Context mContext) {
+    public JamListAdapter(ArrayList<FirebaseJam> firebasejams) {
         super();
-        this.mContext = mContext;
         this.firebaseJams = firebasejams;
     }
 

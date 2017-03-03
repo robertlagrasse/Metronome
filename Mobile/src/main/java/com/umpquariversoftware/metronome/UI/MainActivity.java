@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
     static Boolean networkIsConnected;
     static Boolean userIsLoggedIn;
     private Toolbar toolbar;
-    static Context mContext;
+    Context mContext;
     String userID = "this_user";
     final int TEMPO_OFFSET = 30; // Seekbar starts at 0. Offset calibrates to minimum tempo.
 
@@ -867,7 +867,7 @@ public class MainActivity extends AppCompatActivity {
         jamRecyclerView.setContentDescription(getResources().getString(R.string.swipe_left_or_right_to_change_jam));
         jamRecyclerView.setFocusable(true);
 
-        mJamListAdapter = new JamListAdapter(mJams, mContext);
+        mJamListAdapter = new JamListAdapter(mJams);
         jamRecyclerView.setAdapter(mJamListAdapter);
 
         jamRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
