@@ -84,7 +84,7 @@ public class PatternEditor extends AppCompatActivity {
         GraphView graph = (GraphView) findViewById(R.id.patternEditorGraph);
         graph.removeAllSeries();
 
-        PointsGraphSeries<DataPoint> series = new PointsGraphSeries<>();
+        PointsGraphSeries<DataPoint> series;
         //noinspection unchecked,unchecked
         series = pattern.getPatternDataPoints();
 

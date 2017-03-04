@@ -24,7 +24,7 @@ public class NewAppWidget extends AppWidgetProvider {
         CharSequence widgetText = context.getString(R.string.appwidget_text);
         // Construct the RemoteViews object
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.new_app_widget);
-        remoteViews.setTextViewText(R.id.widgetText, "Jam Name");
+        remoteViews.setTextViewText(R.id.widgetText, widgetText);
         remoteViews.setOnClickPendingIntent(R.id.widgetButton, getPendingSelfIntent(context, true));
 
         // Instruct the widget manager to update the widget

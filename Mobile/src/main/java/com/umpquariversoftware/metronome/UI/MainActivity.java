@@ -141,7 +141,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             launchBeatService();
-            Boolean beatServiceRunning = true;
         }
 
         mContext = this;

@@ -45,7 +45,7 @@ public class PatternListAdapter extends RecyclerView.Adapter<PatternListAdapter.
         String signature = firebasePatterns.get(position).getSignature();
 
         Pattern tempPattern = new Pattern(name, signature);
-        PointsGraphSeries<DataPoint> series = new PointsGraphSeries<>();
+        PointsGraphSeries<DataPoint> series;
         //noinspection unchecked
         series = tempPattern.getPatternDataPoints();
 

@@ -78,6 +78,7 @@ public class contentProvider extends ContentProvider {
         return -1;
     }
 
+    @SuppressWarnings("UnusedAssignment")
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = databaseManager.getWritableDatabase();
