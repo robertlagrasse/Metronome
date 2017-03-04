@@ -32,13 +32,13 @@
             android:name=".UI.BeatService"
             android:enabled="true"
             android:exported="true" />
-
+<!--
         <receiver android:name=".UI.BeatService$startStopReceiver">
             <intent-filter>
                 <action android:name="com.umpquariversoftware.metronome.STARTSTOP" />
             </intent-filter>
         </receiver>
-
+-->
         <activity android:name=".patternEditor.PatternEditor" />
         <activity android:name=".kitEditor.KitEditor" />
 

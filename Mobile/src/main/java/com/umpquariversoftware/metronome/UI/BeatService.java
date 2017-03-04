@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioAttributes;
 import android.media.SoundPool;
 import android.util.Log;
@@ -31,10 +32,10 @@ public class BeatService extends IntentService {
      * broadcast receiver.
      * */
 
-    private static Boolean isRunning = false;
-    private static Context mContext;
-    private static Jam mJam;
-    private static Timer mTimer = new Timer();
+    private Boolean isRunning = false;
+    private Jam mJam;
+    private Timer mTimer = new Timer();
+    private startStopReceiver mSSR;
 
     public BeatService() {
         super("BeatService");
@@ -44,18 +45,20 @@ public class BeatService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         mJam = new Jam();
         mJam.setTempo(60);
-        mJam.setKit(new Kit("temp", "0102030405060708", mContext));
+        mJam.setKit(new Kit("temp", "0102030405060708", getApplicationContext()));
         mJam.setPattern(new Pattern("temp", "01"));
+        mSSR = new startStopReceiver();
+        getApplicationContext().registerReceiver(mSSR,
+                new IntentFilter("com.umpquariversoftware.metronome.STARTSTOP"));
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
         isRunning = false;
-        mContext = getApplicationContext();
     }
 
-    private static void flip() {
+    private void flip() {
         if (isRunning) {
             stopTimer();
         } else {
@@ -63,7 +66,7 @@ public class BeatService extends IntentService {
         }
     }
 
-    private static void startTimer() {
+    private void startTimer() {
         /**
          * This is where the magic happens.
          * **/
@@ -74,8 +77,8 @@ public class BeatService extends IntentService {
          * Setup some basic audio attributes
          * */
         AudioAttributes audioAttrib = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .setUsage(AudioAttributes.USAGE_GAME)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .build();
 
         /**
@@ -101,7 +104,7 @@ public class BeatService extends IntentService {
         // Iterate through the kit
 
         for (int x = 0; x < 8; ++x) {
-            soundIDs.add(soundPool.load(mContext,
+            soundIDs.add(soundPool.load(getApplicationContext(),
                     mJam.getKit().getComponents().get(x).getResource(),
                     PRIORITY));
         }
@@ -144,14 +147,14 @@ public class BeatService extends IntentService {
         mTimer.scheduleAtFixedRate(tt, 0, mJam.getInterval());
     }
 
-    private static void stopTimer() {
+    private void stopTimer() {
         mTimer.cancel();
         mTimer.purge();
         mTimer = null;
         isRunning = false;
     }
 
-    public static class startStopReceiver extends BroadcastReceiver {
+    public class startStopReceiver extends BroadcastReceiver {
         /**
          * Receive jam information via intent extras.
          * Modify mJam.
@@ -168,7 +171,7 @@ public class BeatService extends IntentService {
             if (!widget) {
                 String name = intent.getStringExtra("jamName");
                 if (name == null) {
-                    name = mContext.getResources().getString(R.string.no_name);
+                    name = context.getResources().getString(R.string.no_name);
                 }
                 Pattern pattern = new Pattern("temp", intent.getStringExtra("pattern"));
                 int tempo = intent.getIntExtra("tempo", 60);
