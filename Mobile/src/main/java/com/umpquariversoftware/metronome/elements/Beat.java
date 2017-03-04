@@ -24,6 +24,7 @@ public class Beat {
     /**
      * Constructor turns all instruments off, except getFirst
      */
+    @SuppressWarnings("unused")
     public Beat() {
         Arrays.fill(this.beat, Boolean.FALSE);
         this.beat[FIRST] = true;

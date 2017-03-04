@@ -47,13 +47,12 @@ public class Kit {
                     null,
                     null,
                     null);
-            cursor.moveToFirst();
-            String componentName = cursor.getString(cursor.getColumnIndex(dbContract.ComponentTable.NAME));
-            int resource = Integer.parseInt(cursor.getString(cursor.getColumnIndex(dbContract.ComponentTable.RESOURCE)));
-            String hexID = cursor.getString(cursor.getColumnIndex(dbContract.ComponentTable.HEXID));
-            Component component = new Component(cursor);
-            components.add(component);
-            cursor.close();
+            if (cursor != null) {
+                cursor.moveToFirst();
+                Component component = new Component(cursor);
+                components.add(component);
+                cursor.close();
+            }
         }
     }
 

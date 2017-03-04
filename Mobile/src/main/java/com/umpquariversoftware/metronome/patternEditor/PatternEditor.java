@@ -49,10 +49,8 @@ import java.util.ArrayList;
 public class PatternEditor extends AppCompatActivity {
     private int currentBeat = 1;
     private final Pattern pattern = new Pattern("New Pattern", "01");
-    private Beat beat = new Beat();
     private Context mContext;
     private String userID = "";
-    private Toolbar toolbar;
     private Boolean mMasterListSearchResultsBack = false;
     private Boolean mUserListSearchResultsBack = false;
     private FirebasePattern mUserListPattern;
@@ -123,7 +121,7 @@ public class PatternEditor extends AppCompatActivity {
          * Build buttons and onClick listeners
          * */
 
-        toolbar = (Toolbar) findViewById(R.id.editor_toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.editor_toolbar);
         setSupportActionBar(toolbar);
 
         TextView title = (TextView) findViewById(R.id.activityDisplay);
@@ -277,7 +275,7 @@ public class PatternEditor extends AppCompatActivity {
         eighth.setFocusable(true);
         eighth.setContentDescription(getResources().getString(R.string.eight));
 
-        beat = pattern.getBeat(currentBeat - 1);
+        Beat beat = pattern.getBeat(currentBeat - 1);
         if (beat.getFirst()) {
             first.setImageResource(R.drawable.numeric_1_box);
         } else {

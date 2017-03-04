@@ -98,8 +98,12 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                 null,
                 null,
                 null);
-        Component component = new Component(cursor);
-        cursor.close();
+        Component component = null;
+        if(cursor!=null){
+            component = new Component(cursor);
+            cursor.close();
+        }
+
         mKit = new Kit();
         for (int x = 0; x < 8; ++x) {
             mKit.addComponent(component);
