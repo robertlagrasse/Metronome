@@ -3,6 +3,7 @@ package com.umpquariversoftware.metronome.patternEditor;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -510,7 +511,7 @@ public class PatternEditor extends AppCompatActivity {
                 .inputType(InputType.TYPE_CLASS_TEXT)
                 .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
                     @Override
-                    public void onInput(MaterialDialog dialog, CharSequence input) {
+                    public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
                         FirebasePattern fbp = new FirebasePattern(input.toString(), pattern.getPatternHexSignature());
                         mDatabase.child("patterns")
                                 .child("users")

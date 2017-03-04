@@ -696,7 +696,7 @@ public class MainActivity extends AppCompatActivity {
                             .inputType(InputType.TYPE_CLASS_TEXT)
                             .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
                                 @Override
-                                public void onInput(MaterialDialog dialog, CharSequence input) {
+                                public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
                                     if (input.length() > 0) {
                                         addSharedJamFromFirebase(input.toString());
                                     }
@@ -1373,7 +1373,7 @@ public class MainActivity extends AppCompatActivity {
                 .inputType(InputType.TYPE_CLASS_TEXT)
                 .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
                     @Override
-                    public void onInput(MaterialDialog dialog, CharSequence input) {
+                    public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
                         FirebaseJam fbj = new FirebaseJam(mJam);
                         fbj.setName(input.toString());
                         mDatabase.child("jams")

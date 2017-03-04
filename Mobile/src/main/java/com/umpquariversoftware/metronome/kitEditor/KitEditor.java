@@ -9,6 +9,7 @@ import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.media.AudioAttributes;
 import android.media.SoundPool;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -46,7 +47,7 @@ import static com.umpquariversoftware.metronome.database.dbContract.buildCompone
 /**
  * KitEditor is an activity that allows the user to build their own kit.
  * 8 RecyclerViews are built and populated from the components table
- * Each of these recycerViews represents a specific component in the overall 8 piece kit.
+ * Each of these recyclerViews represents a specific component in the overall 8 piece kit.
  * Scrolling to the item assigns it to the kit. Tapping the item plays the associated sound
  *
  * Kits saved in this activity go straight to firebase. The mainActivity pulls updates
@@ -219,10 +220,13 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                                             null,
                                             null,
                                             null);
-                            retCursor.moveToFirst();
-                            Component component = new Component(retCursor);
-                            retCursor.close();
-                            playSound(component);
+                            Component component;
+                            if(retCursor!=null){
+                                retCursor.moveToFirst();
+                                component = new Component(retCursor);
+                                retCursor.close();
+                                playSound(component);
+                            }
                         }
                     }));
         }
@@ -241,11 +245,13 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                                         null,
                                         null,
                                         null);
-                        retCursor.moveToFirst();
-                        // put that component in the Kit component(0)
-                        Component component = new Component(retCursor);
-                        retCursor.close();
-                        mKit.replaceComponent(finalX, component);
+                        Component component;
+                        if(retCursor!=null){
+                            retCursor.moveToFirst();
+                            component = new Component(retCursor);
+                            retCursor.close();
+                            mKit.replaceComponent(finalX, component);
+                        }
                     }
                 }
             });
@@ -405,7 +411,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
                 .inputType(InputType.TYPE_CLASS_TEXT)
                 .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
                     @Override
-                    public void onInput(MaterialDialog dialog, CharSequence input) {
+                    public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
                         FirebaseKit fbk = new FirebaseKit(input.toString(), mKit.getSignature());
                         mDatabase.child("kits")
                                 .child("users")
