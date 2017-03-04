@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
         /**
          * Metronome comes preloaded with 75 sound files. This method creates
          * a table of those resources in the local database. The HexID
-         * associated with each resourece is used as that component's
+         * associated with each resource is used as that component's
          * signature elsewhere.
          *
          * 75 Sets of contentValues, rolled up into a single array list, and

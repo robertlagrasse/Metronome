@@ -27,7 +27,7 @@ public class BeatService extends IntentService {
      * metronome application - fire up the metronome, then flip to
      * another app to look at the music they're going to play.
      *
-     * Activites that want to interact with the timer do so thorough a
+     * Activities that want to interact with the timer do so thorough a
      * broadcast receiver.
      * */
 

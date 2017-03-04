@@ -13,7 +13,7 @@ import com.umpquariversoftware.metronome.UI.CursorRecyclerViewAdapter;
 import com.umpquariversoftware.metronome.database.dbContract;
 
 /**
- * CursorAdapter to marry rows in the components table to the recylerView
+ * CursorAdapter to marry rows in the components table to the recyclerView
  */
 
 public class ComponentCursorAdapter extends CursorRecyclerViewAdapter<ComponentCursorAdapter.ViewHolder> {
