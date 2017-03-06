@@ -19,10 +19,12 @@
 
 # Add this global rule
 -keepattributes Signature
-
+-keep class com.google.** {*;}
 # This rule will properly ProGuard all the model classes in
 # the package com.yourcompany.models. Modify to fit the structure
 # of your app.
 -keepclassmembers class com.umpquariversoftware.metronome.** {
   *;
 }
+
+-keep class com.umpquariversoftware.metronome.** {     *; }
