@@ -23,7 +23,7 @@
         </receiver>
 
         <provider
-            android:name=".database.contentProvider"
+            android:name=".database.ContentProvider"
             android:authorities="com.umpquariversoftware.metronome"
             android:enabled="true"
             android:exported="true" />

@@ -3,10 +3,10 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         config {
-            keyAlias 'keyAlias'
-            keyPassword '22February1974'
-            storeFile file('/home/robert/AndroidProjects/Metronome/metronome_keystore.jks')
-            storePassword '22February1974'
+            keyAlias 'alias'
+            keyPassword 'password'
+            storeFile file('/home/robert/AndroidProjects/Metronome/newKeyStore.jks')
+            storePassword 'password'
         }
     }
     lintOptions { checkReleaseBuilds false }

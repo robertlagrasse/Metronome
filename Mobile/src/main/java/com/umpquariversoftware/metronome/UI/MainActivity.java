@@ -53,7 +53,7 @@ import com.umpquariversoftware.metronome.patternEditor.PatternEditor;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static com.umpquariversoftware.metronome.database.dbContract.*;
+import static com.umpquariversoftware.metronome.database.DbContract.*;
 
 /**
  * OVERVIEW

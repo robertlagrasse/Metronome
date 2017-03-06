@@ -2,7 +2,7 @@ package com.umpquariversoftware.metronome.elements;
 
 import android.database.Cursor;
 
-import com.umpquariversoftware.metronome.database.dbContract;
+import com.umpquariversoftware.metronome.database.DbContract;
 
 /**
  * A component links a hexID to a resource for easy reference. Components are combined to
@@ -25,9 +25,9 @@ public class Component {
 
     public Component(Cursor cursor) {
         cursor.moveToFirst();
-        this.name = cursor.getString(cursor.getColumnIndex(dbContract.ComponentTable.NAME));
-        this.resource = Integer.parseInt(cursor.getString(cursor.getColumnIndex(dbContract.ComponentTable.RESOURCE)));
-        this.hexID = cursor.getString(cursor.getColumnIndex(dbContract.ComponentTable.HEXID));
+        this.name = cursor.getString(cursor.getColumnIndex(DbContract.ComponentTable.NAME));
+        this.resource = Integer.parseInt(cursor.getString(cursor.getColumnIndex(DbContract.ComponentTable.RESOURCE)));
+        this.hexID = cursor.getString(cursor.getColumnIndex(DbContract.ComponentTable.HEXID));
     }
 
     @SuppressWarnings("unused")

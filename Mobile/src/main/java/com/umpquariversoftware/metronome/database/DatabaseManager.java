@@ -12,24 +12,24 @@ class DatabaseManager extends SQLiteOpenHelper {
 
     DatabaseManager(Context context) {
         //super(context, name, factory, version); // original super.
-        super(context, dbContract.DATABASE_NAME, null, dbContract.DATABASE_VERSION);
+        super(context, DbContract.DATABASE_NAME, null, DbContract.DATABASE_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(dbContract.ComponentTable.CREATE_TABLE);
-        db.execSQL(dbContract.KitTable.CREATE_TABLE);
-        db.execSQL(dbContract.PatternTable.CREATE_TABLE);
-        db.execSQL(dbContract.JamTable.CREATE_TABLE);
+        db.execSQL(DbContract.ComponentTable.CREATE_TABLE);
+        db.execSQL(DbContract.KitTable.CREATE_TABLE);
+        db.execSQL(DbContract.PatternTable.CREATE_TABLE);
+        db.execSQL(DbContract.JamTable.CREATE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // delete the existing database
-        db.execSQL("DROP TABLE IF EXISTS " + dbContract.ComponentTable.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + dbContract.KitTable.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + dbContract.PatternTable.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + dbContract.JamTable.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + DbContract.ComponentTable.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + DbContract.KitTable.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + DbContract.PatternTable.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + DbContract.JamTable.TABLE_NAME);
         // call onCreate
         onCreate(db);
     }

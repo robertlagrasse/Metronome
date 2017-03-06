@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.umpquariversoftware.metronome.R;
 import com.umpquariversoftware.metronome.UI.CursorRecyclerViewAdapter;
-import com.umpquariversoftware.metronome.database.dbContract;
+import com.umpquariversoftware.metronome.database.DbContract;
 
 /**
  * CursorAdapter to marry rows in the components table to the recyclerView
@@ -31,7 +31,7 @@ public class ComponentCursorAdapter extends CursorRecyclerViewAdapter<ComponentC
 
     @Override
     public void onBindViewHolder(ComponentCursorAdapter.ViewHolder viewHolder, Cursor cursor) {
-        String componentName = cursor.getString(cursor.getColumnIndex(dbContract.ComponentTable.NAME));
+        String componentName = cursor.getString(cursor.getColumnIndex(DbContract.ComponentTable.NAME));
         viewHolder.componentName.setText(componentName);
     }
 
