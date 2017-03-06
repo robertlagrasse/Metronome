@@ -4,10 +4,10 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
- * Standard DbContract
+ * Standard StandardDbContract
  */
 
-public class DbContract {
+public class StandardDbContract {
     /**
      * This section defines all things Uri related for the contract provider.
      * Any call to the CP should used one of the build*Uri() methods to define the Uri.

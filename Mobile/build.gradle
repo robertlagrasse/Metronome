@@ -5,7 +5,7 @@ android {
         config {
             keyAlias 'alias'
             keyPassword 'password'
-            storeFile file('/home/robert/AndroidProjects/Metronome/newKeyStore.jks')
+            storeFile file('/home/robert/AndroidProjects/Metronome/Mobile/keystore.jks')
             storePassword 'password'
         }
     }

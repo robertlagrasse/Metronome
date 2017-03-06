@@ -3,7 +3,7 @@ package com.umpquariversoftware.metronome.elements;
 import android.content.Context;
 import android.database.Cursor;
 
-import com.umpquariversoftware.metronome.database.DbContract;
+import com.umpquariversoftware.metronome.database.StandardDbContract;
 
 import java.util.ArrayList;
 
@@ -42,7 +42,7 @@ public class Kit {
         char[] sig = signature.toCharArray();
         for (int x = 0; x < signature.length(); x += 2) {
             String pick = String.valueOf(sig[x]) + sig[x + 1];
-            Cursor cursor = context.getContentResolver().query(DbContract.buildComponentUri().buildUpon().appendPath(pick).build(),
+            Cursor cursor = context.getContentResolver().query(StandardDbContract.buildComponentUri().buildUpon().appendPath(pick).build(),
                     null,
                     null,
                     null,

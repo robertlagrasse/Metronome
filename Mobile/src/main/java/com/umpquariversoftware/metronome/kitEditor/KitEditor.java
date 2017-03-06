@@ -35,14 +35,14 @@ import com.umpquariversoftware.metronome.FireBase.FirebaseKit;
 import com.umpquariversoftware.metronome.R;
 import com.umpquariversoftware.metronome.UI.RecyclerViewItemClickListener;
 import com.umpquariversoftware.metronome.UI.SnappyRecyclerView;
-import com.umpquariversoftware.metronome.database.DbContract;
+import com.umpquariversoftware.metronome.database.StandardDbContract;
 import com.umpquariversoftware.metronome.elements.Component;
 import com.umpquariversoftware.metronome.elements.Kit;
 
 import java.util.ArrayList;
 
-import static com.umpquariversoftware.metronome.database.DbContract.buildAllComponentsUri;
-import static com.umpquariversoftware.metronome.database.DbContract.buildComponentByDbIDUri;
+import static com.umpquariversoftware.metronome.database.StandardDbContract.buildAllComponentsUri;
+import static com.umpquariversoftware.metronome.database.StandardDbContract.buildComponentByDbIDUri;
 
 /**
  * KitEditor is an activity that allows the user to build their own kit.
@@ -94,7 +94,7 @@ public class KitEditor extends AppCompatActivity implements LoaderManager.Loader
          * This is our starting point
          * **/
 
-        Cursor cursor = getContentResolver().query(DbContract.buildComponentByDbIDUri(1),
+        Cursor cursor = getContentResolver().query(StandardDbContract.buildComponentByDbIDUri(1),
                 null,
                 null,
                 null,
