@@ -3,7 +3,7 @@ Udacity Review Issues:
 DONE - 1 Code Readability and Naming Conventions. Issues with naming conventions and spacing/readability
 DONE - 2 Accessibility Support. Include D-Pad and Content Descriptions
 DONE - 3 All strings go in strings.xml. There are a few stragglers. Eliminate them.
-4 signing certification and installRelease task
+DONE ? 4 signing certification and installRelease task
 
 
 
