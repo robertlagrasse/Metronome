@@ -1427,7 +1427,7 @@ public class MainActivity extends AppCompatActivity {
 
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("jamSignature", new FirebaseJam(mJam).getSignature());
+        outState.putString("jamSignature", "irrelevant");
     }
 
     private void setupNetworkMonitor(){
